@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Traits\HasUuid;
@@ -7,24 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class ProgramStudi extends Model
+class Admin extends Model
 {
     use HasFactory, SoftDeletes, HasUuid;
 
-    protected $table = 'program_studi';
+    protected $table = 'admin';
 
     protected $fillable = [
-    'nama',
-    'fakultas'
+    'user_id',
+    'jabatan',
+    'no_telepon',
+    'alamat'
 ];
 
-    public function mahasiswa()
+    public function user()
     {
-        return $this->hasMany(Mahasiswa::class);
-    }
-
-    public function alumni()
-    {
-        return $this->hasMany(Alumni::class);
+        return $this->belongsTo(User::class);
     }
 }

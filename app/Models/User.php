@@ -13,8 +13,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes, HasUuid;
 
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
         'name', 'email', 'password',

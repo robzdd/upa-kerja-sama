@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alumnis', function (Blueprint $table) {
+        Schema::create('artikels', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignUuid('program_studi_id')->nullable()->constrained('program_studis')->nullOnDelete();
-            $table->string('nim')->nullable()->index();
-            $table->year('tahun_lulus')->nullable();
-            $table->string('pekerjaan_terakhir')->nullable();
-            $table->string('alamat')->nullable();
+            $table->foreignUuid('kategori_id')->nullable()->constrained('kategori_artikels')->nullOnDelete();
+            $table->string('judul');
+            $table->text('konten');
+            $table->string('thumbnail')->nullable();
             $table->timestamps();
             $table->softDeletes();
-});
-
+        });
     }
 
     /**
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alumnis');
+        Schema::dropIfExists('artikels');
     }
 };

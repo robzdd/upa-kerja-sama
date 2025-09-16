@@ -11,18 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alumnis', function (Blueprint $table) {
+        Schema::create('mitra_perusahaans', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignUuid('program_studi_id')->nullable()->constrained('program_studis')->nullOnDelete();
-            $table->string('nim')->nullable()->index();
-            $table->year('tahun_lulus')->nullable();
-            $table->string('pekerjaan_terakhir')->nullable();
-            $table->string('alamat')->nullable();
+            $table->string('nama_perusahaan');
+            $table->string('logo')->nullable();
+            $table->string('sektor')->nullable();
+            $table->string('kontak')->nullable();
+            $table->string('tautan')->nullable();
+            $table->date('mulai_kerjasama')->nullable();
+            $table->date('akhir_kerjasama')->nullable();
             $table->timestamps();
             $table->softDeletes();
-});
-
+        });
     }
 
     /**
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alumnis');
+        Schema::dropIfExists('mitra_perusahaans');
     }
 };

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Traits\HasUuid;
@@ -7,30 +6,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Alumni extends Model
+class MitraPerusahaan extends Model
 {
     use HasFactory, SoftDeletes, HasUuid;
 
-    protected $table = 'alumnis';
+    protected $table = 'mitra_perusahaan';
 
     protected $fillable = [
-        'user_id',
-        'program_studi_id',
-        'nim',
-        'nama',
-        'angkatan',
-        'deskripsi_diri'
-    ];
+    'user_id',
+    'nama_perusahaan',
+    'logo',
+    'sektor',
+    'kontak',
+    'tautan',
+    'mulai_kerjasama',
+    'akhir_kerjasama'
+];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function programStudi()
+    public function lowongan()
     {
-        return $this->belongsTo(ProgramStudi::class);
+        return $this->hasMany(LowonganPekerjaan::class, 'mitra_id');
     }
-
 }
-
