@@ -21,8 +21,38 @@ class User extends Authenticatable
     protected $hidden = ['password', 'remember_token'];
 
     // Relasi
+    public function mahasiswa()
+    {
+        return $this->hasOne(Mahasiswa::class);
+    }
+
     public function alumni()
     {
         return $this->hasOne(Alumni::class);
+    }
+
+    public function admin()
+    {
+        return $this->hasOne(Admin::class);
+    }
+
+    public function mitra()
+    {
+        return $this->hasOne(MitraPerusahaan::class);
+    }
+
+    public function artikel()
+    {
+        return $this->hasMany(Artikel::class);
+    }
+
+    public function pelamaran()
+    {
+        return $this->hasMany(Pelamar::class);
+    }
+
+    public function dokumenPublik()
+    {
+        return $this->hasMany(DokumenPublik::class);
     }
 }

@@ -15,7 +15,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('mitra_id')->constrained('mitra_perusahaans')->onDelete('cascade');
             $table->string('judul');
-            $table->string('posisi')->nullable();
+            $table->string('tipe_lowongan');
+            $table->string('jenis_pekerjaan');
+            $table->string('pendidikan');
+            $table->string('persyaratan_dokumen');
             $table->text('deskripsi');
             $table->string('lokasi')->nullable();
             $table->date('tanggal_mulai')->nullable();
