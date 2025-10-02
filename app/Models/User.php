@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasUuid;
+    use HasFactory, Notifiable, SoftDeletes, HasUuid, HasRoles;
 
 
     protected $fillable = [
