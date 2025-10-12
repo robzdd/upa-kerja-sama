@@ -1,24 +1,17 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artikel - Portal Kerja POLINDRA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-    <!-- Include Navbar -->
-    @include('components.navbar')
+@extends('alumni.layouts.app')
 
+@section('title', 'Artikel - Portal Kerja POLINDRA')
+
+@section('content')
     <!-- Hero Section with Search -->
     <div class="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 text-white py-20">
         <div class="container mx-auto px-6">
             <!-- Search Bar -->
             <div class="max-w-2xl mx-auto">
                 <div class="bg-white rounded-lg shadow-xl flex items-center">
-                    <input 
-                        type="text" 
-                        placeholder="Cari artikel..." 
+                    <input
+                        type="text"
+                        placeholder="Cari artikel..."
                         class="flex-1 px-6 py-4 text-gray-800 rounded-l-lg focus:outline-none"
                     >
                     <button class="px-4 py-4 text-gray-500 hover:text-gray-700 transition">
@@ -47,7 +40,7 @@
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 <!-- Image Placeholder -->
                 <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                
+
                 <!-- Content -->
                 <div class="p-5">
                     <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
@@ -173,41 +166,4 @@
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- UPA-KERJASAMA -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">UPA-KERJASAMA</h3>
-                </div>
-
-                <!-- Karir -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Karir</h3>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white transition">Cari lowongan</a></li>
-                        <li><a href="#" class="hover:text-white transition">Cari artikel</a></li>
-                        <li><a href="#" class="hover:text-white transition">Daftar Perusahaan</a></li>
-                    </ul>
-                </div>
-
-                <!-- Tentang Portal Karir -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Tentang Portal Karir</h3>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white transition">Tentang kami</a></li>
-                        <li><a href="#" class="hover:text-white transition">Dokumen publik</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Copyright -->
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>© 2025 POLINDRA. All rights reserved</p>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+@endsection

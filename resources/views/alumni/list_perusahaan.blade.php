@@ -1,30 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List Perusahaan - Portal Kerja POLINDRA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .company-card {
-            transition: all 0.3s ease;
-        }
-        .company-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .company-card:hover .company-logo {
-            transform: scale(1.1);
-        }
-        .company-logo {
-            transition: transform 0.3s ease;
-        }
-    </style>
-</head>
-<body class="bg-gray-50">
-    <!-- Include Navbar -->
-    @include('components.navbar')
+@extends('alumni.layouts.app')
 
+@section('title', 'List Perusahaan - Portal Kerja POLINDRA')
+
+@section('content')
     <!-- Hero Section with Banner -->
     <div class="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 text-white py-16">
         <div class="container mx-auto px-6">
@@ -37,9 +15,9 @@
             <div class="container mx-auto px-6">
                 <div class="bg-white rounded-lg shadow-xl p-4 -mb-28 relative z-10">
                     <div class="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
-                        <input 
-                            type="text" 
-                            placeholder="Nama perusahaan..." 
+                        <input
+                            type="text"
+                            placeholder="Nama perusahaan..."
                             class="w-full col-span-5 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
                         >
                         <select class="w-full col-span-4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800">
@@ -77,13 +55,13 @@
                     <div class="company-logo w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
                         <span class="text-3xl font-bold text-gray-400">PT</span>
                     </div>
-                    
+
                     <!-- Company Name -->
                     <h3 class="text-lg font-bold text-gray-800 mb-2">PT Mencari Cinta Sejati Tbk</h3>
-                    
+
                     <!-- Company Type -->
                     <p class="text-sm text-gray-600 mb-4">Jasa Teknologi</p>
-                    
+
                     <!-- Company Website -->
                     <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +69,7 @@
                         </svg>
                         <span class="truncate">perusahaanpertama.polindra.com</span>
                     </div>
-                    
+
                     <!-- Job Count -->
                     <div class="flex items-center space-x-2 text-sm text-blue-600 font-semibold">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,41 +211,4 @@
             </button>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-16">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <!-- UPA-KERJASAMA -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">UPA-KERJASAMA</h3>
-                </div>
-
-                <!-- Karir -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Karir</h3>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white transition">Cari lowongan</a></li>
-                        <li><a href="#" class="hover:text-white transition">Cari artikel</a></li>
-                        <li><a href="#" class="hover:text-white transition">Daftar Perusahaan</a></li>
-                    </ul>
-                </div>
-
-                <!-- Tentang Portal Karir -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Tentang Portal Karir</h3>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white transition">Tentang kami</a></li>
-                        <li><a href="#" class="hover:text-white transition">Dokumen publik</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Copyright -->
-            <div class="border-t border-gray-700 pt-8 text-center text-gray-400 text-sm">
-                <p>© 2025 POLINDRA. All rights reserved</p>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+@endsection

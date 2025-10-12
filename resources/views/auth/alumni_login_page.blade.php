@@ -10,22 +10,22 @@
     <!-- Left Side - Image Section -->
     <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <!-- Background Image -->
-        <img 
-            src="{{ Storage::url('images/polindra.png')}}"
-            alt="POLINDRA Background" 
+        <img
+            src="{{ asset('images/bg/polindra.png') }}"
+            alt="POLINDRA Background"
             class="absolute inset-0 w-full h-full object-cover"
         >
-        
+
         <!-- Overlay Gradient -->
         <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/70 to-blue-700/60"></div>
-        
+
         <div class="relative z-10 flex flex-col justify-between p-12 text-white w-full">
             <!-- Logo/Brand -->
             <div>
                 <h1 class="text-2xl font-bold mb-2">UPA KERJASAMA<br/>POLINDRA</h1>
             </div>
-            
-            
+
+
             <!-- Bottom Text -->
             <div>
                 <h2 class="text-3xl font-bold mb-2">Dekatkan dirimu dengan</h2>
@@ -55,10 +55,10 @@
                     @csrf
                     <!-- Email Input -->
                     <div class="mb-4">
-                        <input 
-                            type="email" 
+                        <input
+                            type="email"
                             name="email"
-                            placeholder="Email" 
+                            placeholder="Email"
                             required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         >
@@ -66,10 +66,10 @@
 
                     <!-- Password Input -->
                     <div class="mb-2">
-                        <input 
-                            type="password" 
+                        <input
+                            type="password"
                             name="password"
-                            placeholder="Password" 
+                            placeholder="Password"
                             required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         >
@@ -81,7 +81,7 @@
                     </div>
 
                     <!-- Login Button -->
-                    <button 
+                    <button
                         type="submit"
                         class="w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg font-semibold hover:from-blue-800 hover:to-purple-600 transition duration-300 shadow-lg hover:shadow-xl"
                     >
@@ -99,7 +99,7 @@
                 <!-- Google Login Button -->
 
                 <a href="{{ route('google.login') }}" class="btn btn-danger">
-                    <button 
+                    <button
                         type="button"
                         class="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition duration-300"
                     >
@@ -112,7 +112,7 @@
                         Masuk dengan Google
                     </button>
                 </a>
-                
+
 
                 <!-- Register Link -->
                 <div class="text-center mt-6">

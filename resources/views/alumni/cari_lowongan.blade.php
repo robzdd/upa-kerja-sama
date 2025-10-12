@@ -1,24 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cari Lowongan - Portal Kerja POLINDRA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .job-card {
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        .job-card.active {
-            box-shadow: 0 0 0 3px transparent;
-            background: linear-gradient(white, white) padding-box,
-                        linear-gradient(to bottom, #1e3a8a, #7c3aed) border-box;
-            border: 3px solid transparent;
-        }
-    </style>
-</head>
-<body class="bg-gray-50">
+@extends('alumni.layouts.app')
+
+@section('title', 'Cari Lowongan - Portal Kerja POLINDRA')
+
+@section('content')
     <!-- Header Section with Gradient Background -->
     <div class="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 text-white pb-32 relative">
         <!-- Navbar -->
@@ -43,19 +27,19 @@
         <div class="bg-white rounded-xl shadow-2xl p-6">
             <!-- Search Filters -->
             <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
-                <input 
-                    type="text" 
-                    placeholder="Posisi" 
+                <input
+                    type="text"
+                    placeholder="Posisi"
                     class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm"
                 >
-                <input 
-                    type="text" 
-                    placeholder="Perusahaan" 
+                <input
+                    type="text"
+                    placeholder="Perusahaan"
                     class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm"
                 >
-                <input 
-                    type="text" 
-                    placeholder="Lokasi" 
+                <input
+                    type="text"
+                    placeholder="Lokasi"
                     class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm"
                 >
                 <select class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm">
@@ -97,166 +81,57 @@
     <div class="container mx-auto px-6 pb-16">
         <!-- Stats -->
         <div class="mb-6 flex justify-between items-center">
-            <p class="text-gray-700 text-sm">Posisi tersedia: 500 | Total Juli: 3000</p>
+            <p class="text-gray-700 text-sm">Posisi tersedia: {{ $totalLowongan }} | Total Pelamar: {{ $totalPelamar }}</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <!-- Left Side - Job Listings (40%) -->
             <div class="lg:col-span-2 space-y-4">
-                <!-- Job Card 1 - Active -->
-                <div class="job-card active bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition cursor-pointer" onclick="selectJob(this)">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">UI/UX DESIGNER</h3>
-                            <p class="text-gray-600 text-sm mb-3">PT. Mencari Cinta Sejati HRD</p>
+                @forelse($lowongan as $index => $job)
+                    <div class="job-card {{ $index === 0 ? 'active' : '' }} bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition cursor-pointer border-l-4 {{ $index === 0 ? 'border-blue-500' : 'border-transparent' }}"
+                         onclick="selectJob(this, '{{ $job->id }}')">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-800 mb-1">{{ $job->judul }}</h3>
+                                <p class="text-gray-600 text-sm mb-3">{{ $job->mitra->nama_perusahaan }}</p>
+                            </div>
+                            <button class="text-blue-600 text-sm font-semibold">Simpan ♥</button>
                         </div>
-                        <button class="text-blue-600 text-sm font-semibold">Simpan ♥</button>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <span>Kabupaten 3, Indonesia Jawa</span>
-                        </div>
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Contract (Kontrak Kerja)</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">Fresh Graduate</span>
-                    </div>
-                </div>
 
-                <!-- Job Card 2 -->
-                <div class="job-card bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition cursor-pointer border-l-4 border-transparent" onclick="selectJob(this)">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">UI/UX DESIGNER</h3>
-                            <p class="text-gray-600 text-sm mb-3">PT. Mencari Cinta Sejati HRD</p>
+                        <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>{{ $job->lokasi }}</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>{{ $job->jenis_pekerjaan }}</span>
+                            </div>
                         </div>
-                        <button class="text-blue-600 text-sm font-semibold">Simpan ♥</button>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <span>Kabupaten 3, Indonesia Jawa</span>
-                        </div>
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Contract (Kontrak Kerja)</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">Fresh Graduate</span>
-                    </div>
-                </div>
 
-                <!-- Job Card 3 -->
-                <div class="job-card bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition cursor-pointer border-l-4 border-transparent" onclick="selectJob(this)">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">UI/UX DESIGNER</h3>
-                            <p class="text-gray-600 text-sm mb-3">PT. Mencari Cinta Sejati HRD</p>
+                        <div class="flex gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">{{ $job->jenjang_pendidikan }}</span>
+                            @if($job->pengalaman_minimal)
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">{{ $job->pengalaman_minimal }}</span>
+                            @endif
                         </div>
-                        <button class="text-blue-600 text-sm font-semibold">Simpan ♥</button>
                     </div>
-                    
-                    <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                @empty
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <span>Kabupaten 3, Indonesia Jawa</span>
                         </div>
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Contract (Kontrak Kerja)</span>
-                        </div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2">Tidak ada lowongan ditemukan</h3>
+                        <p class="text-gray-600">Coba ubah filter pencarian Anda</p>
                     </div>
-                    
-                    <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">Fresh Graduate</span>
-                    </div>
-                </div>
-
-                <!-- Job Card 4 -->
-                <div class="job-card bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition cursor-pointer border-l-4 border-transparent" onclick="selectJob(this)">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">UI/UX DESIGNER</h3>
-                            <p class="text-gray-600 text-sm mb-3">PT. Mencari Cinta Sejati HRD</p>
-                        </div>
-                        <button class="text-blue-600 text-sm font-semibold">Simpan ♥</button>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <span>Kabupaten 3, Indonesia Jawa</span>
-                        </div>
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Contract (Kontrak Kerja)</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">Fresh Graduate</span>
-                    </div>
-                </div>
-
-                <!-- Job Card 5 -->
-                <div class="job-card bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition cursor-pointer border-l-4 border-transparent" onclick="selectJob(this)">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">UI/UX DESIGNER</h3>
-                            <p class="text-gray-600 text-sm mb-3">PT. Mencari Cinta Sejati HRD</p>
-                        </div>
-                        <button class="text-blue-600 text-sm font-semibold">Simpan ♥</button>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <span>Kabupaten 3, Indonesia Jawa</span>
-                        </div>
-                        <div class="flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Contract (Kontrak Kerja)</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">Fresh Graduate</span>
-                    </div>
-                </div>
+                @endforelse
 
                 <!-- Pagination -->
                 <div class="flex justify-center items-center space-x-2 mt-8">
@@ -271,134 +146,281 @@
 
             <!-- Right Side - Job Detail (60%) -->
             <div class="lg:col-span-3">
-                <div class="bg-white rounded-lg shadow-lg p-8 sticky top-6">
-                    <!-- Company Logo Placeholder -->
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <span class="text-2xl font-bold text-gray-400">PT</span>
+                <div class="bg-white rounded-lg shadow-lg p-8 sticky top-6" id="job-detail">
+                    @if($lowongan->count() > 0)
+                        @php $firstJob = $lowongan->first(); @endphp
+                        <!-- Company Logo Placeholder -->
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <span class="text-2xl font-bold text-gray-400">{{ substr($firstJob->mitra->nama_perusahaan, 0, 2) }}</span>
+                            </div>
+                            <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-5 py-2 rounded-lg hover:from-blue-800 hover:to-purple-600 transition text-sm font-semibold">
+                                {{ $firstJob->jenis_pekerjaan }}
+                            </button>
                         </div>
-                        <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-5 py-2 rounded-lg hover:from-blue-800 hover:to-purple-600 transition text-sm font-semibold">
-                            Part-Time
+
+                        <!-- Posisi & Peringatan -->
+                        <div class="mb-4">
+                            <span class="text-xs text-red-500">1 Posisi - {{ $firstJob->jumlah_pelamar }} Pelamar</span>
+                        </div>
+
+                        <!-- Job Title -->
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ $firstJob->judul }}</h2>
+                        <p class="text-gray-600 mb-4">{{ $firstJob->mitra->nama_perusahaan }}</p>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">{{ $firstJob->jenjang_pendidikan }}</span>
+                            @if($firstJob->pengalaman_minimal)
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">{{ $firstJob->pengalaman_minimal }}</span>
+                            @endif
+                        </div>
+
+                        <!-- Apply Button -->
+                        <button class="w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6">
+                            Daftar Sekarang
                         </button>
-                    </div>
 
-                    <!-- Posisi & Peringatan -->
-                    <div class="mb-4">
-                        <span class="text-xs text-red-500">1 Posisi - 500 Pelamar</span>
-                    </div>
+                        <!-- Job Details -->
+                        <div class="space-y-5 mb-6">
+                            <div class="flex items-start space-x-3">
+                                <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-1">Pendidikan</h4>
+                                    <p class="text-sm text-gray-600">Jenjang Pendidikan: {{ $firstJob->jenjang_pendidikan }}</p>
+                                    @if($firstJob->jurusan_diizinkan && count($firstJob->jurusan_diizinkan) > 0)
+                                        <p class="text-sm text-gray-600">Jurusan: {{ implode(', ', $firstJob->jurusan_diizinkan) }}</p>
+                                    @endif
+                                </div>
+                            </div>
 
-                    <!-- Job Title -->
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">UI/UX DESIGNER</h2>
-                    <p class="text-gray-600 mb-4">PT. Mencari Cinta Sejati HRD</p>
+                            @if($firstJob->persyaratan_dokumen && count($firstJob->persyaratan_dokumen) > 0)
+                                <div class="flex items-start space-x-3">
+                                    <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 mb-1">Persyaratan Dokumen</h4>
+                                        <ul class="text-sm text-gray-600">
+                                            @foreach($firstJob->persyaratan_dokumen as $dokumen)
+                                                <li>• {{ $dokumen }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            @endif
 
-                    <!-- Tags -->
-                    <div class="flex flex-wrap gap-2 mb-6">
-                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">Desain Lowongan</span>
-                    </div>
-
-                    <!-- Apply Button -->
-                    <button class="w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6">
-                        Daftar Sekarang
-                    </button>
-
-                    <!-- Job Details -->
-                    <div class="space-y-5 mb-6">
-                        <div class="flex items-start space-x-3">
-                            <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 mb-1">Pendidikan</h4>
-                                <p class="text-sm text-gray-600">Jenjang Pendidikan: S1, TI</p>
-                                <p class="text-sm text-gray-600">Jurusan: Teknik Informatika, Sistem Informasi, Rekayasa Perangkat Lunak</p>
+                            <div class="flex items-start space-x-3">
+                                <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-1">Tanggal Penting</h4>
+                                    @if($firstJob->tanggal_penerimaan_lamaran)
+                                        <p class="text-sm text-gray-600">• Penerimaan lamaran: {{ \Carbon\Carbon::parse($firstJob->tanggal_penerimaan_lamaran)->format('d F Y') }}</p>
+                                    @endif
+                                    @if($firstJob->tanggal_pengumuman)
+                                        <p class="text-sm text-gray-600">• Pengumuman: {{ \Carbon\Carbon::parse($firstJob->tanggal_pengumuman)->format('d F Y') }}</p>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex items-start space-x-3">
-                            <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 mb-1">Persyaratan Dokumen</h4>
-                                <ul class="text-sm text-gray-600">
-                                    <li>• Portfolio</li>
-                                    <li>• Portfolio</li>
-                                    <li>• Sertifikat</li>
-                                    <li>• Sertifikat</li>
-                                </ul>
-                            </div>
+                        <!-- Description -->
+                        <div class="border-t pt-6">
+                            <h3 class="font-bold text-gray-800 mb-3">Rincian Lowongan</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                {{ $firstJob->rincian_lowongan }}
+                            </p>
                         </div>
-
-                        <div class="flex items-start space-x-3">
-                            <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 mb-1">Tanggal Penting</h4>
-                                <p class="text-sm text-gray-600">• Penerimaan lamaran: 28 Januari 2025</p>
-                                <p class="text-sm text-gray-600">• Pengumuman waktu: 28 Desember 2025</p>
+                    @else
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
                             </div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">Pilih lowongan untuk melihat detail</h3>
+                            <p class="text-gray-600">Klik pada salah satu lowongan di sebelah kiri untuk melihat detail</p>
                         </div>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="border-t pt-6">
-                        <h3 class="font-bold text-gray-800 mb-3">Rincian Lowongan</h3>
-                        <p class="text-sm text-gray-600 leading-relaxed">
-                            Lorem ipsum dolor sit amet consectetur. Leo massa purus maecenas vestibulum nibh placeat minima et iste fuga. Officia totam et ratione mollitia, consequatur, enim ex vero explicabo blanditiis voluptate. Maecenas cursus tempor suspendisse. Massa id cursus natus vel ligula sed amet sagittis.
-                        </p>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-16">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <!-- UPA-KERJASAMA -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">UPA-KERJASAMA</h3>
-                </div>
-
-                <!-- Karir -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Karir</h3>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white transition">Cari lowongan</a></li>
-                        <li><a href="#" class="hover:text-white transition">Cari artikel</a></li>
-                        <li><a href="#" class="hover:text-white transition">Daftar Perusahaan</a></li>
-                    </ul>
-                </div>
-
-                <!-- Tentang Portal Karir -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Tentang Portal Karir</h3>
-                    <ul class="space-y-2 text-gray-300">
-                        <li><a href="#" class="hover:text-white transition">Tentang kami</a></li>
-                        <li><a href="#" class="hover:text-white transition">Dokumen publik</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Copyright -->
-            <div class="border-t border-gray-700 pt-8 text-center text-gray-400 text-sm">
-                <p>© 2025 POLINDRA. All rights reserved</p>
-            </div>
-        </div>
-    </footer>
-
     <script>
-        function selectJob(element) {
+        function selectJob(element, jobId) {
+            console.log('Selecting job with ID:', jobId);
+
             // Remove active class from all job cards
             document.querySelectorAll('.job-card').forEach(card => {
                 card.classList.remove('active');
+                card.classList.remove('border-blue-500');
+                card.classList.add('border-transparent');
             });
-            
+
             // Add active class to clicked card
             element.classList.add('active');
+            element.classList.remove('border-transparent');
+            element.classList.add('border-blue-500');
+
+            // Fetch job details and update the right side
+            fetchJobDetails(jobId);
+        }
+
+        function fetchJobDetails(jobId) {
+            console.log('Fetching job details for ID:', jobId);
+
+            // Show loading state
+            const jobDetailContainer = document.getElementById('job-detail');
+            jobDetailContainer.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-blue-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Memuat Detail Lowongan...</h3>
+                    <p class="text-gray-600">Mohon tunggu sebentar</p>
+                </div>
+            `;
+
+            fetch(`/alumni/lowongan/${jobId}/details`)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Job details received:', data);
+                    updateJobDetail(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching job details:', error);
+                    // Show error message to user
+                    jobDetailContainer.innerHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">Error Loading Job Details</h3>
+                            <p class="text-gray-600">Gagal memuat detail lowongan. Silakan coba lagi.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function updateJobDetail(job) {
+            const jobDetailContainer = document.getElementById('job-detail');
+
+            // Format dates
+            const formatDate = (dateString) => {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            };
+
+            // Format jurusan array
+            const formatJurusan = (jurusanArray) => {
+                if (!jurusanArray || jurusanArray.length === 0) return '';
+                return jurusanArray.join(', ');
+            };
+
+            // Format persyaratan dokumen
+            const formatDokumen = (dokumenArray) => {
+                if (!dokumenArray || dokumenArray.length === 0) return '';
+                return dokumenArray.map(doc => `• ${doc}`).join('<br>');
+            };
+
+            jobDetailContainer.innerHTML = `
+                <!-- Company Logo Placeholder -->
+                <div class="flex justify-between items-start mb-6">
+                    <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl font-bold text-gray-400">${job.mitra.nama_perusahaan.substring(0, 2)}</span>
+                    </div>
+                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-5 py-2 rounded-lg hover:from-blue-800 hover:to-purple-600 transition text-sm font-semibold">
+                        ${job.jenis_pekerjaan}
+                    </button>
+                </div>
+
+                <!-- Posisi & Peringatan -->
+                <div class="mb-4">
+                    <span class="text-xs text-red-500">1 Posisi - ${job.jumlah_pelamar} Pelamar</span>
+                </div>
+
+                <!-- Job Title -->
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">${job.judul}</h2>
+                <p class="text-gray-600 mb-4">${job.mitra.nama_perusahaan}</p>
+
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">${job.jenjang_pendidikan}</span>
+                    ${job.pengalaman_minimal ? `<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">${job.pengalaman_minimal}</span>` : ''}
+                </div>
+
+                <!-- Apply Button -->
+                <button class="w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6">
+                    Daftar Sekarang
+                </button>
+
+                <!-- Job Details -->
+                <div class="space-y-5 mb-6">
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Pendidikan</h4>
+                            <p class="text-sm text-gray-600">Jenjang Pendidikan: ${job.jenjang_pendidikan}</p>
+                            ${formatJurusan(job.jurusan_diizinkan) ? `<p class="text-sm text-gray-600">Jurusan: ${formatJurusan(job.jurusan_diizinkan)}</p>` : ''}
+                        </div>
+                    </div>
+
+                    ${job.persyaratan_dokumen && job.persyaratan_dokumen.length > 0 ? `
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Persyaratan Dokumen</h4>
+                            <div class="text-sm text-gray-600">
+                                ${formatDokumen(job.persyaratan_dokumen)}
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Tanggal Penting</h4>
+                            ${job.tanggal_penerimaan_lamaran ? `<p class="text-sm text-gray-600">• Penerimaan lamaran: ${formatDate(job.tanggal_penerimaan_lamaran)}</p>` : ''}
+                            ${job.tanggal_pengumuman ? `<p class="text-sm text-gray-600">• Pengumuman: ${formatDate(job.tanggal_pengumuman)}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="border-t pt-6">
+                    <h3 class="font-bold text-gray-800 mb-3">Rincian Lowongan</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        ${job.rincian_lowongan}
+                    </p>
+                </div>
+            `;
         }
     </script>
-</body>
-</html>
+@endsection

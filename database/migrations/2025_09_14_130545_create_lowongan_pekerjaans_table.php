@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lowongan_pekerjaans', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('mitra_id')->constrained('mitra_perusahaans')->onDelete('cascade');
+            $table->foreignUuid('mitra_id')->constrained('mitra_perusahaan')->onDelete('cascade');
             $table->string('judul');
             $table->string('posisi')->nullable();
             $table->text('deskripsi');

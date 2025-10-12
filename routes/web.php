@@ -2,38 +2,73 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Mitra\MitraDashboardController;
+use App\Http\Controllers\Mitra\Auth\MitraLoginController;
+use App\Http\Controllers\Alumni\Auth\AlumniAuthController;
+use App\Http\Controllers\Alumni\ProfileController;
 
-Route::get('/', function () {
-    return view('welcome');
+// ====================
+//  HALAMAN UMUM
+// ====================
+Route::get('/', fn() => view('welcome'))->name('home');
+
+Route::get('/artikel', fn() => view('alumni.artikel_page'))->name('artikel.page');
+Route::get('/alumni/tentang_kami', fn() => view('alumni.tentang_kami'))->name('alumni.tentang_kami');
+
+// ====================
+//  LOGIN GOOGLE (UMUM)
+// ====================
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+
+// ====================
+//  ALUMNI ROUTES
+// ====================
+Route::prefix('alumni')->name('alumni.')->group(function () {
+
+    // ---------- AUTH ----------
+    Route::controller(AlumniAuthController::class)->group(function () {
+        Route::get('/login', 'showLoginForm')->name('login');
+        Route::post('/login', 'login')->name('login.submit');
+        Route::post('/logout', 'logout')->name('logout');
+    });
+
+    // ---------- HALAMAN PUBLIK ----------
+    Route::get('/beranda', fn() => view('alumni.dashboard_alumni'))->name('beranda');
+    Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('cari_lowongan');
+    Route::get('/lowongan/{id}/details', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
+    Route::get('/list_perusahaan', fn() => view('alumni.list_perusahaan'))->name('list_perusahaan');
+
+    // ---------- HALAMAN LOGIN PROTECTED ----------
+    Route::middleware(['auth', 'role:alumni'])->group(function () {
+        Route::get('/dashboard', fn() => view('alumni.dashboard_alumni'))->name('dashboard');
+        // Profile Routes
+        Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile/cv/download', [ProfileController::class, 'downloadCv'])->name('profile.cv.download');
+        Route::get('/profile/cv/view', [ProfileController::class, 'viewCv'])->name('profile.cv.view');
+        Route::delete('/profile/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 });
 
-Route::get('/alumni/login', function () {
-    return view('alumni.alumni_login_page');
-})->name('alumni.login');
+// ====================
+//  MITRA ROUTES
+// ====================
+Route::prefix('mitra')->name('mitra.')->group(function () {
 
-Route::get('/alumni/dashboard', function () {
-    return view('alumni.dasboard_alumni');
-})->name('alumni.dashboard');
+    // ---------- AUTH ----------
+    Route::controller(MitraLoginController::class)->group(function () {
+        Route::get('/login', 'showLoginForm')->name('login');
+        Route::post('/login', 'login')->name('login.submit');
+        Route::post('/logout', 'logout')->name('logout');
+    });
 
-Route::get('/alumni/cari_lowongan', function () {
-    return view('alumni.cari_lowongan');
-})->name('alumni.cari_lowongan');
+    // ---------- DASHBOARD ----------
+    Route::middleware(['auth:mitra', 'role:mitra'])->group(function () {
+        Route::get('/dashboard', [MitraDashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/alumni/list_perusahaan', function () {
-    return view('alumni.list_perusahaan');
-})->name('alumni.list_perusahaan');
-
-
-Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
-Route::get('/artikel', function () {
-    return view('alumni.artikel_page');
-})->name('artikel.page');
-
-Route::get('alumni/beranda', function () {
-    return view('alumni.beranda_alumni');
-})->name('alumni.beranda');
-
-Route::get('/alumni/tentang_kami', function () {
-    return view('alumni.tentang_kami');
-})->name('alumni.tentang_kami');
+        // Job Posting Routes
+        Route::resource('lowongan', \App\Http\Controllers\Mitra\LowonganController::class);
+    });
+});

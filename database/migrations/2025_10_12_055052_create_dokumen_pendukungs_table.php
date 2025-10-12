@@ -11,23 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mahasiswa', function (Blueprint $table) {
+        Schema::create('dokumen_pendukungs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignUuid('program_studi_id')->nullable()->constrained('program_studis')->nullOnDelete();
-            $table->string('nim')->unique();
-            $table->year('angkatan')->nullable();
-            $table->string('alamat')->nullable();
+            $table->foreignUuid('alumni_id')->constrained('alumnis')->onDelete('cascade');
+            $table->string('tipe_dokumen'); // ijazah, transkrip, sertifikat, dll
+            $table->string('nama_dokumen');
+            $table->string('path_file');
+            $table->integer('ukuran_file'); // dalam byte
             $table->timestamps();
             $table->softDeletes();
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('mahasiswas');
+        Schema::dropIfExists('dokumen_pendukungs');
     }
 };

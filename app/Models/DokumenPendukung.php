@@ -7,23 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class ProgramStudi extends Model
+
+class DokumenPendukung extends Model
 {
     use HasFactory, SoftDeletes, HasUuid;
 
-    protected $table = 'program_studis';
-
+    protected $table = 'dokumen_pendukungs';
     protected $fillable = [
-        'program_studi',
-];
-
-    public function mahasiswa()
-    {
-        return $this->hasMany(Mahasiswa::class);
-    }
+        'alumni_id',
+        'tipe_dokumen',
+        'nama_dokumen',
+        'path_file',
+        'ukuran_file',
+    ];
 
     public function alumni()
     {
-        return $this->hasMany(Alumni::class);
+        return $this->belongsTo(Alumni::class);
     }
 }
