@@ -19,24 +19,10 @@
                     <h3 class="text-xl font-bold text-gray-800">{{ $user->name }}</h3>
                     <p class="text-sm text-gray-600 mt-1">{{ $user->email }}</p>
                 </div>
-
                 <!-- Edit Profile Button -->
                 <button class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all mb-4">
                     Ubah Profil
                 </button>
-
-                <!-- Premium Section -->
-                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
-                    <div class="flex items-start space-x-3">
-                        <svg class="w-5 h-5 text-purple-600 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-purple-900">Coba Premium Sekarang!</p>
-                            <p class="text-xs text-purple-700 mt-1">Buka akses ke fitur premium eksklusif</p>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Divider -->
                 <hr class="my-4">
@@ -57,64 +43,17 @@
                     </a>
                     <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
                         <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Pelatihan</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Riwayat Pembayaran</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span class="text-sm font-medium">Sertifikat Mogang</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Preferensi Mogang</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Event</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Riwayat Uang Saku</span>
+                        <span class="text-sm font-medium">Sertifikat Magang</span>
                     </a>
                     <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
                         <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span class="text-sm font-medium">Pengatasan Keamanan</span>
+                        <span class="text-sm font-medium">Pengaturan Keamanan</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Lapor (Support)</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Simulasi Wawancara</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Manusia Pengguna</span>
-                    </a>
+
                     <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-red-600">
                         <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -166,18 +105,6 @@
                 </div>
             </div>
 
-            <!-- AI Analysis Section -->
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow p-6 mb-6 text-white">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold mb-2">✨ AI Analisis CV Berkualitas Bersama AI by Magenta</h3>
-                        <p class="text-blue-100 text-sm">Dapatkan analisis mendalam tentang kualitas CV Anda dengan AI canggih</p>
-                    </div>
-                    <a href="#" class="px-4 py-2 bg-cyan-400 text-blue-900 font-semibold rounded-lg hover:bg-cyan-300 transition-colors text-sm flex-shrink-0">
-                        Analisis CV ✨
-                    </a>
-                </div>
-            </div>
 
             <!-- Tabs -->
             <div class="border-b border-gray-200 mb-6">
@@ -189,10 +116,10 @@
                         Data Akademik
                     </button>
                     <button class="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium text-sm">
-                        Data Keahlian
+                        Data Keluarga
                     </button>
                     <button class="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium text-sm">
-                        Diskumen
+                        Dokumen
                     </button>
                 </div>
             </div>
@@ -230,23 +157,23 @@
                     <div class="space-y-4">
                         <div>
                             <label class="text-sm font-medium text-gray-600">Nama Bank</label>
-                            <p class="text-gray-800 mt-1">Bank Tagapan Negara</p>
+                            <p class="text-gray-800 mt-1">{{ $user->alumni->nama_bank }}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-600">No Rekening</label>
-                            <p class="text-gray-800 mt-1">3231212123</p>
+                            <p class="text-gray-800 mt-1">{{ $user->alumni->no_rekening }}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-600">Alamat Tempat Tinggal</label>
-                            <p class="text-gray-800 mt-1">Krosok, Kab. Indragiri, Jawa Barat</p>
+                            <p class="text-gray-800 mt-1">{{ $user->alumni->alamat }}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-600">Tempat Lahir</label>
-                            <p class="text-gray-800 mt-1">5 March 2006</p>
+                            <p class="text-gray-800 mt-1">{{ $user->alumni->tempat_lahir }}, {{ $user->alumni->tanggal_lahir }}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-600">No Handphone</label>
-                            <p class="text-gray-800 mt-1">No Handphone</p>
+                            <p class="text-gray-800 mt-1">{{ $user->alumni->no_hp }}</p>
                         </div>
                     </div>
                 </div>
