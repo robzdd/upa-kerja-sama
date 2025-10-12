@@ -13,7 +13,7 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $query = LowonganPekerjaan::with('mitraPerusahaan')
+        $query = LowonganPekerjaan::with('mitra')
             ->where('status_aktif', true)
             ->orderBy('created_at', 'desc');
 
@@ -24,7 +24,7 @@ class JobController extends Controller
                 $q->where('judul', 'like', "%{$search}%")
                   ->orWhere('deskripsi', 'like', "%{$search}%")
                   ->orWhere('lokasi', 'like', "%{$search}%")
-                  ->orWhereHas('mitraPerusahaan', function ($subQ) use ($search) {
+                  ->orWhereHas('mitra', function ($subQ) use ($search) {
                       $subQ->where('nama_perusahaan', 'like', "%{$search}%");
                   });
             });
@@ -32,7 +32,11 @@ class JobController extends Controller
 
         $jobs = $query->get();
 
-        return response()->json($jobs);
+        return response()->json([
+            'success' => true,
+            'data' => $jobs,
+            'message' => 'Data lowongan berhasil diambil'
+        ]);
     }
 
     /**
@@ -40,17 +44,22 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job = LowonganPekerjaan::with('mitraPerusahaan')
+        $job = LowonganPekerjaan::with('mitra')
             ->where('id', $id)
             ->where('status_aktif', true)
             ->first();
 
         if (!$job) {
             return response()->json([
+                'success' => false,
                 'message' => 'Lowongan tidak ditemukan',
             ], 404);
         }
 
-        return response()->json($job);
+        return response()->json([
+            'success' => true,
+            'data' => $job,
+            'message' => 'Detail lowongan berhasil diambil'
+        ]);
     }
 }
