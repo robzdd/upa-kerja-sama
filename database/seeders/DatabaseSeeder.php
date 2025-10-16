@@ -70,6 +70,28 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // Create Additional Mitra User requested: perusahaan@example.com
+        $perusahaanUser = User::firstOrCreate(
+            ['email' => 'perusahaan@example.com'],
+            [
+                'name' => 'PT. Perusahaan Contoh',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $perusahaanUser->assignRole('mitra');
+
+        MitraPerusahaan::firstOrCreate(
+            ['user_id' => $perusahaanUser->id],
+            [
+                'nama_perusahaan' => 'PT. Perusahaan Contoh',
+                'sektor' => 'Beragam Industri',
+                'kontak' => '021-7654321',
+                'tautan' => 'https://perusahaancontoh.com',
+                'mulai_kerjasama' => '2024-01-01',
+                'akhir_kerjasama' => '2026-12-31',
+            ]
+        );
+
         // Create Admin User
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@example.com'],

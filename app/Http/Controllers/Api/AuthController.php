@@ -22,9 +22,12 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        // Coba login dengan guard default (web)
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+        // Normalisasi email agar tidak sensitif terhadap spasi/kasus huruf
+        $normalizedEmail = strtolower(trim($credentials['email']));
+
+        // Cari user lalu verifikasi password manual (hindari ketergantungan session)
+        $user = User::whereRaw('LOWER(email) = ?', [$normalizedEmail])->first();
+        if ($user && Hash::check($credentials['password'], $user->password)) {
             
             // Generate token sederhana untuk testing (tanpa Sanctum dulu)
             $token = base64_encode($user->id . '|' . time() . '|' . rand(1000, 9999));
@@ -54,10 +57,10 @@ class AuthController extends Controller
             ]);
         }
 
-        // Jika gagal login
+        // Jika gagal login, beri pesan yang sedikit lebih informatif untuk debugging
         return response()->json([
             'success' => false,
-            'message' => 'Email atau password salah',
+            'message' => $user ? 'Email atau password salah' : 'Akun tidak ditemukan',
         ], 401);
     }
 
