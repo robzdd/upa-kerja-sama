@@ -101,7 +101,14 @@ class AuthController extends Controller
         $role = null;
         
         if ($user->hasRole('alumni')) {
-            $profileData = $user->alumni;
+            // include academic relation for mobile prefill
+            $alumni = $user->alumni()->with('dataAkademik')->first();
+            $profileArray = $alumni ? $alumni->toArray() : null;
+            if ($alumni && $alumni->dataAkademik) {
+                $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
+                $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
+            }
+            $profileData = $profileArray;
             $role = 'alumni';
         } elseif ($user->hasRole('mitra')) {
             $profileData = $user->mitraPerusahaan;
@@ -118,9 +125,81 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'role' => $role,
+                    'roles' => [$role],
                 ],
                 'profile' => $profileData,
+            ],
+        ]);
+    }
+
+    /**
+     * Update alumni profile (basic mobile endpoint)
+     */
+    public function updateAlumni(Request $request)
+    {
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        }
+        $decoded = base64_decode($token);
+        $parts = explode('|', $decoded);
+        $userId = $parts[0] ?? null;
+        $user = $userId ? User::find($userId) : null;
+        if (!$user || !$user->hasRole('alumni')) {
+            return response()->json(['success' => false, 'message' => 'User tidak valid'], 401);
+        }
+
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string|max:500',
+            'nim' => 'nullable|string|max:20',
+            'program_studi' => 'nullable|string|max:255',
+            'angkatan' => 'nullable|string|max:10',
+        ]);
+
+        if (isset($validated['name'])) {
+            $user->name = $validated['name'];
+            $user->save();
+        }
+
+        // Ensure alumni relation exists
+        $alumni = $user->alumni;
+        if (!$alumni) {
+            $alumni = $user->alumni()->create([]);
+        }
+        $alumni->no_hp = $validated['no_hp'] ?? $alumni->no_hp;
+        if (isset($validated['nim'])) {
+            $alumni->nim = $validated['nim'];
+        }
+        $alumni->alamat = $validated['alamat'] ?? $alumni->alamat;
+        // Save simple academic fields if exist
+        if (method_exists($alumni, 'dataAkademik')) {
+            $alumni->dataAkademik()->updateOrCreate(
+                ['alumni_id' => $alumni->id],
+                [
+                    'nim' => $validated['nim'] ?? null,
+                    'program_studi' => $validated['program_studi'] ?? null,
+                    'tahun_masuk' => $validated['angkatan'] ?? null,
+                ]
+            );
+        }
+        $alumni->save();
+
+        // Refresh with academic data
+        $alumni = $user->alumni()->with('dataAkademik')->first();
+        $profileArray = $alumni ? $alumni->toArray() : null;
+        if ($alumni && $alumni->dataAkademik) {
+            $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
+            $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil alumni berhasil diperbarui',
+            'data' => [
+                'user' => $user,
+                'alumni' => $profileArray,
             ],
         ]);
     }

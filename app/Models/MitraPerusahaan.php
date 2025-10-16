@@ -19,6 +19,8 @@ class MitraPerusahaan extends Model
     'sektor',
     'kontak',
     'tautan',
+    'alamat',
+    'tentang',
     'mulai_kerjasama',
     'akhir_kerjasama'
 ];
