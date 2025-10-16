@@ -14,6 +14,9 @@ class CompanyController extends Controller
     public function index(Request $request)
     {
         $query = MitraPerusahaan::with(['user', 'lowongan'])
+            ->whereHas('user.roles', function($q) {
+                $q->where('name', 'mitra');
+            })
             ->orderBy('created_at', 'desc');
 
         // Filter berdasarkan keyword

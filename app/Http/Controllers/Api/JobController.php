@@ -62,4 +62,50 @@ class JobController extends Controller
             'message' => 'Detail lowongan berhasil diambil'
         ]);
     }
+
+    /**
+     * Get jobs for currently authenticated mitra (by simple token)
+     */
+    public function my(Request $request)
+    {
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tidak ditemukan',
+            ], 401);
+        }
+
+        $decoded = base64_decode($token);
+        $parts = explode('|', $decoded);
+        $userId = $parts[0] ?? null;
+
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tidak valid',
+            ], 401);
+        }
+
+        // Find mitra by user id and list its jobs only
+        $mitra = \App\Models\MitraPerusahaan::where('user_id', $userId)->first();
+        if (!$mitra) {
+            return response()->json([
+                'success' => true,
+                'data' => [],
+                'message' => 'Tidak ada lowongan untuk akun ini'
+            ]);
+        }
+
+        $jobs = LowonganPekerjaan::with('mitra')
+            ->where('mitra_id', $mitra->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $jobs,
+            'message' => 'Data lowongan mitra berhasil diambil'
+        ]);
+    }
 }

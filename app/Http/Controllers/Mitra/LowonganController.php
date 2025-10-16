@@ -37,27 +37,33 @@ class LowonganController extends Controller
             'rincian_lowongan' => 'required|string',
             'tanggal_penerimaan_lamaran' => 'required|date',
             'tanggal_pengumuman' => 'required|date',
+            'gaji_min' => 'nullable',
+            'gaji_max' => 'nullable',
+            'pengalaman_minimal' => 'nullable|string',
+            'jurusan_diizinkan' => 'nullable|array',
+            'persyaratan_dokumen' => 'nullable|array',
+            'skill_required' => 'nullable|array',
         ]);
 
         $mitra = MitraPerusahaan::where('user_id', Auth::id())->first();
 
         $lowongan = LowonganPekerjaan::create([
             'mitra_id' => $mitra->id,
-            'judul' => $request->judul,
-            'posisi' => $request->posisi,
-            'deskripsi' => $request->deskripsi,
-            'lokasi' => $request->lokasi,
-            'jenis_pekerjaan' => $request->jenis_pekerjaan,
-            'jenjang_pendidikan' => $request->jenjang_pendidikan,
-            'jurusan_diizinkan' => $request->jurusan_diizinkan ?? [],
-            'persyaratan_dokumen' => $request->persyaratan_dokumen ?? [],
-            'rincian_lowongan' => $request->rincian_lowongan,
-            'tanggal_penerimaan_lamaran' => $request->tanggal_penerimaan_lamaran,
-            'tanggal_pengumuman' => $request->tanggal_pengumuman,
-            'gaji_min' => $request->gaji_min,
-            'gaji_max' => $request->gaji_max,
-            'pengalaman_minimal' => $request->pengalaman_minimal,
-            'skill_required' => $request->skill_required ?? [],
+            'judul' => $request->string('judul')->toString(),
+            'posisi' => $request->string('posisi')->toString(),
+            'deskripsi' => $request->string('deskripsi')->toString(),
+            'lokasi' => $request->string('lokasi')->toString(),
+            'jenis_pekerjaan' => $request->string('jenis_pekerjaan')->toString(),
+            'jenjang_pendidikan' => $request->string('jenjang_pendidikan')->toString(),
+            'jurusan_diizinkan' => $request->input('jurusan_diizinkan', []),
+            'persyaratan_dokumen' => $request->input('persyaratan_dokumen', []),
+            'rincian_lowongan' => $request->string('rincian_lowongan')->toString(),
+            'tanggal_penerimaan_lamaran' => $request->date('tanggal_penerimaan_lamaran'),
+            'tanggal_pengumuman' => $request->date('tanggal_pengumuman'),
+            'gaji_min' => $request->input('gaji_min'),
+            'gaji_max' => $request->input('gaji_max'),
+            'pengalaman_minimal' => $request->input('pengalaman_minimal'),
+            'skill_required' => $request->input('skill_required', []),
             'status_aktif' => true,
         ]);
 
@@ -87,9 +93,31 @@ class LowonganController extends Controller
             'rincian_lowongan' => 'required|string',
             'tanggal_penerimaan_lamaran' => 'required|date',
             'tanggal_pengumuman' => 'required|date',
+            'gaji_min' => 'nullable',
+            'gaji_max' => 'nullable',
+            'pengalaman_minimal' => 'nullable|string',
+            'jurusan_diizinkan' => 'nullable|array',
+            'persyaratan_dokumen' => 'nullable|array',
+            'skill_required' => 'nullable|array',
         ]);
 
-        $lowongan->update($request->all());
+        $lowongan->update([
+            'judul' => $request->string('judul')->toString(),
+            'posisi' => $request->string('posisi')->toString(),
+            'deskripsi' => $request->string('deskripsi')->toString(),
+            'lokasi' => $request->string('lokasi')->toString(),
+            'jenis_pekerjaan' => $request->string('jenis_pekerjaan')->toString(),
+            'jenjang_pendidikan' => $request->string('jenjang_pendidikan')->toString(),
+            'jurusan_diizinkan' => $request->input('jurusan_diizinkan', []),
+            'persyaratan_dokumen' => $request->input('persyaratan_dokumen', []),
+            'rincian_lowongan' => $request->string('rincian_lowongan')->toString(),
+            'tanggal_penerimaan_lamaran' => $request->date('tanggal_penerimaan_lamaran'),
+            'tanggal_pengumuman' => $request->date('tanggal_pengumuman'),
+            'gaji_min' => $request->input('gaji_min'),
+            'gaji_max' => $request->input('gaji_max'),
+            'pengalaman_minimal' => $request->input('pengalaman_minimal'),
+            'skill_required' => $request->input('skill_required', []),
+        ]);
 
         return redirect()->route('mitra.lowongan.index')
             ->with('success', 'Lowongan berhasil diperbarui!');

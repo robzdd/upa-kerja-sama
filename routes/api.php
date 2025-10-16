@@ -23,6 +23,8 @@ Route::post('/register', [AuthController::class, 'register']);
 // Job routes (public - bisa diakses tanpa login)
 Route::get('/jobs', [JobController::class, 'index']);
 Route::get('/jobs/{id}', [JobController::class, 'show']);
+// Mitra-only jobs (by token user mapping)
+Route::get('/mitra/jobs', [JobController::class, 'my']);
 
 // Company routes (public - bisa diakses tanpa login)
 Route::get('/companies', [CompanyController::class, 'index']);
