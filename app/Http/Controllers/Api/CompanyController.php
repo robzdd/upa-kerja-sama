@@ -91,7 +91,7 @@ class CompanyController extends Controller
             'tentang' => 'nullable|string',
             'visi' => 'nullable|string',
             'misi' => 'nullable|string',
-            'keunggulan' => 'nullable',
+            'keunggulan' => 'nullable|array',
         ]);
 
         // Upsert company profile for this user
@@ -104,6 +104,9 @@ class CompanyController extends Controller
                 'tautan' => $validated['tautan'] ?? null,
                 'alamat' => $validated['alamat'] ?? null,
                 'tentang' => $validated['tentang'] ?? null,
+                'visi' => $validated['visi'] ?? null,
+                'misi' => $validated['misi'] ?? null,
+                'keunggulan' => $validated['keunggulan'] ?? null,
             ]
         );
 

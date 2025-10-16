@@ -21,9 +21,18 @@ class MitraPerusahaan extends Model
     'tautan',
     'alamat',
     'tentang',
+    'visi',
+    'misi',
+    'keunggulan',
     'mulai_kerjasama',
     'akhir_kerjasama'
 ];
+
+    protected $casts = [
+        'keunggulan' => 'array',
+        'mulai_kerjasama' => 'date',
+        'akhir_kerjasama' => 'date',
+    ];
 
     public function user()
     {

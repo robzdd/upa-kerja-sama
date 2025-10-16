@@ -8,12 +8,6 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('mitra_perusahaan', function (Blueprint $table) {
-            if (!Schema::hasColumn('mitra_perusahaan', 'alamat')) {
-                $table->text('alamat')->nullable()->after('tautan');
-            }
-            if (!Schema::hasColumn('mitra_perusahaan', 'tentang')) {
-                $table->longText('tentang')->nullable()->after('alamat');
-            }
             if (!Schema::hasColumn('mitra_perusahaan', 'visi')) {
                 $table->longText('visi')->nullable()->after('tentang');
             }
@@ -37,12 +31,6 @@ return new class extends Migration {
             }
             if (Schema::hasColumn('mitra_perusahaan', 'visi')) {
                 $table->dropColumn('visi');
-            }
-            if (Schema::hasColumn('mitra_perusahaan', 'tentang')) {
-                $table->dropColumn('tentang');
-            }
-            if (Schema::hasColumn('mitra_perusahaan', 'alamat')) {
-                $table->dropColumn('alamat');
             }
         });
     }

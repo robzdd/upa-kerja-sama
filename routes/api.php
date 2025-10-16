@@ -28,6 +28,10 @@ Route::get('/mitra/jobs', [JobController::class, 'my']);
 Route::post('/mitra/jobs', [JobController::class, 'store']);
 Route::delete('/mitra/jobs/{id}', [JobController::class, 'destroy']);
 Route::put('/mitra/jobs/{id}/status', [JobController::class, 'setStatus']);
+// Applications
+Route::post('/jobs/{id}/apply', [JobController::class, 'apply']);
+Route::get('/applications/my', [JobController::class, 'myApplications']);
+Route::put('/applications/{id}/status', [JobController::class, 'updateApplicationStatus']);
 
 // Company routes (public - bisa diakses tanpa login)
 Route::get('/companies', [CompanyController::class, 'index']);

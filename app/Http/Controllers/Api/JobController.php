@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LowonganPekerjaan;
 use App\Models\MitraPerusahaan;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
@@ -202,5 +204,121 @@ class JobController extends Controller
         }
         $job->save();
         return response()->json(['success' => true, 'message' => 'Status lowongan diperbarui', 'data' => $job]);
+    }
+
+    /**
+     * Apply to a job as the authenticated alumni (simple token auth)
+     */
+    public function apply(Request $request, $id)
+    {
+        $token = $request->bearerToken();
+        if (!$token) return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        $parts = explode('|', base64_decode($token));
+        $userId = $parts[0] ?? null;
+        $user = $userId ? User::find($userId) : null;
+        if (!$user) return response()->json(['success' => false, 'message' => 'User tidak valid'], 401);
+
+        $job = LowonganPekerjaan::find($id);
+        if (!$job || !$job->status_aktif) {
+            return response()->json(['success' => false, 'message' => 'Lowongan tidak tersedia'], 404);
+        }
+
+        // Upsert into pelamars without dedicated model
+        $existing = DB::table('pelamars')
+            ->where('user_id', $user->id)
+            ->where('lowongan_id', $job->id)
+            ->first();
+        if ($existing) {
+            DB::table('pelamars')->where('id', $existing->id)->update([
+                'status' => 'melamar',
+                'updated_at' => now(),
+            ]);
+            $application = DB::table('pelamars')->where('id', $existing->id)->first();
+        } else {
+            $id = (string) \Str::uuid();
+            DB::table('pelamars')->insert([
+                'id' => $id,
+                'user_id' => $user->id,
+                'lowongan_id' => $job->id,
+                'status' => 'melamar',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $application = DB::table('pelamars')->where('id', $id)->first();
+        }
+
+        // increment count (best-effort)
+        $job->increment('jumlah_pelamar');
+
+        return response()->json(['success' => true, 'message' => 'Lamaran terkirim', 'data' => $application]);
+    }
+
+    /**
+     * List my applications by status tabs
+     */
+    public function myApplications(Request $request)
+    {
+        $token = $request->bearerToken();
+        if (!$token) return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        $parts = explode('|', base64_decode($token));
+        $userId = $parts[0] ?? null;
+        $user = $userId ? User::find($userId) : null;
+        if (!$user) return response()->json(['success' => false, 'message' => 'User tidak valid'], 401);
+
+        $status = $request->query('status'); // melamar, lolos, interview, diterima, ditolak
+        $query = DB::table('pelamars as p')
+            ->join('lowongan_pekerjaans as l', 'l.id', '=', 'p.lowongan_id')
+            ->join('mitra_perusahaan as m', 'm.id', '=', 'l.mitra_id')
+            ->select('p.*',
+                'l.id as job_id','l.judul','l.deskripsi','l.lokasi','l.gaji_min','l.gaji_max','l.jenis_pekerjaan','l.jenjang_pendidikan','l.rincian_lowongan',
+                'm.id as company_id','m.nama_perusahaan','m.sektor','m.tautan','m.kontak')
+            ->where('p.user_id', $user->id)
+            ->orderBy('p.created_at', 'desc');
+        if ($status) $query->where('p.status', $status);
+        $rows = $query->get();
+
+        $apps = $rows->map(function($r){
+            return [
+                'id' => $r->id,
+                'user_id' => $r->user_id,
+                'lowongan_id' => $r->lowongan_id,
+                'status' => $r->status,
+                'created_at' => $r->created_at,
+                'updated_at' => $r->updated_at,
+                'lowongan' => [
+                    'id' => $r->job_id,
+                    'judul' => $r->judul,
+                    'deskripsi' => $r->deskripsi,
+                    'lokasi' => $r->lokasi,
+                    'gaji_min' => $r->gaji_min,
+                    'gaji_max' => $r->gaji_max,
+                    'jenis_pekerjaan' => $r->jenis_pekerjaan,
+                    'jenjang_pendidikan' => $r->jenjang_pendidikan,
+                    'rincian_lowongan' => $r->rincian_lowongan,
+                    'mitra' => [
+                        'id' => $r->company_id,
+                        'nama_perusahaan' => $r->nama_perusahaan,
+                        'sektor' => $r->sektor,
+                        'tautan' => $r->tautan,
+                        'kontak' => $r->kontak,
+                    ],
+                ],
+            ];
+        });
+
+        return response()->json(['success' => true, 'data' => $apps]);
+    }
+
+    /**
+     * Mitra updates applicant status per job
+     */
+    public function updateApplicationStatus(Request $request, $applicationId)
+    {
+        $request->validate(['status' => 'required|in:melamar,lolos,interview,diterima,ditolak']);
+        $app = DB::table('pelamars')->where('id', $applicationId)->first();
+        if (!$app) return response()->json(['success' => false, 'message' => 'Lamaran tidak ditemukan'], 404);
+        DB::table('pelamars')->where('id', $applicationId)->update(['status' => $request->status, 'updated_at' => now()]);
+        $app = DB::table('pelamars')->where('id', $applicationId)->first();
+        return response()->json(['success' => true, 'message' => 'Status lamaran diperbarui', 'data' => $app]);
     }
 }
