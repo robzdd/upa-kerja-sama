@@ -51,6 +51,8 @@ Route::get('/alumni/{userId}', [JobController::class, 'alumniProfile']);
 // Protected routes (perlu authentication dengan token sederhana)
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/profile', [AuthController::class, 'profile']);
+// Upload CV PDF for alumni
+Route::post('/alumni/cv', [AuthController::class, 'uploadAlumniCv']);
 // Update company profile (mitra)
 Route::put('/mitra/company', [CompanyController::class, 'updateMine']);
 // Update alumni profile

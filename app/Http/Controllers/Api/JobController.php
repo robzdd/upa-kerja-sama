@@ -174,6 +174,8 @@ class JobController extends Controller
             return response()->json(['success' => false, 'message' => 'Lowongan tidak ditemukan'], 404);
         }
         $job->delete();
+        // Hapus semua jejak lamaran/tersimpan agar tidak muncul di sisi alumni
+        DB::table('pelamars')->where('lowongan_id', $job->id)->delete();
         return response()->json(['success' => true, 'message' => 'Lowongan berhasil dihapus']);
     }
 
@@ -287,6 +289,8 @@ class JobController extends Controller
                 'l.id as job_id','l.judul','l.deskripsi','l.lokasi','l.gaji_min','l.gaji_max','l.jenis_pekerjaan','l.jenjang_pendidikan','l.rincian_lowongan',
                 'm.id as company_id','m.nama_perusahaan','m.sektor','m.tautan','m.kontak')
             ->where('p.user_id', $user->id)
+            ->whereNull('l.deleted_at')
+            ->where('l.status_aktif', true)
             ->orderBy('p.created_at', 'desc');
         if ($status) {
             $query->where('p.status', $status);
@@ -400,6 +404,9 @@ class JobController extends Controller
                 $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
                 $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
                 $profileArray['ipk'] = $alumni->dataAkademik->ipk ?? null;
+            }
+            if ($alumni && $alumni->file_cv) {
+                $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
             }
             return response()->json([
                 'success' => true,

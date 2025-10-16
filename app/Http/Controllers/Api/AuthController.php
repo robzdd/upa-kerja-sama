@@ -108,6 +108,9 @@ class AuthController extends Controller
                 $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
                 $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
             }
+            if ($alumni && $alumni->file_cv) {
+                $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+            }
             $profileData = $profileArray;
             $role = 'alumni';
         } elseif ($user->hasRole('mitra')) {
@@ -200,6 +203,47 @@ class AuthController extends Controller
             'data' => [
                 'user' => $user,
                 'alumni' => $profileArray,
+            ],
+        ]);
+    }
+
+    /**
+     * Upload CV (PDF only) for alumni
+     */
+    public function uploadAlumniCv(Request $request)
+    {
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        }
+        $parts = explode('|', base64_decode($token));
+        $userId = $parts[0] ?? null;
+        $user = $userId ? User::find($userId) : null;
+        if (!$user || !$user->hasRole('alumni')) {
+            return response()->json(['success' => false, 'message' => 'User tidak valid'], 401);
+        }
+
+        $request->validate([
+            'cv' => 'required|file|mimes:pdf|max:5120', // max 5MB
+        ]);
+
+        // Ensure alumni row exists
+        $alumni = $user->alumni ?: $user->alumni()->create([]);
+
+        // Store file to public storage
+        $path = $request->file('cv')->store('cv-alumni', 'public');
+
+        // Update alumni
+        $alumni->file_cv = $path;
+        $alumni->cv_updated_at = now();
+        $alumni->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'CV berhasil diunggah',
+            'data' => [
+                'cv_path' => $path,
+                'cv_url' => url('storage/'.$path),
             ],
         ]);
     }

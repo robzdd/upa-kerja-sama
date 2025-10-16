@@ -32,6 +32,8 @@ class SavedJobController extends Controller
                 'm.id as company_id','m.nama_perusahaan','m.sektor','m.tautan','m.kontak')
             ->where('p.user_id', $user->id)
             ->where('p.status', 'tersimpan')
+            ->whereNull('l.deleted_at')
+            ->where('l.status_aktif', true)
             ->orderBy('p.created_at', 'desc')
             ->get();
 
