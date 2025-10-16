@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Api\CompanyController;
+use App\Http\Controllers\Api\SavedJobController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,10 +33,20 @@ Route::put('/mitra/jobs/{id}/status', [JobController::class, 'setStatus']);
 Route::post('/jobs/{id}/apply', [JobController::class, 'apply']);
 Route::get('/applications/my', [JobController::class, 'myApplications']);
 Route::put('/applications/{id}/status', [JobController::class, 'updateApplicationStatus']);
+// Applicants per job (mitra)
+Route::get('/mitra/jobs/{id}/applicants', [JobController::class, 'applicantsForJob']);
+
+// Saved jobs (alumni)
+Route::get('/saved-jobs', [SavedJobController::class, 'index']);
+Route::post('/jobs/{id}/save', [SavedJobController::class, 'store']);
+Route::delete('/jobs/{id}/save', [SavedJobController::class, 'destroy']);
 
 // Company routes (public - bisa diakses tanpa login)
 Route::get('/companies', [CompanyController::class, 'index']);
 Route::get('/companies/{id}', [CompanyController::class, 'show']);
+
+// Alumni profile (for mitra to view applicant details)
+Route::get('/alumni/{userId}', [JobController::class, 'alumniProfile']);
 
 // Protected routes (perlu authentication dengan token sederhana)
 Route::post('/logout', [AuthController::class, 'logout']);

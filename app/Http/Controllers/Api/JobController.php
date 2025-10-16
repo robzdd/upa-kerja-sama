@@ -224,27 +224,41 @@ class JobController extends Controller
         }
 
         // Upsert into pelamars without dedicated model
-        $existing = DB::table('pelamars')
+        // Find any existing application for this job by this user
+        $existingNonSaved = DB::table('pelamars')
             ->where('user_id', $user->id)
             ->where('lowongan_id', $job->id)
+            ->where('status', '!=', 'tersimpan')
             ->first();
-        if ($existing) {
-            DB::table('pelamars')->where('id', $existing->id)->update([
-                'status' => 'melamar',
-                'updated_at' => now(),
-            ]);
-            $application = DB::table('pelamars')->where('id', $existing->id)->first();
+        if ($existingNonSaved) {
+            // Already applied/tracked: keep status, but ensure not duplicate
+            $application = $existingNonSaved;
         } else {
-            $id = (string) \Str::uuid();
-            DB::table('pelamars')->insert([
-                'id' => $id,
-                'user_id' => $user->id,
-                'lowongan_id' => $job->id,
-                'status' => 'melamar',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $application = DB::table('pelamars')->where('id', $id)->first();
+            // If there is a saved entry, we can either update it or create a separate application.
+            $saved = DB::table('pelamars')
+                ->where('user_id', $user->id)
+                ->where('lowongan_id', $job->id)
+                ->where('status', 'tersimpan')
+                ->first();
+
+            if ($saved) {
+                DB::table('pelamars')->where('id', $saved->id)->update([
+                    'status' => 'melamar',
+                    'updated_at' => now(),
+                ]);
+                $application = DB::table('pelamars')->where('id', $saved->id)->first();
+            } else {
+                $id = (string) \Str::uuid();
+                DB::table('pelamars')->insert([
+                    'id' => $id,
+                    'user_id' => $user->id,
+                    'lowongan_id' => $job->id,
+                    'status' => 'melamar',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $application = DB::table('pelamars')->where('id', $id)->first();
+            }
         }
 
         // increment count (best-effort)
@@ -265,7 +279,7 @@ class JobController extends Controller
         $user = $userId ? User::find($userId) : null;
         if (!$user) return response()->json(['success' => false, 'message' => 'User tidak valid'], 401);
 
-        $status = $request->query('status'); // melamar, lolos, interview, diterima, ditolak
+        $status = $request->query('status'); // melamar, lolos, interview, diterima, ditolak (bukan 'tersimpan')
         $query = DB::table('pelamars as p')
             ->join('lowongan_pekerjaans as l', 'l.id', '=', 'p.lowongan_id')
             ->join('mitra_perusahaan as m', 'm.id', '=', 'l.mitra_id')
@@ -274,7 +288,12 @@ class JobController extends Controller
                 'm.id as company_id','m.nama_perusahaan','m.sektor','m.tautan','m.kontak')
             ->where('p.user_id', $user->id)
             ->orderBy('p.created_at', 'desc');
-        if ($status) $query->where('p.status', $status);
+        if ($status) {
+            $query->where('p.status', $status);
+        } else {
+            // Default: exclude saved-only entries from "Lamaran Saya"
+            $query->where('p.status', '!=', 'tersimpan');
+        }
         $rows = $query->get();
 
         $apps = $rows->map(function($r){
@@ -320,5 +339,82 @@ class JobController extends Controller
         DB::table('pelamars')->where('id', $applicationId)->update(['status' => $request->status, 'updated_at' => now()]);
         $app = DB::table('pelamars')->where('id', $applicationId)->first();
         return response()->json(['success' => true, 'message' => 'Status lamaran diperbarui', 'data' => $app]);
+    }
+
+    /**
+     * Mitra: list applicants for a specific job owned by the mitra, with CV info
+     */
+    public function applicantsForJob(Request $request, $jobId)
+    {
+        // Authenticate as mitra via simple token and ensure ownership
+        $token = $request->bearerToken();
+        if (!$token) return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        $parts = explode('|', base64_decode($token));
+        $userId = $parts[0] ?? null;
+        $mitra = $userId ? \App\Models\MitraPerusahaan::where('user_id', $userId)->first() : null;
+        if (!$mitra) return response()->json(['success' => false, 'message' => 'Akun mitra tidak valid'], 401);
+
+        $job = LowonganPekerjaan::where('id', $jobId)->where('mitra_id', $mitra->id)->first();
+        if (!$job) return response()->json(['success' => false, 'message' => 'Lowongan tidak ditemukan atau bukan milik Anda'], 404);
+
+        $rows = DB::table('pelamars as p')
+            ->join('users as u', 'u.id', '=', 'p.user_id')
+            ->leftJoin('alumnis as a', 'a.user_id', '=', 'u.id')
+            ->select('p.*', 'u.name', 'u.email', 'a.file_cv')
+            ->where('p.lowongan_id', $job->id)
+            ->orderBy('p.created_at', 'desc')
+            ->get();
+
+        $apps = $rows->map(function($r){
+            return [
+                'id' => $r->id,
+                'user_id' => $r->user_id,
+                'lowongan_id' => $r->lowongan_id,
+                'status' => $r->status,
+                'created_at' => $r->created_at,
+                'updated_at' => $r->updated_at,
+                'pelamar' => [
+                    'name' => $r->name,
+                    'email' => $r->email,
+                    'cv_path' => $r->file_cv,
+                    'cv_url' => $r->file_cv ? url('storage/'.$r->file_cv) : null,
+                ],
+            ];
+        });
+
+        return response()->json(['success' => true, 'data' => $apps]);
+    }
+
+    /**
+     * Get alumni profile by user id (for mitra viewing applicant details)
+     */
+    public function alumniProfile(Request $request, $userId)
+    {
+        $user = User::find($userId);
+        if (!$user) return response()->json(['success' => false, 'message' => 'User tidak ditemukan'], 404);
+
+        if ($user->hasRole('alumni')) {
+            $alumni = $user->alumni()->with('dataAkademik')->first();
+            $profileArray = $alumni ? $alumni->toArray() : null;
+            if ($alumni && $alumni->dataAkademik) {
+                $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
+                $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
+                $profileArray['ipk'] = $alumni->dataAkademik->ipk ?? null;
+            }
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'roles' => ['alumni'],
+                    ],
+                    'profile' => $profileArray,
+                ],
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Bukan akun alumni'], 400);
     }
 }
