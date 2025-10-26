@@ -25,7 +25,7 @@
                     Temukan dan daftar pekerjaan dengan mudah
                 </p>
                 <!-- CTA Button -->
-                <a href="#" class="inline-block bg-white text-blue-900 px-12 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+                <a href="{{ route('alumni.cari_lowongan') }}" class="inline-block bg-white text-blue-900 px-12 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
                     Temukan Pekerjaan
                 </a>
             </div>

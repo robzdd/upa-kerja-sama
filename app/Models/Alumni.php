@@ -15,6 +15,7 @@ class Alumni extends Model
     protected $fillable = [
         'user_id',
         'nim',
+        'nama_lengkap',
         'no_hp',
         'tempat_lahir',
         'tanggal_lahir',
@@ -28,11 +29,20 @@ class Alumni extends Model
         'no_rekening',
         'file_cv',
         'cv_updated_at',
+        'pendidikan',
+        'pengalaman_kerja',
+        'keahlian',
+        'soft_skills',
+        'prestasi',
+        'organisasi',
+        'cv_uri',
+        'cv_public',
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
         'cv_updated_at' => 'datetime',
+        'cv_public' => 'boolean',
     ];
 
     public function user()
@@ -53,5 +63,10 @@ class Alumni extends Model
     public function dokumenPendukung()
     {
         return $this->hasMany(DokumenPendukung::class);
+    }
+
+    public function cvData()
+    {
+        return $this->hasMany(CvData::class);
     }
 }

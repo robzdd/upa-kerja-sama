@@ -54,92 +54,124 @@ class ProfileController extends Controller
             return redirect()->route('alumni.dashboard')->with('error', 'Data alumni tidak ditemukan');
         }
 
-        $validated = $request->validate([
-            // Data Pribadi
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'no_hp' => 'nullable|string|max:20',
-            'tempat_lahir' => 'nullable|string|max:255',
-            'tanggal_lahir' => 'nullable|date',
-            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
-            'alamat' => 'nullable|string|max:500',
-            'kota' => 'nullable|string|max:100',
-            'provinsi' => 'nullable|string|max:100',
-            'kode_pos' => 'nullable|string|max:10',
-            'tentang_saya' => 'nullable|string|max:1000',
-            'nama_bank' => 'nullable|string|max:255',
-            'no_rekening' => 'nullable|string|max:20',
+        $formType = $request->input('form_type');
 
-            // Data Akademik
-            'nim' => 'nullable|string|max:20|unique:data_akademik,nim,' . ($dataAkademik->id ?? null),
-            'program_studi' => 'nullable|string|max:255',
-            'tahun_masuk' => 'nullable|integer|min:1900|max:' . date('Y'),
-            'tahun_lulus' => 'nullable|integer|min:1900|max:' . date('Y'),
-            'ipk' => 'nullable|numeric|min:0|max:4',
-            'universitas' => 'nullable|string|max:255',
+        if ($formType === 'data_pribadi') {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+                'no_hp' => 'nullable|string|max:20',
+                'tempat_lahir' => 'nullable|string|max:255',
+                'tanggal_lahir' => 'nullable|date',
+                'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+                'alamat' => 'nullable|string|max:500',
+                'kota' => 'nullable|string|max:100',
+                'provinsi' => 'nullable|string|max:100',
+                'kode_pos' => 'nullable|string|max:10',
+                'tentang_saya' => 'nullable|string|max:1000',
+                'nama_bank' => 'nullable|string|max:255',
+                'no_rekening' => 'nullable|string|max:20',
+            ]);
 
-            // Data Keluarga
-            'nama_ayah' => 'nullable|string|max:255',
-            'pekerjaan_ayah' => 'nullable|string|max:255',
-            'nama_ibu' => 'nullable|string|max:255',
-            'pekerjaan_ibu' => 'nullable|string|max:255',
-            'nama_wali' => 'nullable|string|max:255',
-            'pekerjaan_wali' => 'nullable|string|max:255',
-            'alamat_keluarga' => 'nullable|string|max:500',
-        ]);
+            // Update user data
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ]);
 
-        // Update user data
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ]);
+            // Update alumni (data pribadi)
+            $alumni->update([
+                'no_hp' => $validated['no_hp'] ?? $alumni->no_hp,
+                'tempat_lahir' => $validated['tempat_lahir'] ?? $alumni->tempat_lahir,
+                'tanggal_lahir' => $validated['tanggal_lahir'] ?? $alumni->tanggal_lahir,
+                'jenis_kelamin' => $validated['jenis_kelamin'] ?? $alumni->jenis_kelamin,
+                'alamat' => $validated['alamat'] ?? $alumni->alamat,
+                'kota' => $validated['kota'] ?? $alumni->kota ?? null,
+                'provinsi' => $validated['provinsi'] ?? $alumni->provinsi ?? null,
+                'kode_pos' => $validated['kode_pos'] ?? $alumni->kode_pos ?? null,
+                'tentang_saya' => $validated['tentang_saya'] ?? $alumni->tentang_saya,
+                'nama_bank' => $validated['nama_bank'] ?? $alumni->nama_bank,
+                'no_rekening' => $validated['no_rekening'] ?? $alumni->no_rekening,
+            ]);
 
-        // Update alumni (data pribadi)
-        $alumni->update([
-            'no_hp' => $validated['no_hp'] ?? $alumni->no_hp,
-            'tempat_lahir' => $validated['tempat_lahir'] ?? $alumni->tempat_lahir,
-            'tanggal_lahir' => $validated['tanggal_lahir'] ?? $alumni->tanggal_lahir,
-            'jenis_kelamin' => $validated['jenis_kelamin'] ?? $alumni->jenis_kelamin,
-            'alamat' => $validated['alamat'] ?? $alumni->alamat,
-            'kota' => $validated['kota'] ?? $alumni->kota ?? null,
-            'provinsi' => $validated['provinsi'] ?? $alumni->provinsi ?? null,
-            'kode_pos' => $validated['kode_pos'] ?? $alumni->kode_pos ?? null,
-            'tentang_saya' => $validated['tentang_saya'] ?? $alumni->tentang_saya,
-            'nama_bank' => $validated['nama_bank'] ?? $alumni->nama_bank,
-            'no_rekening' => $validated['no_rekening'] ?? $alumni->no_rekening,
-        ]);
+            return redirect()->route('alumni.profile.edit')->with('success', 'Data pribadi berhasil diperbarui!');
 
-        // Update atau create data akademik
-        DataAkademik::updateOrCreate(
-            ['alumni_id' => $alumni->id],
-            [
-                'nim' => $validated['nim'] ?? null,
-                'program_studi' => $validated['program_studi'] ?? null,
-                'tahun_masuk' => $validated['tahun_masuk'] ?? null,
-                'tahun_lulus' => $validated['tahun_lulus'] ?? null,
-                'ipk' => $validated['ipk'] ?? null,
-                'universitas' => $validated['universitas'] ?? null,
-            ]
-        );
+        } elseif ($formType === 'data_akademik') {
+            $validated = $request->validate([
+                'nim' => 'nullable|string|max:20|unique:data_akademiks,nim,' . ($alumni->dataAkademik->id ?? null),
+                'program_studi' => 'nullable|string|max:255',
+                'tahun_masuk' => 'nullable|integer|min:1900|max:' . date('Y'),
+                'tahun_lulus' => 'nullable|integer|min:1900|max:' . date('Y'),
+                'ipk' => 'nullable|numeric|min:0|max:4',
+                'universitas' => 'nullable|string|max:255',
+                'hard_skills' => 'nullable|array',
+                'hard_skills.*' => 'nullable|string|max:255',
+                'soft_skills' => 'nullable|array',
+                'soft_skills.*' => 'nullable|string|max:255',
+            ]);
 
-        // Update atau create data keluarga
-        DataKeluarga::updateOrCreate(
-            ['alumni_id' => $alumni->id],
-            [
-                'nama_ayah' => $validated['nama_ayah'] ?? null,
-                'pekerjaan_ayah' => $validated['pekerjaan_ayah'] ?? null,
-                'nama_ibu' => $validated['nama_ibu'] ?? null,
-                'pekerjaan_ibu' => $validated['pekerjaan_ibu'] ?? null,
-                'nama_wali' => $validated['nama_wali'] ?? null,
-                'pekerjaan_wali' => $validated['pekerjaan_wali'] ?? null,
-                'alamat_keluarga' => $validated['alamat_keluarga'] ?? null,
-            ]
-        );
+            // Update atau create data akademik
+            DataAkademik::updateOrCreate(
+                ['alumni_id' => $alumni->id],
+                [
+                    'nim' => $validated['nim'] ?? null,
+                    'program_studi' => $validated['program_studi'] ?? null,
+                    'tahun_masuk' => $validated['tahun_masuk'] ?? null,
+                    'tahun_lulus' => $validated['tahun_lulus'] ?? null,
+                    'ipk' => $validated['ipk'] ?? null,
+                    'universitas' => $validated['universitas'] ?? null,
+                ]
+            );
 
-        // Generate CV otomatis
-        $this->generateCV($alumni, $user);
+            // Update hard skills
+            if (isset($validated['hard_skills'])) {
+                $hardSkills = array_filter($validated['hard_skills'], function($skill) {
+                    return !empty(trim($skill));
+                });
+                $alumni->update(['keahlian' => implode(',', $hardSkills)]);
+            }
 
-        return redirect()->route('alumni.profile')->with('success', 'Profil berhasil diperbarui! CV telah di-generate otomatis.');
+            // Update soft skills
+            if (isset($validated['soft_skills'])) {
+                $softSkills = array_filter($validated['soft_skills'], function($skill) {
+                    return !empty(trim($skill));
+                });
+                $alumni->update(['soft_skills' => implode(',', $softSkills)]);
+            }
+
+            return redirect()->route('alumni.profile.edit')->with('success', 'Data akademik berhasil diperbarui!');
+
+        } elseif ($formType === 'data_keluarga') {
+            $validated = $request->validate([
+                'nama_ayah' => 'nullable|string|max:255',
+                'pekerjaan_ayah' => 'nullable|string|max:255',
+                'nama_ibu' => 'nullable|string|max:255',
+                'pekerjaan_ibu' => 'nullable|string|max:255',
+                'nama_wali' => 'nullable|string|max:255',
+                'pekerjaan_wali' => 'nullable|string|max:255',
+                'alamat_keluarga' => 'nullable|string|max:500',
+                'jumlah_saudara' => 'nullable|integer|min:0',
+            ]);
+
+            // Update atau create data keluarga
+            DataKeluarga::updateOrCreate(
+                ['alumni_id' => $alumni->id],
+                [
+                    'nama_ayah' => $validated['nama_ayah'] ?? null,
+                    'pekerjaan_ayah' => $validated['pekerjaan_ayah'] ?? null,
+                    'nama_ibu' => $validated['nama_ibu'] ?? null,
+                    'pekerjaan_ibu' => $validated['pekerjaan_ibu'] ?? null,
+                    'nama_wali' => $validated['nama_wali'] ?? null,
+                    'pekerjaan_wali' => $validated['pekerjaan_wali'] ?? null,
+                    'alamat_keluarga' => $validated['alamat_keluarga'] ?? null,
+                    'jumlah_saudara' => $validated['jumlah_saudara'] ?? null,
+                ]
+            );
+
+            return redirect()->route('alumni.profile.edit')->with('success', 'Data keluarga berhasil diperbarui!');
+        }
+
+        return redirect()->route('alumni.profile.edit')->with('error', 'Form tidak valid');
     }
 
     public function uploadDokumen(Request $request)
