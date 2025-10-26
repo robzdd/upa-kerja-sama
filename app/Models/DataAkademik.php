@@ -21,6 +21,8 @@ class DataAkademik extends Model
         'tahun_lulus',
         'ipk',
         'universitas',
+        'hard_skill',
+        'soft_skill',
     ];
 
     protected $casts = [

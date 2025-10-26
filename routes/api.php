@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\SavedJobController;
+use App\Http\Controllers\Api\DataAkademikController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,3 +60,12 @@ Route::put('/mitra/company', [CompanyController::class, 'updateMine']);
 Route::put('/alumni/profile', [AuthController::class, 'updateAlumni']);
 // Update alumni detail profile (comprehensive)
 Route::put('/alumni/profile/detail', [AuthController::class, 'updateAlumniDetail']);
+
+// Academic Data routes
+Route::get('/academic-data', [DataAkademikController::class, 'index']);
+Route::post('/academic-data', [DataAkademikController::class, 'store']);
+Route::get('/academic-data/{id}', [DataAkademikController::class, 'show']);
+Route::put('/academic-data/{id}', [DataAkademikController::class, 'update']);
+Route::put('/academic-data', [DataAkademikController::class, 'updateOrCreate']);
+Route::delete('/academic-data/{id}', [DataAkademikController::class, 'destroy']);
+

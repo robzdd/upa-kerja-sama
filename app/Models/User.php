@@ -36,4 +36,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Admin::class);
     }
+
+    public function academicInfo()
+    {
+        return $this->hasOne(AcademicInfo::class);
+    }
 }
