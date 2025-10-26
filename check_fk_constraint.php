@@ -1,46 +1,58 @@
 <?php
-require __DIR__.'/vendor/autoload.php';
-$app = require_once __DIR__.'/bootstrap/app.php';
+
+require_once 'vendor/autoload.php';
+
+$app = require_once 'bootstrap/app.php';
 $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
-$alumniId = '591e3123-a0b5-48ac-98bc-093c2afedbd7';
+use Illuminate\Support\Facades\DB;
 
-echo "Checking foreign key constraint..." . PHP_EOL;
-
-// Check if the foreign key is working at all
-$check = DB::select("
-    SELECT COUNT(*) as cnt 
-    FROM alumnis 
-    WHERE id = ? 
-    AND deleted_at IS NULL
-", [$alumniId]);
-
-echo "Alumni exists and not deleted: " . ($check[0]->cnt > 0 ? "YES" : "NO") . PHP_EOL;
-
-// Now try a manual foreign key check
-echo PHP_EOL . "Testing foreign key validation manually..." . PHP_EOL;
+echo "Checking foreign key constraints for alumnis table...\n";
 
 try {
-    $result = DB::statement("
-        SET FOREIGN_KEY_CHECKS = 1;
+    // Check if the specific constraint exists
+    $constraintExists = DB::select("
+        SELECT CONSTRAINT_NAME 
+        FROM information_schema.KEY_COLUMN_USAGE 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'alumnis' 
+        AND CONSTRAINT_NAME = 'dokumen_pendukungs_alumni_id_foreign'
     ");
-    echo "FK checks enabled: OK" . PHP_EOL;
     
-    // Try to validate the foreign key exists
-    $exists = DB::selectOne("
-        SELECT EXISTS(
-            SELECT 1 FROM alumnis WHERE id = ?
-        ) as exists_check
-    ", [$alumniId]);
+    if (count($constraintExists) > 0) {
+        echo "Constraint 'dokumen_pendukungs_alumni_id_foreign' EXISTS\n";
+    } else {
+        echo "Constraint 'dokumen_pendukungs_alumni_id_foreign' does NOT exist\n";
+    }
     
-    echo "Exists check: " . ($exists->exists_check ? "YES" : "NO") . PHP_EOL;
+    // Check all constraints on alumnis table
+    $allConstraints = DB::select("
+        SELECT CONSTRAINT_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
+        FROM information_schema.KEY_COLUMN_USAGE 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'alumnis' 
+        AND REFERENCED_TABLE_NAME IS NOT NULL
+    ");
     
-    // Now try to explain the insert
-    echo PHP_EOL . "Trying EXPLAIN on INSERT..." . PHP_EOL;
-    $explain = DB::select("EXPLAIN INSERT INTO data_akademiks (id, alumni_id, nim, created_at, updated_at) VALUES (?, ?, 'test', NOW(), NOW())", [\Illuminate\Support\Str::uuid(), $alumniId]);
-    print_r($explain);
+    echo "\nAll foreign key constraints on alumnis table:\n";
+    foreach ($allConstraints as $constraint) {
+        echo "  - {$constraint->CONSTRAINT_NAME}: {$constraint->COLUMN_NAME} -> {$constraint->REFERENCED_TABLE_NAME}.{$constraint->REFERENCED_COLUMN_NAME}\n";
+    }
     
-} catch (\Exception $e) {
-    echo "ERROR: " . $e->getMessage() . PHP_EOL;
+    // Check all constraints on dokumen_pendukungs table
+    $dokumenConstraints = DB::select("
+        SELECT CONSTRAINT_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
+        FROM information_schema.KEY_COLUMN_USAGE 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'dokumen_pendukungs' 
+        AND REFERENCED_TABLE_NAME IS NOT NULL
+    ");
+    
+    echo "\nAll foreign key constraints on dokumen_pendukungs table:\n";
+    foreach ($dokumenConstraints as $constraint) {
+        echo "  - {$constraint->CONSTRAINT_NAME}: {$constraint->COLUMN_NAME} -> {$constraint->REFERENCED_TABLE_NAME}.{$constraint->REFERENCED_COLUMN_NAME}\n";
+    }
+    
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
 }
-

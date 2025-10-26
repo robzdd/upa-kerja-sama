@@ -84,12 +84,19 @@ class DokumenPendukungController extends Controller
     public function upload(Request $request)
     {
         try {
+            Log::info('Document upload request received', [
+                'has_file' => $request->hasFile('file'),
+                'jenis_dokumen' => $request->input('jenis_dokumen'),
+                'all_input' => $request->all()
+            ]);
+
             $validator = Validator::make($request->all(), [
                 'jenis_dokumen' => 'required|string|max:100',
                 'file' => 'required|mimes:pdf|max:5120', // Max 5MB
             ]);
 
             if ($validator->fails()) {
+                Log::error('Validation failed', ['errors' => $validator->errors()]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
@@ -128,9 +135,20 @@ class DokumenPendukungController extends Controller
             // Get or create alumni profile
             $alumni = $user->alumni;
             
+            Log::info('User alumni check', [
+                'user_id' => $user->id,
+                'has_alumni' => $alumni ? true : false,
+                'alumni_id' => $alumni ? $alumni->id : null
+            ]);
+            
             if (!$alumni) {
+                Log::info('Creating new alumni for user', ['user_id' => $user->id]);
                 $alumni = Alumni::create([
                     'user_id' => $user->id,
+                ]);
+                Log::info('Alumni created', [
+                    'alumni_id' => $alumni->id,
+                    'user_id' => $alumni->user_id
                 ]);
             }
             
@@ -141,6 +159,12 @@ class DokumenPendukungController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('dokumen_pendukung', $filename, 'public');
 
+            Log::info('File uploaded successfully', [
+                'filename' => $filename,
+                'path' => $path,
+                'size' => $file->getSize()
+            ]);
+
             // Create or update document record
             $dokumenPendukung = DokumenPendukung::updateOrCreate(
                 [
@@ -148,11 +172,25 @@ class DokumenPendukungController extends Controller
                     'jenis_dokumen' => $request->jenis_dokumen,
                 ],
                 [
+                    // New columns
                     'file_path' => $path,
                     'file_name' => $file->getClientOriginalName(),
                     'file_size' => $file->getSize(),
+                    'jenis_dokumen' => $request->jenis_dokumen,
+                    
+                    // Old columns (required)
+                    'tipe_dokumen' => $request->jenis_dokumen,
+                    'nama_dokumen' => $file->getClientOriginalName(),
+                    'path_file' => $path,
+                    'ukuran_file' => $file->getSize(),
                 ]
             );
+
+            Log::info('Document record created/updated', [
+                'document_id' => $dokumenPendukung->id,
+                'alumni_id' => $alumni->id,
+                'jenis_dokumen' => $request->jenis_dokumen
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -184,11 +222,20 @@ class DokumenPendukungController extends Controller
                 return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
             }
             
-            $decoded = base64_decode($token);
-            $parts = explode('|', $decoded);
-            $userId = $parts[0] ?? null;
-            $user = $userId ? \App\Models\User::find($userId) : null;
+            try {
+                $decoded = base64_decode($token);
+                $parts = explode('|', $decoded);
+                $userId = $parts[0] ?? null;
+            } catch (\Exception $e) {
+                Log::error('Token decode error: ' . $e->getMessage());
+                return response()->json(['success' => false, 'message' => 'Token tidak valid'], 401);
+            }
             
+            if (!$userId) {
+                return response()->json(['success' => false, 'message' => 'User ID tidak ditemukan dalam token'], 401);
+            }
+            
+            $user = \App\Models\User::find($userId);
             if (!$user || !$user->hasRole('alumni')) {
                 return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
             }
