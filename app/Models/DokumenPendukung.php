@@ -19,6 +19,10 @@ class DokumenPendukung extends Model
         'nama_dokumen',
         'path_file',
         'ukuran_file',
+        'jenis_dokumen',
+        'file_path',
+        'file_name',
+        'file_size',
     ];
 
     public function alumni()

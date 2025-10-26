@@ -21,6 +21,7 @@ class DataKeluarga extends Model
         'nama_wali',
         'pekerjaan_wali',
         'alamat_keluarga',
+        'jumlah_saudara',
     ];
 
     public function alumni()

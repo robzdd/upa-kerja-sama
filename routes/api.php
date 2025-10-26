@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\SavedJobController;
 use App\Http\Controllers\Api\DataAkademikController;
+use App\Http\Controllers\Api\DataKeluargaController;
+use App\Http\Controllers\Api\DokumenPendukungController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,4 +70,13 @@ Route::get('/academic-data/{id}', [DataAkademikController::class, 'show']);
 Route::put('/academic-data/{id}', [DataAkademikController::class, 'update']);
 Route::put('/academic-data', [DataAkademikController::class, 'updateOrCreate']);
 Route::delete('/academic-data/{id}', [DataAkademikController::class, 'destroy']);
+
+// Family Data routes
+Route::get('/family-data', [DataKeluargaController::class, 'index']);
+Route::put('/family-data', [DataKeluargaController::class, 'updateOrCreate']);
+
+// Supporting Documents routes
+Route::get('/documents', [DokumenPendukungController::class, 'index']);
+Route::post('/documents/upload', [DokumenPendukungController::class, 'upload']);
+Route::delete('/documents/{id}', [DokumenPendukungController::class, 'destroy']);
 
