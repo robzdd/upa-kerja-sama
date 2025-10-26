@@ -59,7 +59,7 @@ class DokumenPendukungController extends Controller
             $formattedData = $dokumenPendukung->map(function ($dokumen) {
                 $dokumenArray = $dokumen->toArray();
                 if ($dokumen->file_path) {
-                    $dokumenArray['file_url'] = Storage::url($dokumen->file_path);
+                    $dokumenArray['file_url'] = url('storage/' . $dokumen->file_path);
                 }
                 return $dokumenArray;
             });
@@ -198,7 +198,7 @@ class DokumenPendukungController extends Controller
                     'id' => $dokumenPendukung->id,
                     'jenis_dokumen' => $dokumenPendukung->jenis_dokumen,
                     'file_name' => $dokumenPendukung->file_name,
-                    'file_url' => Storage::url($path),
+                    'file_url' => url('storage/' . $path),
                 ],
                 'message' => 'Document uploaded successfully'
             ]);
