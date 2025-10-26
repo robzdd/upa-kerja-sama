@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('alumnis', function (Blueprint $table) {
-            $table->string('nik')->nullable()->after('nim');
-        });
+        // Only add nik column if it doesn't exist
+        if (!Schema::hasColumn('alumnis', 'nik')) {
+            Schema::table('alumnis', function (Blueprint $table) {
+                $table->string('nik')->nullable()->after('nim');
+            });
+        }
     }
 
     /**

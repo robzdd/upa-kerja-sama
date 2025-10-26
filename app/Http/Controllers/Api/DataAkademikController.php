@@ -225,10 +225,16 @@ class DataAkademikController extends Controller
                     'user_id' => $user->id,
                 ]);
             }
+            
+            // Refresh alumni to ensure we have the latest data
+            $alumni->refresh();
 
             $dataAkademik = $alumni->dataAkademik()->updateOrCreate(
                 ['alumni_id' => $alumni->id],
-                $request->all()
+                array_merge(
+                    $request->all(),
+                    ['alumni_id' => $alumni->id] // Ensure alumni_id is set
+                )
             );
 
             return response()->json([

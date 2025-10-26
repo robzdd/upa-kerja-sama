@@ -113,13 +113,37 @@ class AuthController extends Controller
             // Load with academic data
             $alumni = $user->alumni()->with('dataAkademik')->first();
             
-            $profileArray = $alumni ? $alumni->toArray() : null;
-            if ($alumni && $alumni->dataAkademik) {
-                $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
-                $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
-            }
-            if ($alumni && $alumni->file_cv) {
-                $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+            // Build profile array manually to ensure all fields are included
+            $profileArray = null;
+            if ($alumni) {
+                $profileArray = [
+                    'id' => $alumni->id,
+                    'user_id' => $alumni->user_id,
+                    'nim' => $alumni->nim,
+                    'nik' => $alumni->nik,
+                    'no_hp' => $alumni->no_hp,
+                    'tempat_lahir' => $alumni->tempat_lahir,
+                    'tanggal_lahir' => $alumni->tanggal_lahir ? $alumni->tanggal_lahir->format('Y-m-d') : null,
+                    'jenis_kelamin' => $alumni->jenis_kelamin,
+                    'alamat' => $alumni->alamat,
+                    'kota' => $alumni->kota,
+                    'provinsi' => $alumni->provinsi,
+                    'kode_pos' => $alumni->kode_pos,
+                    'tentang_saya' => $alumni->tentang_saya,
+                    'nama_bank' => $alumni->nama_bank,
+                    'no_rekening' => $alumni->no_rekening,
+                    'file_cv' => $alumni->file_cv,
+                    'created_at' => $alumni->created_at,
+                    'updated_at' => $alumni->updated_at,
+                ];
+                
+                if ($alumni->dataAkademik) {
+                    $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
+                    $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
+                }
+                if ($alumni->file_cv) {
+                    $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+                }
             }
             $profileData = $profileArray;
             $role = 'alumni';
@@ -200,13 +224,38 @@ class AuthController extends Controller
 
         // Refresh with academic data
         $alumni = $user->alumni()->with('dataAkademik')->first();
-        $profileArray = $alumni ? $alumni->toArray() : null;
-        if ($alumni && $alumni->dataAkademik) {
-            $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
-            $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
-        }
-        if ($alumni && $alumni->file_cv) {
-            $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+        
+        // Build profile array manually to ensure all fields are included
+        $profileArray = null;
+        if ($alumni) {
+            $profileArray = [
+                'id' => $alumni->id,
+                'user_id' => $alumni->user_id,
+                'nim' => $alumni->nim,
+                'nik' => $alumni->nik,
+                'no_hp' => $alumni->no_hp,
+                'tempat_lahir' => $alumni->tempat_lahir,
+                'tanggal_lahir' => $alumni->tanggal_lahir ? $alumni->tanggal_lahir->format('Y-m-d') : null,
+                'jenis_kelamin' => $alumni->jenis_kelamin,
+                'alamat' => $alumni->alamat,
+                'kota' => $alumni->kota,
+                'provinsi' => $alumni->provinsi,
+                'kode_pos' => $alumni->kode_pos,
+                'tentang_saya' => $alumni->tentang_saya,
+                'nama_bank' => $alumni->nama_bank,
+                'no_rekening' => $alumni->no_rekening,
+                'file_cv' => $alumni->file_cv,
+                'created_at' => $alumni->created_at,
+                'updated_at' => $alumni->updated_at,
+            ];
+            
+            if ($alumni->dataAkademik) {
+                $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
+                $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
+            }
+            if ($alumni->file_cv) {
+                $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+            }
         }
 
         return response()->json([
@@ -271,13 +320,38 @@ class AuthController extends Controller
 
         // Refresh alumni with relations
         $alumni = $user->alumni()->with('dataAkademik')->first();
-        $profileArray = $alumni ? $alumni->toArray() : null;
-        if ($alumni && $alumni->dataAkademik) {
-            $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
-            $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
-        }
-        if ($alumni && $alumni->file_cv) {
-            $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+        
+        // Build profile array manually to ensure all fields are included
+        $profileArray = null;
+        if ($alumni) {
+            $profileArray = [
+                'id' => $alumni->id,
+                'user_id' => $alumni->user_id,
+                'nim' => $alumni->nim,
+                'nik' => $alumni->nik,
+                'no_hp' => $alumni->no_hp,
+                'tempat_lahir' => $alumni->tempat_lahir,
+                'tanggal_lahir' => $alumni->tanggal_lahir ? $alumni->tanggal_lahir->format('Y-m-d') : null,
+                'jenis_kelamin' => $alumni->jenis_kelamin,
+                'alamat' => $alumni->alamat,
+                'kota' => $alumni->kota,
+                'provinsi' => $alumni->provinsi,
+                'kode_pos' => $alumni->kode_pos,
+                'tentang_saya' => $alumni->tentang_saya,
+                'nama_bank' => $alumni->nama_bank,
+                'no_rekening' => $alumni->no_rekening,
+                'file_cv' => $alumni->file_cv,
+                'created_at' => $alumni->created_at,
+                'updated_at' => $alumni->updated_at,
+            ];
+            
+            if ($alumni->dataAkademik) {
+                $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
+                $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
+            }
+            if ($alumni->file_cv) {
+                $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+            }
         }
 
         return response()->json([
