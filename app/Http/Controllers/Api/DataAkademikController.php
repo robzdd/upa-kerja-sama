@@ -204,14 +204,26 @@ class DataAkademikController extends Controller
                 ], 422);
             }
 
-            $user = Auth::user();
+            // Get user from token (same as AuthController)
+            $token = $request->bearerToken();
+            if (!$token) {
+                return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+            }
+            $decoded = base64_decode($token);
+            $parts = explode('|', $decoded);
+            $userId = $parts[0] ?? null;
+            $user = $userId ? \App\Models\User::find($userId) : null;
+            if (!$user || !$user->hasRole('alumni')) {
+                return response()->json(['success' => false, 'message' => 'User tidak valid'], 401);
+            }
+
             $alumni = $user->alumni;
             
+            // Create alumni profile if not exists
             if (!$alumni) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Alumni profile not found'
-                ], 404);
+                $alumni = Alumni::create([
+                    'user_id' => $user->id,
+                ]);
             }
 
             $dataAkademik = $alumni->dataAkademik()->updateOrCreate(

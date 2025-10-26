@@ -49,10 +49,10 @@ class AuthController extends Controller
                 'data' => [
                     'token' => $token,
                     'user' => [
-                        'id' => $user->id,
+                        'id' => (string)$user->id,
                         'name' => $user->name,
                         'email' => $user->email,
-                        'role' => $role,
+                        'roles' => $role ? [$role] : [],
                     ],
                 ],
             ]);
@@ -103,7 +103,16 @@ class AuthController extends Controller
         
         if ($user->hasRole('alumni')) {
             // include academic relation for mobile prefill
+            $alumni = $user->alumni;
+            
+            // Create alumni profile if it doesn't exist
+            if (!$alumni) {
+                $alumni = $user->alumni()->create([]);
+            }
+            
+            // Load with academic data
             $alumni = $user->alumni()->with('dataAkademik')->first();
+            
             $profileArray = $alumni ? $alumni->toArray() : null;
             if ($alumni && $alumni->dataAkademik) {
                 $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
@@ -126,10 +135,10 @@ class AuthController extends Controller
             'success' => true,
             'data' => [
                 'user' => [
-                    'id' => $user->id,
+                    'id' => (string)$user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'roles' => [$role],
+                    'roles' => $role ? [$role] : [],
                 ],
                 'profile' => $profileData,
             ],
