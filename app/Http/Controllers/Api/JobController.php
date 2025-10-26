@@ -398,16 +398,64 @@ class JobController extends Controller
         if (!$user) return response()->json(['success' => false, 'message' => 'User tidak ditemukan'], 404);
 
         if ($user->hasRole('alumni')) {
-            $alumni = $user->alumni()->with('dataAkademik')->first();
-            $profileArray = $alumni ? $alumni->toArray() : null;
-            if ($alumni && $alumni->dataAkademik) {
-                $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
-                $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
-                $profileArray['ipk'] = $alumni->dataAkademik->ipk ?? null;
+            $alumni = $user->alumni()->with('dataAkademik', 'dataKeluarga', 'dokumenPendukung')->first();
+            
+            // Build profile array manually to ensure all fields are included
+            $profileArray = null;
+            $cvUrl = null;
+            
+            if ($alumni) {
+                $profileArray = [
+                    'id' => $alumni->id,
+                    'user_id' => $alumni->user_id,
+                    'nim' => $alumni->nim,
+                    'nik' => $alumni->nik,
+                    'no_hp' => $alumni->no_hp,
+                    'tempat_lahir' => $alumni->tempat_lahir,
+                    'tanggal_lahir' => $alumni->tanggal_lahir ? $alumni->tanggal_lahir->format('Y-m-d') : null,
+                    'jenis_kelamin' => $alumni->jenis_kelamin,
+                    'alamat' => $alumni->alamat,
+                    'kota' => $alumni->kota,
+                    'provinsi' => $alumni->provinsi,
+                    'kode_pos' => $alumni->kode_pos,
+                    'tentang_saya' => $alumni->tentang_saya,
+                    'nama_bank' => $alumni->nama_bank,
+                    'no_rekening' => $alumni->no_rekening,
+                    'file_cv' => $alumni->file_cv,
+                    'created_at' => $alumni->created_at,
+                    'updated_at' => $alumni->updated_at,
+                ];
+                
+                // Add CV URL if exists
+                if ($alumni->file_cv) {
+                    $cvUrl = url('storage/' . $alumni->file_cv);
+                    $profileArray['cv_url'] = $cvUrl;
+                    // Debug
+                    \Log::info('CV URL generated: ' . $cvUrl . ' from file_cv: ' . $alumni->file_cv);
+                } else {
+                    \Log::info('No CV file found for alumni ID: ' . $alumni->id);
+                }
+                
+                // Add academic fields
+                if ($alumni->dataAkademik) {
+                    $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
+                    $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
+                    $profileArray['ipk'] = $alumni->dataAkademik->ipk ?? null;
+                }
             }
-            if ($alumni && $alumni->file_cv) {
-                $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+            
+            // Get supporting documents
+            $dokumenPendukung = null;
+            if ($alumni && $alumni->dokumenPendukung) {
+                $dokumenPendukung = $alumni->dokumenPendukung->map(function($doc) {
+                    $docArray = $doc->toArray();
+                    if ($doc->file_path) {
+                        $docArray['file_url'] = url('storage/' . $doc->file_path);
+                    }
+                    return $docArray;
+                })->toArray();
             }
+            
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -418,6 +466,10 @@ class JobController extends Controller
                         'roles' => ['alumni'],
                     ],
                     'profile' => $profileArray,
+                    'cv_url' => $cvUrl,
+                    'data_akademik' => $alumni && $alumni->dataAkademik ? $alumni->dataAkademik->toArray() : null,
+                    'data_keluarga' => $alumni && $alumni->dataKeluarga ? $alumni->dataKeluarga->toArray() : null,
+                    'dokumen_pendukung' => $dokumenPendukung,
                 ],
             ]);
         }
