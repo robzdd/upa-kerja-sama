@@ -55,5 +55,7 @@ Route::get('/profile', [AuthController::class, 'profile']);
 Route::post('/alumni/cv', [AuthController::class, 'uploadAlumniCv']);
 // Update company profile (mitra)
 Route::put('/mitra/company', [CompanyController::class, 'updateMine']);
-// Update alumni profile
+// Update alumni profile (basic)
 Route::put('/alumni/profile', [AuthController::class, 'updateAlumni']);
+// Update alumni detail profile (comprehensive)
+Route::put('/alumni/profile/detail', [AuthController::class, 'updateAlumniDetail']);

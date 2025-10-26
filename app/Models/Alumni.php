@@ -15,6 +15,7 @@ class Alumni extends Model
     protected $fillable = [
         'user_id',
         'nim',
+        'nik',
         'no_hp',
         'tempat_lahir',
         'tanggal_lahir',

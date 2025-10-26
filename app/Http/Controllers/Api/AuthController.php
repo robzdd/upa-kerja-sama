@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use App\Models\DataAkademik;
 
 class AuthController extends Controller
 {
@@ -176,18 +177,17 @@ class AuthController extends Controller
             $alumni->nim = $validated['nim'];
         }
         $alumni->alamat = $validated['alamat'] ?? $alumni->alamat;
-        // Save simple academic fields if exist
-        if (method_exists($alumni, 'dataAkademik')) {
-            $alumni->dataAkademik()->updateOrCreate(
-                ['alumni_id' => $alumni->id],
-                [
-                    'nim' => $validated['nim'] ?? null,
-                    'program_studi' => $validated['program_studi'] ?? null,
-                    'tahun_masuk' => $validated['angkatan'] ?? null,
-                ]
-            );
-        }
         $alumni->save();
+
+        // Save academic fields
+        DataAkademik::updateOrCreate(
+            ['alumni_id' => $alumni->id],
+            [
+                'nim' => $validated['nim'] ?? $alumni->nim,
+                'program_studi' => $validated['program_studi'] ?? null,
+                'tahun_masuk' => $validated['angkatan'] ?? null,
+            ]
+        );
 
         // Refresh with academic data
         $alumni = $user->alumni()->with('dataAkademik')->first();
@@ -196,13 +196,87 @@ class AuthController extends Controller
             $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
             $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
         }
+        if ($alumni && $alumni->file_cv) {
+            $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Profil alumni berhasil diperbarui',
             'data' => [
                 'user' => $user,
-                'alumni' => $profileArray,
+                'profile' => $profileArray,
+            ],
+        ]);
+    }
+
+    /**
+     * Update alumni detail profile (comprehensive fields)
+     */
+    public function updateAlumniDetail(Request $request)
+    {
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        }
+        $decoded = base64_decode($token);
+        $parts = explode('|', $decoded);
+        $userId = $parts[0] ?? null;
+        $user = $userId ? User::find($userId) : null;
+        if (!$user || !$user->hasRole('alumni')) {
+            return response()->json(['success' => false, 'message' => 'User tidak valid'], 401);
+        }
+
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'nik' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
+            'tempat_lahir' => 'nullable|string|max:255',
+            'tanggal_lahir' => 'nullable|date',
+            'no_hp' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string|max:500',
+            'nama_bank' => 'nullable|string|max:255',
+            'no_rekening' => 'nullable|string|max:20',
+            'tentang_saya' => 'nullable|string|max:1000',
+        ]);
+
+        // Update user
+        if (isset($validated['name'])) $user->name = $validated['name'];
+        if (isset($validated['email'])) $user->email = $validated['email'];
+        $user->save();
+
+        // Ensure alumni relation exists
+        $alumni = $user->alumni;
+        if (!$alumni) {
+            $alumni = $user->alumni()->create([]);
+        }
+
+        // Update alumni fields
+        foreach (['nik', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'no_hp', 'alamat', 'nama_bank', 'no_rekening', 'tentang_saya'] as $field) {
+            if (isset($validated[$field])) {
+                $alumni->$field = $validated[$field];
+            }
+        }
+        $alumni->save();
+
+        // Refresh alumni with relations
+        $alumni = $user->alumni()->with('dataAkademik')->first();
+        $profileArray = $alumni ? $alumni->toArray() : null;
+        if ($alumni && $alumni->dataAkademik) {
+            $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
+            $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
+        }
+        if ($alumni && $alumni->file_cv) {
+            $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil detail alumni berhasil diperbarui',
+            'data' => [
+                'user' => $user,
+                'profile' => $profileArray,
             ],
         ]);
     }
