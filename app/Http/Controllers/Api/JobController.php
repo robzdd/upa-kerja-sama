@@ -8,6 +8,7 @@ use App\Models\LowonganPekerjaan;
 use App\Models\MitraPerusahaan;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class JobController extends Controller
 {
@@ -306,6 +307,8 @@ class JobController extends Controller
                 'user_id' => $r->user_id,
                 'lowongan_id' => $r->lowongan_id,
                 'status' => $r->status,
+                'subject' => $r->subject ?? null,
+                'message' => $r->message ?? null,
                 'created_at' => $r->created_at,
                 'updated_at' => $r->updated_at,
                 'lowongan' => [
@@ -337,11 +340,69 @@ class JobController extends Controller
      */
     public function updateApplicationStatus(Request $request, $applicationId)
     {
-        $request->validate(['status' => 'required|in:melamar,lolos,interview,diterima,ditolak']);
+        $request->validate([
+            'status' => 'required|in:melamar,lolos,interview,diterima,ditolak',
+            'subject' => 'nullable|string|max:255',
+            'message' => 'nullable|string',
+        ]);
+        
         $app = DB::table('pelamars')->where('id', $applicationId)->first();
         if (!$app) return response()->json(['success' => false, 'message' => 'Lamaran tidak ditemukan'], 404);
-        DB::table('pelamars')->where('id', $applicationId)->update(['status' => $request->status, 'updated_at' => now()]);
+        
+        // Get user info for email
+        $user = User::find($app->user_id);
+        if (!$user) return response()->json(['success' => false, 'message' => 'User tidak ditemukan'], 404);
+        
+        // Get job info for email
+        $job = LowonganPekerjaan::find($app->lowongan_id);
+        $jobTitle = $job ? $job->judul : 'Lowongan';
+        
+        // Update status and save subject/message
+        DB::table('pelamars')->where('id', $applicationId)->update([
+            'status' => $request->status, 
+            'subject' => $request->subject,
+            'message' => $request->message,
+            'updated_at' => now()
+        ]);
         $app = DB::table('pelamars')->where('id', $applicationId)->first();
+        
+        // Send email if subject and message provided
+        if ($request->has('subject') && $request->has('message') && $request->subject && $request->message) {
+            try {
+                // Get mitra info for email sender
+                $token = $request->bearerToken();
+                $parts = $token ? explode('|', base64_decode($token)) : [];
+                $userId = $parts[0] ?? null;
+                $sender = $userId ? User::find($userId) : null;
+                $companyName = $sender ? $sender->name : 'Perusahaan';
+                
+                // Status labels
+                $statusLabels = [
+                    'melamar' => 'Lamaran Anda sedang ditinjau',
+                    'lolos' => 'Selamat! Anda lolos tahap screening',
+                    'interview' => 'Anda lolos ke tahap interview',
+                    'diterima' => 'Selamat! Anda diterima',
+                    'ditolak' => 'Update Lamaran Anda',
+                ];
+                
+                $statusLabel = $statusLabels[$request->status] ?? 'Update Lamaran';
+                
+                // Send email
+                Mail::to($user->email)->send(new \App\Mail\ApplicationStatusUpdate(
+                    $user->name,
+                    $jobTitle,
+                    $request->status,
+                    $statusLabel,
+                    $request->subject,
+                    $request->message,
+                    $companyName
+                ));
+            } catch (\Exception $e) {
+                // Log error but don't fail the request
+                \Log::error('Failed to send email: ' . $e->getMessage());
+            }
+        }
+        
         return response()->json(['success' => true, 'message' => 'Status lamaran diperbarui', 'data' => $app]);
     }
 
