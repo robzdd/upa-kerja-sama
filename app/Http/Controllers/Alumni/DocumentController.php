@@ -29,18 +29,22 @@ class DocumentController extends Controller
         $user = Auth::user();
         $alumni = $user->alumni;
 
+        if (!$alumni) {
+            return back()->with('error', 'Data alumni belum dibuat!');
+        }
+
         // Handle file upload
         $file = $request->file('file');
         $fileName = time() . '_' . $file->getClientOriginalName();
         $filePath = $file->storeAs('documents/alumni/' . $alumni->id, $fileName, 'public');
 
-        // Create document record
+        // Simpan ke database (gunakan UUID dari $alumni->id)
         DokumenPendukung::create([
-            'alumni_id' => $alumni->id,
-            'tipe_dokumen' => $request->tipe_dokumen,
-            'nama_dokumen' => $file->getClientOriginalName(),
-            'path_file' => $filePath,
-            'ukuran_file' => $file->getSize(),
+            'alumni_id'     => $alumni->id, // UUID
+            'tipe_dokumen'  => $request->tipe_dokumen,
+            'nama_dokumen'  => $file->getClientOriginalName(),
+            'path_file'     => $filePath,
+            'ukuran_file'   => $file->getSize(),
         ]);
 
         return redirect()->back()->with('success', 'Dokumen berhasil diupload!');

@@ -13,74 +13,203 @@ class CvController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
+        $user = auth()->user();
+        
+        // Load alumni dengan semua relasi yang dibutuhkan
+        $alumni = Alumni::where('user_id', $user->id)
+            ->with([
+                'dataKeluarga',
+                'dokumenPendukung',
+                'riwayatPendidikan' => function($query) {
+                    $query->orderBy('tahun_masuk', 'desc');
+                },
+                'pengalamanKerja' => function($query) {
+                    $query->orderBy('mulai_kerja', 'desc');
+                },
+                'sertifikasi' => function($query) {
+                    $query->orderBy('mulai_berlaku', 'desc');
+                }
+            ])
+            ->first();
 
         // Calculate progress percentage
-        $progressPercentage = $this->calculateProgressPercentage($alumni);
+        $progressPercentage = $this->calculateProgress($user, $alumni);
 
-        return view('alumni.cv.index', compact('alumni', 'progressPercentage'));
+        return view('alumni.cv.index', compact( 'alumni', 'progressPercentage'));
     }
+
+    private function calculateProgress($user, $alumni)
+    {
+        if (!$alumni) return 0;
+
+        $totalFields = 0;
+        $filledFields = 0;
+
+        // === Data Pribadi (20 poin total) ===
+        $personalFields = [
+            $user->name,
+            $user->email,
+            $alumni->no_hp,
+            $alumni->alamat,
+            $alumni->tentang_saya,
+        ];
+        foreach ($personalFields as $field) {
+            $totalFields += 4;
+            if (!empty($field)) $filledFields += 4;
+        }
+
+        // === Riwayat Pendidikan (15 poin) ===
+        $totalFields += 15;
+        $riwayat = $alumni->riwayatPendidikan()
+            ->whereNotNull('nama_sekolah')
+            ->whereNotNull('strata')
+            ->get();
+        if ($riwayat->count() > 0) $filledFields += 15;
+
+        // === Pengalaman Kerja (10 poin) ===
+        $totalFields += 10;
+        $pengalaman = $alumni->pengalamanKerja()
+            ->whereNotNull('perusahaan_organisasi')
+            ->get();
+        if ($pengalaman->count() > 0) $filledFields += 10;
+
+        // === Sertifikasi (10 poin) ===
+        $totalFields += 10;
+        $sertifikasi = $alumni->sertifikasi()->get();
+        if ($sertifikasi->count() > 0) $filledFields += 10;
+
+        // === Hard & Soft Skills (10 poin total) ===
+        $totalFields += 10;
+        if (!empty($alumni->keahlian)) $filledFields += 5;
+        if (!empty($alumni->soft_skills)) $filledFields += 5;
+
+        // === Data Keluarga (20 poin) ===
+        $totalFields += 20;
+        $keluarga = $alumni->dataKeluarga;
+        if ($keluarga) {
+            $fields = [
+                $keluarga->nama_ayah,
+                $keluarga->pekerjaan_ayah,
+                $keluarga->nama_ibu,
+                $keluarga->pekerjaan_ibu,
+            ];
+            $filledFields += (count(array_filter($fields)) / 4) * 20;
+        }
+
+        // === Dokumen Pendukung (20 poin) ===
+        $totalFields += 20;
+        // perbaikan penting: cari berdasarkan alumni_id *ATAU* user_id sementara
+        $dokumen = $alumni->dokumenPendukung()
+            ->orWhere('alumni_id', $alumni->user_id ?? null)
+            ->get();
+        if ($dokumen->count() > 0) {
+            $filledFields += min(($dokumen->count() / 6) * 20, 20);
+        }
+
+        return round(($filledFields / $totalFields) * 100);
+    }
+
 
     public function generateCv()
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
+        try {
+            $user = auth()->user();
+            $alumni = Alumni::where('user_id', $user->id)->first();
 
-        if (!$alumni) {
-            return redirect()->back()->with('error', 'Data alumni tidak ditemukan!');
-        }
+            if (!$alumni) {
+                return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+            }
 
-        // Check if minimum data is available
-        $progressPercentage = $this->calculateProgressPercentage($alumni);
+            // Generate or reuse CV URI
+            if (!$alumni->cv_uri) {
+                $alumni->cv_uri = Str::random(32);
+            }
 
-        if ($progressPercentage < 30) {
-            return redirect()->back()->with('error', 'Data CV belum lengkap. Minimal 30% data harus diisi untuk dapat generate CV. Progress saat ini: ' . $progressPercentage . '%');
-        }
-
-        // Clear existing CV data if regenerating
-        if ($alumni->cv_generated) {
-            $alumni->cvData()->delete();
-        }
-
-        // Generate unique CV URI if not exists
-        if (!$alumni->cv_uri) {
-            $alumni->cv_uri = Str::slug($user->name) . '-' . Str::random(8);
+            $alumni->cv_generated = true;
             $alumni->save();
+
+            return redirect()->back()->with('success', 'CV berhasil di-generate! Anda sekarang dapat melihat CV Anda.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        // Generate CV data from existing alumni data
-        $this->generateCvDataFromAlumni($alumni);
-
-        return redirect()->back()->with('success', 'CV berhasil di-generate! Progress: ' . $progressPercentage . '%');
     }
 
     public function previewCv()
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
+        $user = auth()->user();
+        
+        $alumni = Alumni::where('user_id', $user->id)
+            ->with([
+                'dataAkademik',
+                'dataKeluarga',
+                'dokumenPendukung',
+                'riwayatPendidikan' => function($query) {
+                    $query->orderBy('tahun_masuk', 'desc');
+                },
+                'pengalamanKerja' => function($query) {
+                    $query->orderBy('mulai_kerja', 'desc');
+                },
+                'sertifikasi' => function($query) {
+                    $query->orderBy('mulai_berlaku', 'desc');
+                }
+            ])
+            ->first();
 
         return view('alumni.cv.preview', compact('alumni'));
     }
 
     public function publicCv($uri)
     {
-        $alumni = Alumni::where('cv_uri', $uri)->where('cv_public', true)->firstOrFail();
+        $alumni = Alumni::where('cv_uri', $uri)
+            ->where('cv_public', true)
+            ->with([
+                'dataAkademik',
+                'dataKeluarga',
+                'riwayatPendidikan' => function($query) {
+                    $query->orderBy('tahun_masuk', 'desc');
+                },
+                'pengalamanKerja' => function($query) {
+                    $query->orderBy('mulai_kerja', 'desc');
+                },
+                'sertifikasi' => function($query) {
+                    $query->orderBy('mulai_berlaku', 'desc');
+                }
+            ])
+            ->first();
+
+        if (!$alumni) {
+            abort(404, 'CV tidak ditemukan atau tidak dipublikasikan.');
+        }
 
         return view('alumni.cv.public', compact('alumni'));
     }
 
     public function togglePublic()
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
+        try {
+            $user = auth()->user();
+            $alumni = Alumni::where('user_id', $user->id)->first();
 
-        $alumni->cv_public = !$alumni->cv_public;
-        $alumni->save();
+            if (!$alumni) {
+                return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+            }
 
-        $status = $alumni->cv_public ? 'dipublikasikan' : 'disembunyikan';
+            if (!$alumni->cv_generated) {
+                return redirect()->back()->with('error', 'Harap generate CV terlebih dahulu sebelum mempublikasikan.');
+            }
 
-        return redirect()->back()->with('success', "CV berhasil {$status}!");
+            // Toggle public status
+            $alumni->cv_public = !$alumni->cv_public;
+            $alumni->save();
+
+            $message = $alumni->cv_public 
+                ? 'CV Anda sekarang dapat diakses publik!' 
+                : 'CV Anda sekarang bersifat privat.';
+
+            return redirect()->back()->with('success', $message);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function storeCvData(Request $request)
@@ -137,87 +266,7 @@ class CvController extends Controller
         return redirect()->back()->with('success', 'Data CV berhasil dihapus!');
     }
 
-    private function calculateProgressPercentage($alumni)
-    {
-        if (!$alumni) {
-            return 0;
-        }
-
-        $totalFields = 0;
-        $completedFields = 0;
-
-        // Data Pribadi (4 fields)
-        $personalFields = [
-            'nama_lengkap' => $alumni->nama_lengkap,
-            'email' => auth()->user()->email,
-            'no_hp' => $alumni->no_hp,
-            'alamat' => $alumni->alamat,
-        ];
-
-        foreach ($personalFields as $field => $value) {
-            $totalFields++;
-            if (!empty($value)) {
-                $completedFields++;
-            }
-        }
-
-        // Data Akademik (4 fields)
-        if ($alumni->dataAkademik) {
-            $academicFields = [
-                'program_studi' => $alumni->dataAkademik->program_studi,
-                'universitas' => $alumni->dataAkademik->universitas,
-                'tahun_masuk' => $alumni->dataAkademik->tahun_masuk,
-                'tahun_lulus' => $alumni->dataAkademik->tahun_lulus,
-            ];
-
-            foreach ($academicFields as $field => $value) {
-                $totalFields++;
-                if (!empty($value)) {
-                    $completedFields++;
-                }
-            }
-        } else {
-            $totalFields += 4; // Add 4 fields even if dataAkademik doesn't exist
-        }
-
-        // Data Keluarga (2 fields)
-        if ($alumni->dataKeluarga) {
-            $familyFields = [
-                'nama_ayah' => $alumni->dataKeluarga->nama_ayah,
-                'nama_ibu' => $alumni->dataKeluarga->nama_ibu,
-            ];
-
-            foreach ($familyFields as $field => $value) {
-                $totalFields++;
-                if (!empty($value)) {
-                    $completedFields++;
-                }
-            }
-        } else {
-            $totalFields += 2; // Add 2 fields even if dataKeluarga doesn't exist
-        }
-
-        // Dokumen Pendukung (1 field)
-        $totalFields++;
-        if ($alumni->dokumenPendukung && $alumni->dokumenPendukung->count() > 0) {
-            $completedFields++;
-        }
-
-        // CV Data (keahlian, pengalaman, prestasi, organisasi)
-        $cvDataTypes = ['keahlian', 'pengalaman', 'prestasi', 'organisasi'];
-        foreach ($cvDataTypes as $type) {
-            $totalFields++;
-            if ($alumni->cvData && $alumni->cvData->where('tipe_data', $type)->count() > 0) {
-                $completedFields++;
-            }
-        }
-
-        if ($totalFields == 0) {
-            return 0;
-        }
-
-        return round(($completedFields / $totalFields) * 100);
-    }
+    
 
     private function generateCvDataFromAlumni($alumni)
     {

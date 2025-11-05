@@ -1,314 +1,377 @@
 <?php
 
-// File: app/Http/Controllers/Alumni/ProfileController.php
-
 namespace App\Http\Controllers\Alumni;
 
 use App\Http\Controllers\Controller;
-use App\Models\Alumni;
-use App\Models\DataAkademik;
-use App\Models\DataKeluarga;
-use App\Models\DokumenPendukung;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
-use PDF;
+use App\Models\Alumni;
+use App\Models\DataKeluarga;
+use App\Models\RiwayatPendidikan;
+use App\Models\PengalamanKerjaOrganisasi;
+use App\Models\PengalamanSertifikasi;
+use App\Models\DokumenPendukung;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
-        $dataAkademik = $alumni->dataAkademik ?? null;
-        $dataKeluarga = $alumni->dataKeluarga ?? null;
-        $dokumenPendukung = $alumni->dokumenPendukung ?? [];
+        $user = auth()->user();
+        $alumni = Alumni::where('user_id', $user->id)
+            ->with([
+                'dataKeluarga',
+                'dokumenPendukung',
+                'riwayatPendidikan',
+                'pengalamanKerja',
+                'sertifikasi'
+            ])
+            ->first();
 
-        if (!$user || !$alumni) {
-            return redirect()->route('alumni.dashboard')->with('error', 'Data alumni tidak ditemukan');
-        }
-
-        return view('alumni.profile', compact('user', 'alumni', 'dataAkademik', 'dataKeluarga', 'dokumenPendukung'));
+        return view('alumni.profile.index', compact('user', 'alumni'));
     }
 
     public function edit()
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
-        $dataAkademik = $alumni->dataAkademik;
-        $dataKeluarga = $alumni->dataKeluarga;
+        $user = auth()->user();
+        $alumni = Alumni::where('user_id', $user->id)->firstOrCreate(['user_id' => $user->id]);
 
-        if (!$user || !$alumni) {
-            return redirect()->route('alumni.dashboard')->with('error', 'Data alumni tidak ditemukan');
-        }
+        // relasi pakai alumni_id
+        $dataKeluarga = DataKeluarga::where('alumni_id', $alumni->id)->first();
+        $dokumenPendukung = DokumenPendukung::where('alumni_id', $alumni->id)->get();
 
-        return view('alumni.profile-edit', compact('user', 'alumni', 'dataAkademik', 'dataKeluarga'));
+        // Load related data
+        $riwayatPendidikan = RiwayatPendidikan::where('user_id', $user->id)
+            ->orderBy('tahun_masuk', 'desc')
+            ->get();
+
+        $pengalamanKerja = PengalamanKerjaOrganisasi::where('user_id', $user->id)
+            ->orderBy('mulai_kerja', 'desc')
+            ->get();
+
+        $sertifikasi = PengalamanSertifikasi::where('user_id', $user->id)
+            ->orderBy('mulai_berlaku', 'desc')
+            ->get();
+
+        return view('alumni.profile-edit', compact(
+            'user',
+            'alumni',
+            'dataKeluarga',
+            'dokumenPendukung',
+            'riwayatPendidikan',
+            'pengalamanKerja',
+            'sertifikasi'
+        ));
     }
 
     public function update(Request $request)
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
-
-        if (!$user || !$alumni) {
-            return redirect()->route('alumni.dashboard')->with('error', 'Data alumni tidak ditemukan');
-        }
-
+        $user = auth()->user();
         $formType = $request->input('form_type');
+        $alumni = Alumni::where('user_id', $user->id)->first();
 
-        if ($formType === 'data_pribadi') {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-                'no_hp' => 'nullable|string|max:20',
-                'tempat_lahir' => 'nullable|string|max:255',
-                'tanggal_lahir' => 'nullable|date',
-                'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
-                'alamat' => 'nullable|string|max:500',
-                'kota' => 'nullable|string|max:100',
-                'provinsi' => 'nullable|string|max:100',
-                'kode_pos' => 'nullable|string|max:10',
-                'tentang_saya' => 'nullable|string|max:1000',
-                'nama_bank' => 'nullable|string|max:255',
-                'no_rekening' => 'nullable|string|max:20',
-            ]);
+        try {
+            switch ($formType) {
+                case 'data_pribadi':
+                    $this->updateDataPribadi($request, $user);
+                    $message = 'Data pribadi berhasil diperbarui!';
+                    break;
 
-            // Update user data
-            $user->update([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-            ]);
+                case 'data_akademik':
+                    $this->updateDataAkademik($request, $user);
+                    $message = 'Data akademik berhasil diperbarui!';
+                    break;
 
-            // Update alumni (data pribadi)
-            $alumni->update([
-                'no_hp' => $validated['no_hp'] ?? $alumni->no_hp,
-                'tempat_lahir' => $validated['tempat_lahir'] ?? $alumni->tempat_lahir,
-                'tanggal_lahir' => $validated['tanggal_lahir'] ?? $alumni->tanggal_lahir,
-                'jenis_kelamin' => $validated['jenis_kelamin'] ?? $alumni->jenis_kelamin,
-                'alamat' => $validated['alamat'] ?? $alumni->alamat,
-                'kota' => $validated['kota'] ?? $alumni->kota ?? null,
-                'provinsi' => $validated['provinsi'] ?? $alumni->provinsi ?? null,
-                'kode_pos' => $validated['kode_pos'] ?? $alumni->kode_pos ?? null,
-                'tentang_saya' => $validated['tentang_saya'] ?? $alumni->tentang_saya,
-                'nama_bank' => $validated['nama_bank'] ?? $alumni->nama_bank,
-                'no_rekening' => $validated['no_rekening'] ?? $alumni->no_rekening,
-            ]);
+                case 'data_keluarga':
+                    $this->updateDataKeluarga($request, $alumni);
+                    $message = 'Data keluarga berhasil diperbarui!';
+                    break;
 
-            return redirect()->route('alumni.profile.edit')->with('success', 'Data pribadi berhasil diperbarui!');
-
-        } elseif ($formType === 'data_akademik') {
-            $validated = $request->validate([
-                'nim' => 'nullable|string|max:20|unique:data_akademiks,nim,' . ($alumni->dataAkademik->id ?? null),
-                'program_studi' => 'nullable|string|max:255',
-                'tahun_masuk' => 'nullable|integer|min:1900|max:' . date('Y'),
-                'tahun_lulus' => 'nullable|integer|min:1900|max:' . date('Y'),
-                'ipk' => 'nullable|numeric|min:0|max:4',
-                'universitas' => 'nullable|string|max:255',
-                'hard_skills' => 'nullable|array',
-                'hard_skills.*' => 'nullable|string|max:255',
-                'soft_skills' => 'nullable|array',
-                'soft_skills.*' => 'nullable|string|max:255',
-            ]);
-
-            // Update atau create data akademik
-            DataAkademik::updateOrCreate(
-                ['alumni_id' => $alumni->id],
-                [
-                    'nim' => $validated['nim'] ?? null,
-                    'program_studi' => $validated['program_studi'] ?? null,
-                    'tahun_masuk' => $validated['tahun_masuk'] ?? null,
-                    'tahun_lulus' => $validated['tahun_lulus'] ?? null,
-                    'ipk' => $validated['ipk'] ?? null,
-                    'universitas' => $validated['universitas'] ?? null,
-                ]
-            );
-
-            // Update hard skills
-            if (isset($validated['hard_skills'])) {
-                $hardSkills = array_filter($validated['hard_skills'], function($skill) {
-                    return !empty(trim($skill));
-                });
-                $alumni->update(['keahlian' => implode(',', $hardSkills)]);
+                default:
+                    return redirect()->back()->with('error', 'Tipe form tidak valid.');
             }
 
-            // Update soft skills
-            if (isset($validated['soft_skills'])) {
-                $softSkills = array_filter($validated['soft_skills'], function($skill) {
-                    return !empty(trim($skill));
-                });
-                $alumni->update(['soft_skills' => implode(',', $softSkills)]);
-            }
-
-            return redirect()->route('alumni.profile.edit')->with('success', 'Data akademik berhasil diperbarui!');
-
-        } elseif ($formType === 'data_keluarga') {
-            $validated = $request->validate([
-                'nama_ayah' => 'nullable|string|max:255',
-                'pekerjaan_ayah' => 'nullable|string|max:255',
-                'nama_ibu' => 'nullable|string|max:255',
-                'pekerjaan_ibu' => 'nullable|string|max:255',
-                'nama_wali' => 'nullable|string|max:255',
-                'pekerjaan_wali' => 'nullable|string|max:255',
-                'alamat_keluarga' => 'nullable|string|max:500',
-                'jumlah_saudara' => 'nullable|integer|min:0',
-            ]);
-
-            // Update atau create data keluarga
-            DataKeluarga::updateOrCreate(
-                ['alumni_id' => $alumni->id],
-                [
-                    'nama_ayah' => $validated['nama_ayah'] ?? null,
-                    'pekerjaan_ayah' => $validated['pekerjaan_ayah'] ?? null,
-                    'nama_ibu' => $validated['nama_ibu'] ?? null,
-                    'pekerjaan_ibu' => $validated['pekerjaan_ibu'] ?? null,
-                    'nama_wali' => $validated['nama_wali'] ?? null,
-                    'pekerjaan_wali' => $validated['pekerjaan_wali'] ?? null,
-                    'alamat_keluarga' => $validated['alamat_keluarga'] ?? null,
-                    'jumlah_saudara' => $validated['jumlah_saudara'] ?? null,
-                ]
-            );
-
-            return redirect()->route('alumni.profile.edit')->with('success', 'Data keluarga berhasil diperbarui!');
+            return redirect()->back()->with('success', $message);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        return redirect()->route('alumni.profile.edit')->with('error', 'Form tidak valid');
     }
 
-    public function uploadDokumen(Request $request)
+    private function updateDataPribadi(Request $request, $user)
     {
         $validated = $request->validate([
-            'tipe_dokumen' => 'required|string',
-            'nama_dokumen' => 'required|string|max:255',
-            'file' => 'required|file|mimes:pdf,doc,docx,jpg,png|max:5120',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'no_hp' => 'nullable|string|max:15',
+            'nik' => 'nullable|string|max:16',
+            'tempat_lahir' => 'nullable|string|max:255',
+            'tanggal_lahir' => 'nullable|date',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'alamat' => 'nullable|string',
+            'kota' => 'nullable|string|max:255',
+            'provinsi' => 'nullable|string|max:255',
+            'kode_pos' => 'nullable|string|max:10',
+            'nama_bank' => 'nullable|string|max:255',
+            'no_rekening' => 'nullable|string|max:50',
+            'tentang_saya' => 'nullable|string',
         ]);
 
-        $user = Auth::user();
-        $alumni = $user->alumni;
-
-        if (!$alumni) {
-            return redirect()->back()->with('error', 'Data alumni tidak ditemukan');
-        }
-
-        $file = $request->file('file');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('dokumen-alumni/' . $alumni->id, $filename, 'public');
-
-        DokumenPendukung::create([
-            'alumni_id' => $alumni->id,
-            'tipe_dokumen' => $validated['tipe_dokumen'],
-            'nama_dokumen' => $validated['nama_dokumen'],
-            'path_file' => $path,
-            'ukuran_file' => $file->getSize(),
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
         ]);
 
-        return redirect()->back()->with('success', 'Dokumen berhasil diupload!');
+        Alumni::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'no_hp' => $validated['no_hp'] ?? null,
+                'nik' => $validated['nik'] ?? null,
+                'tempat_lahir' => $validated['tempat_lahir'] ?? null,
+                'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
+                'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
+                'alamat' => $validated['alamat'] ?? null,
+                'kota' => $validated['kota'] ?? null,
+                'provinsi' => $validated['provinsi'] ?? null,
+                'kode_pos' => $validated['kode_pos'] ?? null,
+                'nama_bank' => $validated['nama_bank'] ?? null,
+                'no_rekening' => $validated['no_rekening'] ?? null,
+                'tentang_saya' => $validated['tentang_saya'] ?? null,
+            ]
+        );
     }
 
-    public function deleteDokumen($id)
+    private function updateDataAkademik(Request $request, $user)
     {
-        $dokumen = DokumenPendukung::findOrFail($id);
+        $hardSkills = implode(', ', array_filter($request->input('hard_skills', [])));
+        $softSkills = implode(', ', array_filter($request->input('soft_skills', [])));
 
-        // Validasi kepemilikan
-        if ($dokumen->alumni->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus dokumen ini');
-        }
-
-        // Hapus file
-        if (Storage::disk('public')->exists($dokumen->path_file)) {
-            Storage::disk('public')->delete($dokumen->path_file);
-        }
-
-        $dokumen->delete();
-
-        return redirect()->back()->with('success', 'Dokumen berhasil dihapus!');
+        Alumni::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'keahlian' => $hardSkills ?: null,
+                'soft_skills' => $softSkills ?: null,
+            ]
+        );
     }
 
-    public function generateCV($alumni, $user)
+    private function updateDataKeluarga(Request $request, $alumni)
     {
-        $dataAkademik = $alumni->dataAkademik;
-        $dataKeluarga = $alumni->dataKeluarga;
-
-        // Generate HTML CV
-        $html = view('alumni.cv-template', compact('alumni', 'user', 'dataAkademik', 'dataKeluarga'))->render();
-
-        // Generate PDF
-        $pdf = PDF::loadHTML($html);
-        $filename = 'cv_' . $user->id . '.pdf';
-        $path = 'cv-alumni/' . $filename;
-
-        // Simpan ke storage
-        Storage::disk('public')->put($path, $pdf->output());
-
-        // Update alumni dengan path CV
-        $alumni->update([
-            'file_cv' => $path,
-            'cv_updated_at' => now(),
+        $validated = $request->validate([
+            'nama_ayah' => 'nullable|string|max:255',
+            'pekerjaan_ayah' => 'nullable|string|max:255',
+            'nama_ibu' => 'nullable|string|max:255',
+            'pekerjaan_ibu' => 'nullable|string|max:255',
+            'nama_wali' => 'nullable|string|max:255',
+            'pekerjaan_wali' => 'nullable|string|max:255',
+            'jumlah_saudara' => 'nullable|integer|min:0',
+            'alamat_keluarga' => 'nullable|string',
         ]);
+
+        DataKeluarga::updateOrCreate(
+            ['alumni_id' => $alumni->id],
+            $validated
+        );
     }
 
-    public function downloadCv()
+    // ===== RIWAYAT PENDIDIKAN METHODS =====
+    
+    public function storePendidikan(Request $request)
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
+        $validated = $request->validate([
+            'nama_sekolah' => 'required|string|max:255',
+            'strata' => 'required|string',
+            'tahun_masuk' => 'required|date',
+            'tahun_lulus' => 'nullable|date',
+            'deskripsi' => 'nullable|string',
+        ]);
 
-        if (!$user || !$alumni) {
-            return redirect()->route('alumni.dashboard')->with('error', 'Data alumni tidak ditemukan');
+        $validated['user_id'] = auth()->id();
+
+        if ($request->filled('pendidikan_id')) {
+            $pendidikan = RiwayatPendidikan::where('user_id', auth()->id())
+                ->findOrFail($request->pendidikan_id);
+            $pendidikan->update($validated);
+            $message = 'Riwayat pendidikan berhasil diperbarui!';
+        } else {
+            RiwayatPendidikan::create($validated);
+            $message = 'Riwayat pendidikan berhasil ditambahkan!';
         }
 
-        if ($alumni->file_cv && Storage::disk('public')->exists($alumni->file_cv)) {
-            return Storage::disk('public')->download($alumni->file_cv, 'CV_' . $user->name . '.pdf');
-        }
-
-        return redirect()->back()->with('error', 'File CV tidak ditemukan');
+        return redirect()->back()->with('success', $message);
     }
 
-    public function viewCv()
+    public function editPendidikan($id)
     {
-        $user = Auth::user();
-        $alumni = $user->alumni;
-        $dataAkademik = $alumni->dataAkademik;
-        $dataKeluarga = $alumni->dataKeluarga;
-
-        if (!$user || !$alumni) {
-            return redirect()->route('alumni.dashboard')->with('error', 'Data alumni tidak ditemukan');
-        }
-
-        return view('alumni.cv-view', compact('user', 'alumni', 'dataAkademik', 'dataKeluarga'));
+        $pendidikan = RiwayatPendidikan::where('user_id', auth()->id())
+            ->findOrFail($id);
+        
+        return response()->json($pendidikan);
     }
 
-    public function destroy()
+    public function destroyPendidikan($id)
     {
-        $user = Auth::user();
+        try {
+            $pendidikan = RiwayatPendidikan::where('user_id', auth()->id())
+                ->findOrFail($id);
+            $pendidikan->delete();
 
-        if ($user->alumni) {
-            // Hapus dokumen pendukung
-            foreach ($user->alumni->dokumenPendukung as $dokumen) {
-                if (Storage::disk('public')->exists($dokumen->path_file)) {
-                    Storage::disk('public')->delete($dokumen->path_file);
-                }
-                $dokumen->delete();
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Riwayat pendidikan berhasil dihapus!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus riwayat pendidikan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
-            // Hapus data akademik
-            $user->alumni->dataAkademik?->delete();
+    // ===== PENGALAMAN KERJA/ORGANISASI METHODS =====
+    
+    public function storePengalaman(Request $request)
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:organisasi,perusahaan',
+            'perusahaan_organisasi' => 'required|string|max:255',
+            'posisi' => 'required|string|max:255',
+            'mulai_kerja' => 'required|date',
+            'selesai_kerja' => 'nullable|date',
+            'deskripsi_piri' => 'nullable|string',
+        ]);
 
-            // Hapus data keluarga
-            $user->alumni->dataKeluarga?->delete();
+        $validated['user_id'] = auth()->id();
 
-            // Hapus CV
-            if ($user->alumni->file_cv && Storage::disk('public')->exists($user->alumni->file_cv)) {
-                Storage::disk('public')->delete($user->alumni->file_cv);
-            }
-
-            // Hapus alumni
-            $user->alumni->delete();
+        if ($request->filled('pengalaman_id')) {
+            $pengalaman = PengalamanKerjaOrganisasi::where('user_id', auth()->id())
+                ->findOrFail($request->pengalaman_id);
+            $pengalaman->update($validated);
+            $message = 'Pengalaman berhasil diperbarui!';
+        } else {
+            PengalamanKerjaOrganisasi::create($validated);
+            $message = 'Pengalaman berhasil ditambahkan!';
         }
 
-        // Hapus user
+        return redirect()->back()->with('success', $message);
+    }
+
+    public function editPengalaman($id)
+    {
+        $pengalaman = PengalamanKerjaOrganisasi::where('user_id', auth()->id())
+            ->findOrFail($id);
+        
+        return response()->json($pengalaman);
+    }
+
+    public function destroyPengalaman($id)
+    {
+        try {
+            $pengalaman = PengalamanKerjaOrganisasi::where('user_id', auth()->id())
+                ->findOrFail($id);
+            $pengalaman->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengalaman berhasil dihapus!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus pengalaman: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ===== SERTIFIKASI METHODS =====
+    
+    public function storeSertifikasi(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_sertifikasi' => 'required|string|max:255',
+            'lembaga_sertifikasi' => 'required|string|max:255',
+            'mulai_berlaku' => 'required|date',
+            'selesai_berlaku' => 'nullable|date',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        $validated['user_id'] = auth()->id();
+
+        if ($request->filled('sertifikasi_id')) {
+            $sertifikasi = PengalamanSertifikasi::where('user_id', auth()->id())
+                ->findOrFail($request->sertifikasi_id);
+            $sertifikasi->update($validated);
+            $message = 'Sertifikasi berhasil diperbarui!';
+        } else {
+            PengalamanSertifikasi::create($validated);
+            $message = 'Sertifikasi berhasil ditambahkan!';
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    public function editSertifikasi($id)
+    {
+        $sertifikasi = PengalamanSertifikasi::where('user_id', auth()->id())
+            ->findOrFail($id);
+        
+        return response()->json($sertifikasi);
+    }
+
+    public function destroySertifikasi($id)
+    {
+        try {
+            $sertifikasi = PengalamanSertifikasi::where('user_id', auth()->id())
+                ->findOrFail($id);
+            $sertifikasi->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sertifikasi berhasil dihapus!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus sertifikasi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ===== SECURITY METHODS =====
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return redirect()->back()->with('error', 'Password saat ini tidak sesuai.');
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        return redirect()->back()->with('success', 'Password berhasil diubah!');
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $request->validate([
+            'password' => 'required',
+        ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return redirect()->back()->with('error', 'Password tidak sesuai.');
+        }
+
+        // Delete user (soft delete)
         $user->delete();
 
-        Auth::logout();
-
-        return redirect()->route('login')->with('success', 'Akun Anda telah dihapus');
+        return redirect()->route('alumni.login')->with('success', 'Akun berhasil dihapus.');
     }
 }

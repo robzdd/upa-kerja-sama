@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignUuid('lowongan_id')->constrained('lowongan_pekerjaans')->onDelete('cascade');
             $table->string('status')->default('pending'); // pending, diterima, ditolak
+            $table->text('pesan_lamaran')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
