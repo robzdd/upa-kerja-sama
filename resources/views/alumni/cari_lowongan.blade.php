@@ -177,9 +177,10 @@
                         </div>
 
                         <!-- Apply Button -->
-                        <button class="w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6">
+                        <a href="{{ route('alumni.lowongan.apply', $firstJob->id) }}" class="block w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6 text-center">
                             Daftar Sekarang
-                        </button>
+                        </a>
+
 
                         <!-- Job Details -->
                         <div class="space-y-5 mb-6">
@@ -370,9 +371,9 @@
                 </div>
 
                 <!-- Apply Button -->
-                <button class="w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6">
+               <a href="/alumni/lowongan/${job.id}/apply" class="block w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6 text-center">
                     Daftar Sekarang
-                </button>
+                </a>
 
                 <!-- Job Details -->
                 <div class="space-y-5 mb-6">

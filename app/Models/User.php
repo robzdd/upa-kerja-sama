@@ -23,7 +23,7 @@ class User extends Authenticatable
     // Relasi
     public function alumni()
     {
-        return $this->hasOne(Alumni::class);
+       return $this->hasOne(Alumni::class, 'user_id', 'id');
     }
 
     public function mitraPerusahaan()

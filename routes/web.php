@@ -14,6 +14,11 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\ArtikelController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Alumni\AlumniAkademikController;
+use App\Http\Controllers\Alumni\LamaranController;
+use App\Http\Controllers\Alumni\ApplicationController;
+use App\Http\Controllers\Mitra\PelamarController;
+
 // ====================
 //  HALAMAN UMUM
 // ====================
@@ -60,6 +65,35 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
         Route::get('/profile/cv/view', [ProfileController::class, 'viewCv'])->name('profile.cv.view');
         Route::delete('/profile/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+        // Riwayat Pendidikan Routes
+        Route::post('/pendidikan', [ProfileController::class, 'storePendidikan'])->name('pendidikan.store');
+        Route::get('/pendidikan/{id}/edit', [ProfileController::class, 'editPendidikan'])->name('pendidikan.edit');
+        Route::delete('/pendidikan/{id}', [ProfileController::class, 'destroyPendidikan'])->name('pendidikan.destroy');
+
+        // Pengalaman Kerja/Organisasi Routes
+        Route::post('/pengalaman', [ProfileController::class, 'storePengalaman'])->name('pengalaman.store');
+        Route::get('/pengalaman/{id}/edit', [ProfileController::class, 'editPengalaman'])->name('pengalaman.edit');
+        Route::delete('/pengalaman/{id}', [ProfileController::class, 'destroyPengalaman'])->name('pengalaman.destroy');
+        
+        // Sertifikasi Routes
+        Route::post('/sertifikasi', [ProfileController::class, 'storeSertifikasi'])->name('sertifikasi.store');
+        Route::get('/sertifikasi/{id}/edit', [ProfileController::class, 'editSertifikasi'])->name('sertifikasi.edit');
+        Route::delete('/sertifikasi/{id}', [ProfileController::class, 'destroySertifikasi'])->name('sertifikasi.destroy');
+
+        // Lowongan Routes
+        Route::get('/lowongan', [LamaranController::class, 'index'])->name('lowongan.index');
+        Route::get('/lowongan/{id}/details', [LamaranController::class, 'details'])->name('lowongan.details');
+        Route::get('/lowongan/{id}/apply', [LamaranController::class, 'showApplyForm'])->name('lowongan.apply');
+        Route::post('/lowongan/{id}/apply', [LamaranController::class, 'apply'])->name('lowongan.apply.submit');
+        
+        // Applications Routes
+        // Route::get('/applications', [LamaranController::class, 'myApplications'])->name('applications');
+        // Route::delete('/applications/{id}/cancel', [LamaranController::class, 'cancelApplication'])->name('applications.cancel');
+        Route::get('/applications', [ApplicationController::class, 'index'])->name('applications');
+        Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
+        Route::delete('/applications/{id}/cancel', [ApplicationController::class, 'cancel'])->name('applications.cancel');
+            
+            
         // CV Routes
         Route::controller(CvController::class)->group(function () {
             Route::get('/cv', 'index')->name('cv.index');
@@ -92,8 +126,7 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
             Route::post('/deactivate-account', [ProfileController::class, 'deactivateAccount'])->name('deactivate-account');
         });
 
-        // Application Status Routes
-        Route::get('/applications', fn() => view('alumni.status_lamaran'))->name('applications');
+    
 
         // Certificate Routes
         Route::get('/certificates', fn() => view('alumni.sertifikat_magang'))->name('certificates');
@@ -104,6 +137,7 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
 //  MITRA ROUTES
 // ====================
 Route::prefix('mitra')->name('mitra.')->group(function () {
+    
 
     // ---------- AUTH ----------
     Route::controller(MitraLoginController::class)->group(function () {
@@ -116,9 +150,19 @@ Route::prefix('mitra')->name('mitra.')->group(function () {
     Route::middleware(['auth:mitra', 'role:mitra'])->group(function () {
         Route::get('/dashboard', [MitraDashboardController::class, 'index'])->name('dashboard');
 
-        // Job Posting Routes
+        Route::get('/debug-pelamar', [PelamarController::class, 'debug'])->name('mitra.pelamar.debug');
+
+        // Lowongan
         Route::resource('lowongan', \App\Http\Controllers\Mitra\LowonganController::class);
+
+        // ✅ Pelamar (pindahkan ke sini)
+        Route::get('/pelamar', [PelamarController::class, 'index'])->name('pelamar.index');
+        Route::get('/pelamar/{id}', [PelamarController::class, 'show'])->name('pelamar.show');
+        Route::post('/pelamar/{id}/status', [PelamarController::class, 'updateStatus'])->name('pelamar.update-status');
+        Route::post('/pelamar/bulk-update', [PelamarController::class, 'bulkUpdateStatus'])->name('pelamar.bulkUpdateStatus');
+        Route::post('/pelamar/bulk-update-status', [PelamarController::class, 'bulkUpdateStatus'])->name('pelamar.bulk-update-status');
     });
+    
 });
 
 // ====================

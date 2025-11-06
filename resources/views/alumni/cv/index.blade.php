@@ -31,10 +31,6 @@
                     <h3 class="text-xl font-bold text-gray-800">{{ auth()->user()->name }}</h3>
                     <p class="text-sm text-gray-600 mt-1">{{ auth()->user()->email }}</p>
                 </div>
-                <!-- Edit Profile Button -->
-                <a href="{{ route('alumni.profile') }}" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all mb-4 inline-block text-center">
-                    Ubah Profil
-                </a>
 
                 <!-- Divider -->
                 <hr class="my-4">
@@ -201,79 +197,182 @@
             </div>
 
             <!-- Data Akademik Content -->
+            <!-- Data Akademik Content -->
+           <!-- Data Akademik Content -->
             <div id="data-akademik" class="tab-content bg-white rounded-lg shadow p-6 hidden">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Data Akademik</h3>
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold text-gray-800">Data Akademik</h3>
+                    <a href="{{ route('alumni.profile.edit') }}#data-akademik" class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        <span>Edit Data Akademik</span>
+                    </a>
+                </div>
 
-                @if($alumni && $alumni->dataAkademik)
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-sm font-medium text-gray-600">NIM</label>
-                            <p class="text-gray-800 mt-1">{{ $alumni->dataAkademik->nim ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="text-sm font-medium text-gray-600">Program Studi</label>
-                            <p class="text-gray-800 mt-1">{{ $alumni->dataAkademik->program_studi ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="text-sm font-medium text-gray-600">Tahun Masuk</label>
-                            <p class="text-gray-800 mt-1">{{ $alumni->dataAkademik->tahun_masuk ?? '-' }}</p>
-                        </div>
+                <!-- Riwayat Pendidikan Section -->
+                <div class="mb-8">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                        </svg>
+                        <h4 class="text-md font-bold text-gray-800">Riwayat Pendidikan</h4>
                     </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-sm font-medium text-gray-600">Tahun Lulus</label>
-                            <p class="text-gray-800 mt-1">{{ $alumni->dataAkademik->tahun_lulus ?? '-' }}</p>
+                    
+                    @if($alumni && $alumni->riwayatPendidikan && $alumni->riwayatPendidikan->count() > 0)
+                        <div class="space-y-3">
+                            @foreach($alumni->riwayatPendidikan as $pendidikan)
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h5 class="font-semibold text-gray-900">{{ $pendidikan->strata }}</h5>
+                                        <p class="text-sm text-gray-700 mt-1">{{ $pendidikan->nama_sekolah }}</p>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            {{ \Carbon\Carbon::parse($pendidikan->tahun_masuk)->format('Y') }} - 
+                                            {{ $pendidikan->tahun_lulus ? \Carbon\Carbon::parse($pendidikan->tahun_lulus)->format('Y') : 'Sekarang' }}
+                                        </p>
+                                        @if($pendidikan->deskripsi)
+                                        <p class="text-sm text-gray-600 mt-2">{{ $pendidikan->deskripsi }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
-                        <div>
-                            <label class="text-sm font-medium text-gray-600">IPK</label>
-                            <p class="text-gray-800 mt-1">{{ $alumni->dataAkademik->ipk ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="text-sm font-medium text-gray-600">Universitas</label>
-                            <p class="text-gray-800 mt-1">{{ $alumni->dataAkademik->universitas ?? '-' }}</p>
-                        </div>
+                    @else
+                        <p class="text-gray-500 text-sm italic">Belum ada riwayat pendidikan</p>
+                    @endif
+                </div>
+
+                <!-- Pengalaman Kerja & Organisasi Section -->
+                <div class="mb-8">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <h4 class="text-md font-bold text-gray-800">Pengalaman Kerja & Organisasi</h4>
                     </div>
+                    
+                    @if($alumni && $alumni->pengalamanKerja && $alumni->pengalamanKerja->count() > 0)
+                        <div class="space-y-3">
+                            @foreach($alumni->pengalamanKerja as $pengalaman)
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h5 class="font-semibold text-gray-900">{{ $pengalaman->posisi }}</h5>
+                                        <p class="text-sm text-gray-700 mt-1">{{ $pengalaman->perusahaan_organisasi }}</p>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $pengalaman->type == 'organisasi' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                                {{ $pengalaman->type == 'organisasi' ? 'Organisasi' : 'Perusahaan' }}
+                                            </span>
+                                            <span class="ml-2">
+                                                {{ \Carbon\Carbon::parse($pengalaman->mulai_kerja)->format('M Y') }} - 
+                                                {{ $pengalaman->selesai_kerja ? \Carbon\Carbon::parse($pengalaman->selesai_kerja)->format('M Y') : 'Sekarang' }}
+                                            </span>
+                                        </p>
+                                        @if($pengalaman->deskripsi_piri)
+                                        <p class="text-sm text-gray-600 mt-2">{{ $pengalaman->deskripsi_piri }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-gray-500 text-sm italic">Belum ada pengalaman kerja atau organisasi</p>
+                    @endif
+                </div>
+
+                <!-- Lisensi & Sertifikasi Section -->
+                <div class="mb-8">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                        </svg>
+                        <h4 class="text-md font-bold text-gray-800">Lisensi & Sertifikasi</h4>
+                    </div>
+                    
+                    @if($alumni && $alumni->sertifikasi && $alumni->sertifikasi->count() > 0)
+                        <div class="space-y-3">
+                            @foreach($alumni->sertifikasi as $cert)
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h5 class="font-semibold text-gray-900">{{ $cert->nama_sertifikasi }}</h5>
+                                        <p class="text-sm text-gray-700 mt-1">{{ $cert->lembaga_sertifikasi }}</p>
+                                        <div class="flex items-center space-x-2 mt-1">
+                                            <p class="text-xs text-gray-500">
+                                                {{ \Carbon\Carbon::parse($cert->mulai_berlaku)->format('M Y') }}
+                                                @if($cert->selesai_berlaku)
+                                                    - {{ \Carbon\Carbon::parse($cert->selesai_berlaku)->format('M Y') }}
+                                                @endif
+                                            </p>
+                                            @if(!$cert->selesai_berlaku)
+                                            <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                                Tidak Kadaluarsa
+                                            </span>
+                                            @endif
+                                        </div>
+                                        @if($cert->deskripsi)
+                                        <p class="text-sm text-gray-600 mt-2">{{ $cert->deskripsi }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-gray-500 text-sm italic">Belum ada lisensi atau sertifikasi</p>
+                    @endif
                 </div>
 
                 <!-- Hard Skills Section -->
-                @if($alumni->keahlian)
-                <div class="mt-6">
-                    <label class="text-sm font-medium text-gray-600 mb-3 block">Hard Skills</label>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach(explode(',', $alumni->keahlian) as $skill)
-                            @if(trim($skill))
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                                {{ trim($skill) }}
-                            </span>
-                            @endif
-                        @endforeach
+                <div class="mb-8">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        <h4 class="text-md font-bold text-gray-800">Hard Skills</h4>
                     </div>
+                    
+                    @if($alumni && $alumni->keahlian && trim($alumni->keahlian))
+                        <div class="flex flex-wrap gap-2">
+                            @foreach(explode(',', $alumni->keahlian) as $skill)
+                                @if(trim($skill))
+                                <span class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                                    {{ trim($skill) }}
+                                </span>
+                                @endif
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-gray-500 text-sm italic">Belum ada hard skills yang ditambahkan</p>
+                    @endif
                 </div>
-                @endif
 
                 <!-- Soft Skills Section -->
-                @if($alumni->soft_skills)
-                <div class="mt-4">
-                    <label class="text-sm font-medium text-gray-600 mb-3 block">Soft Skills</label>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach(explode(',', $alumni->soft_skills) as $skill)
-                            @if(trim($skill))
-                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                                {{ trim($skill) }}
-                            </span>
-                            @endif
-                        @endforeach
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <h4 class="text-md font-bold text-gray-800">Soft Skills</h4>
                     </div>
+                    
+                    @if($alumni && $alumni->soft_skills && trim($alumni->soft_skills))
+                        <div class="flex flex-wrap gap-2">
+                            @foreach(explode(',', $alumni->soft_skills) as $skill)
+                                @if(trim($skill))
+                                <span class="px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                    {{ trim($skill) }}
+                                </span>
+                                @endif
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-gray-500 text-sm italic">Belum ada soft skills yang ditambahkan</p>
+                    @endif
                 </div>
-                @endif
-
-                @else
-                <div class="text-center py-8">
-                    <p class="text-gray-500">Data akademik belum diisi</p>
-                    <a href="{{ route('alumni.profile') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block">Tambah Data Akademik</a>
-                </div>
-                @endif
             </div>
 
             <!-- Data Keluarga Content -->
@@ -310,7 +409,7 @@
                 @else
                 <div class="text-center py-8">
                     <p class="text-gray-500">Data keluarga belum diisi</p>
-                    <a href="{{ route('alumni.profile') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block">Tambah Data Keluarga</a>
+                    <a href="{{ route('alumni.profile.edit') }}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block">Tambah Data Keluarga</a>
                 </div>
                 @endif
             </div>
@@ -633,7 +732,7 @@
                 </div>
 
                 <!-- Data Akademik -->
-                        <div class="border border-gray-200 rounded-lg p-4">
+                <div class="border border-gray-200 rounded-lg p-4">
                     <h4 class="font-semibold text-gray-800 mb-3">Data Akademik</h4>
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
@@ -661,6 +760,7 @@
                             </span>
                         </div>
                     </div>
+                    
                 </div>
 
                 <!-- Data Keluarga -->

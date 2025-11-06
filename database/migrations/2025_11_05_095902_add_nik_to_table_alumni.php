@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('cv_data', function (Blueprint $table) {
-            $table->softDeletes();
+        Schema::table('alumnis', function (Blueprint $table) {
+            $table->string('nik')->nullable()->after('no_hp');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('cv_data', function (Blueprint $table) {
-            $table->dropSoftDeletes();
+        Schema::table('alumnis', function (Blueprint $table) {
+            //
         });
     }
 };
