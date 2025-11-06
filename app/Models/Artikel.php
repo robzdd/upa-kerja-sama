@@ -11,7 +11,7 @@ class Artikel extends Model
 {
     use HasFactory, SoftDeletes, HasUuid;
 
-    protected $table = 'artikel';
+    protected $table = 'artikels';
 
 
     protected $fillable = [

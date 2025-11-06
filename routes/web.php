@@ -8,7 +8,12 @@ use App\Http\Controllers\Alumni\Auth\AlumniAuthController;
 use App\Http\Controllers\Alumni\ProfileController;
 use App\Http\Controllers\Alumni\CvController;
 use App\Http\Controllers\Alumni\DocumentController;
-
+use App\Http\Controllers\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\ArtikelController;
+use App\Http\Controllers\Admin\ReportController;
 // ====================
 //  HALAMAN UMUM
 // ====================
@@ -113,5 +118,36 @@ Route::prefix('mitra')->name('mitra.')->group(function () {
 
         // Job Posting Routes
         Route::resource('lowongan', \App\Http\Controllers\Mitra\LowonganController::class);
+    });
+});
+
+// ====================
+//  ADMIN ROUTES
+// ====================
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    // ---------- AUTH ----------
+    Route::controller(AdminAuthController::class)->group(function () {
+        Route::get('/login', 'showLoginForm')->name('login');
+        Route::post('/login', 'login')->name('login.submit');
+        Route::post('/logout', 'logout')->name('logout');
+    });
+
+    // ---------- DASHBOARD ----------
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        // Profile Routes
+        Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
+
+        // User Management Routes
+        Route::resource('users', UserManagementController::class);
+
+        // Artikel Routes
+        Route::resource('artikel', ArtikelController::class);
+
+        // Reports Routes
+        Route::resource('reports', ReportController::class);
     });
 });
