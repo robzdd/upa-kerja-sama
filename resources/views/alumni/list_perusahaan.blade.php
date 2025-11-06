@@ -47,153 +47,33 @@
         </div>
 
         <!-- Companies Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <!-- Company Card 1 -->
+        @forelse($perusahaans as $perusahaan)
             <div class="company-card bg-white rounded-xl shadow-md p-6 cursor-pointer border border-gray-200">
                 <div class="flex flex-col items-center text-center">
-                    <!-- Company Logo -->
                     <div class="company-logo w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                        <span class="text-3xl font-bold text-gray-400">PT</span>
+                        <span class="text-3xl font-bold text-gray-400">{{ strtoupper(Str::substr($perusahaan->nama_perusahaan, 0, 2)) }}</span>
                     </div>
-
-                    <!-- Company Name -->
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">PT Mencari Cinta Sejati Tbk</h3>
-
-                    <!-- Company Type -->
-                    <p class="text-sm text-gray-600 mb-4">Jasa Teknologi</p>
-
-                    <!-- Company Website -->
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">{{ $perusahaan->nama_perusahaan }}</h3>
+                    <p class="text-sm text-gray-600 mb-4">{{ $perusahaan->jenis_usaha ?? '-' }}</p>
                     <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
                         </svg>
-                        <span class="truncate">perusahaanpertama.polindra.com</span>
-                    </div>
-
-                    <!-- Job Count -->
-                    <div class="flex items-center space-x-2 text-sm text-blue-600 font-semibold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        <span>Jumlah lowongan: aktif 1/100</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Company Card 2 -->
-            <div class="company-card bg-white rounded-xl shadow-md p-6 cursor-pointer border border-gray-200">
-                <div class="flex flex-col items-center text-center">
-                    <div class="company-logo w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                        <span class="text-3xl font-bold text-gray-400">PT</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">PT Mencari Cinta Sejati Tbk</h3>
-                    <p class="text-sm text-gray-600 mb-4">Jasa Teknologi</p>
-                    <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                        </svg>
-                        <span class="truncate">perusahaankedua.polindra.com</span>
+                        <span class="truncate">{{ $perusahaan->website ?? '-' }}</span>
                     </div>
                     <div class="flex items-center space-x-2 text-sm text-blue-600 font-semibold">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
-                        <span>Jumlah lowongan: aktif 5/100</span>
+                        <span>Jumlah lowongan: aktif {{ $perusahaan->lowongan_aktif ?? 0 }}/{{ $perusahaan->total_lowongan ?? 0 }}</span>
                     </div>
                 </div>
             </div>
-
-            <!-- Company Card 3 -->
-            <div class="company-card bg-white rounded-xl shadow-md p-6 cursor-pointer border border-gray-200">
-                <div class="flex flex-col items-center text-center">
-                    <div class="company-logo w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                        <span class="text-3xl font-bold text-gray-400">PT</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">PT Mencari Cinta Sejati Tbk</h3>
-                    <p class="text-sm text-gray-600 mb-4">Jasa Teknologi</p>
-                    <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                        </svg>
-                        <span class="truncate">perusahaanketiga.polindra.com</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm text-blue-600 font-semibold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        <span>Jumlah lowongan: aktif 3/100</span>
-                    </div>
-                </div>
+        @empty
+            <div class="col-span-3 text-center text-gray-500 py-12">
+                Tidak ada perusahaan terdaftar.
             </div>
-
-            <!-- Company Card 4 -->
-            <div class="company-card bg-white rounded-xl shadow-md p-6 cursor-pointer border border-gray-200">
-                <div class="flex flex-col items-center text-center">
-                    <div class="company-logo w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                        <span class="text-3xl font-bold text-gray-400">PT</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">PT Mencari Cinta Sejati Tbk</h3>
-                    <p class="text-sm text-gray-600 mb-4">Jasa Teknologi</p>
-                    <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                        </svg>
-                        <span class="truncate">perusahaankeempat.polindra.com</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm text-blue-600 font-semibold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        <span>Jumlah lowongan: aktif 8/100</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Company Card 5 -->
-            <div class="company-card bg-white rounded-xl shadow-md p-6 cursor-pointer border border-gray-200">
-                <div class="flex flex-col items-center text-center">
-                    <div class="company-logo w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                        <span class="text-3xl font-bold text-gray-400">PT</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">PT Mencari Cinta Sejati Tbk</h3>
-                    <p class="text-sm text-gray-600 mb-4">Jasa Teknologi</p>
-                    <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                        </svg>
-                        <span class="truncate">perusahaankelima.polindra.com</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm text-blue-600 font-semibold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        <span>Jumlah lowongan: aktif 12/100</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Company Card 6 -->
-            <div class="company-card bg-white rounded-xl shadow-md p-6 cursor-pointer border border-gray-200">
-                <div class="flex flex-col items-center text-center">
-                    <div class="company-logo w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                        <span class="text-3xl font-bold text-gray-400">PT</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">PT Mencari Cinta Sejati Tbk</h3>
-                    <p class="text-sm text-gray-600 mb-4">Jasa Teknologi</p>
-                    <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                        </svg>
-                        <span class="truncate">perusahaankeenam.polindra.com</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm text-blue-600 font-semibold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        <span>Jumlah lowongan: aktif 7/100</span>
-                    </div>
-                </div>
-            </div>
+        @endforelse
         </div>
 
         <!-- Pagination -->

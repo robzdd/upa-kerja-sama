@@ -1,23 +1,27 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Alumni\CvController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ArtikelController;
+use App\Http\Controllers\Mitra\PelamarController;
+use App\Http\Controllers\Alumni\LamaranController;
+use App\Http\Controllers\Alumni\ProfileController;
+use App\Http\Controllers\Alumni\DocumentController;
+use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Alumni\ApplicationController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Alumni\AlumniArtikelController;
 use App\Http\Controllers\Mitra\MitraDashboardController;
+use App\Http\Controllers\Alumni\AlumniAkademikController;
+use App\Http\Controllers\Alumni\ListPerusahaanController;
 use App\Http\Controllers\Mitra\Auth\MitraLoginController;
 use App\Http\Controllers\Alumni\Auth\AlumniAuthController;
-use App\Http\Controllers\Alumni\ProfileController;
-use App\Http\Controllers\Alumni\CvController;
-use App\Http\Controllers\Alumni\DocumentController;
-use App\Http\Controllers\Admin\Auth\AdminAuthController;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminProfileController;
-use App\Http\Controllers\Admin\UserManagementController;
-use App\Http\Controllers\Admin\ArtikelController;
-use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Alumni\AlumniAkademikController;
-use App\Http\Controllers\Alumni\LamaranController;
-use App\Http\Controllers\Alumni\ApplicationController;
-use App\Http\Controllers\Mitra\PelamarController;
+
 
 // ====================
 //  HALAMAN UMUM
@@ -27,7 +31,7 @@ Route::get('/', fn() => view('welcome'))->name('home');
 // CV Public Route
 Route::get('/cv/{uri}', [CvController::class, 'publicCv'])->name('cv.public');
 
-Route::get('/artikel', fn() => view('alumni.artikel_page'))->name('artikel.page');
+Route::get('/artikel', [AlumniArtikelController::class, 'index'])->name('artikel.page');
 Route::get('/alumni/tentang_kami', fn() => view('alumni.tentang_kami'))->name('alumni.tentang_kami');
 
 // ====================
@@ -52,7 +56,7 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
     Route::get('/beranda', fn() => view('alumni.dashboard_alumni'))->name('beranda');
     Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('cari_lowongan');
     Route::get('/lowongan/{id}/details', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
-    Route::get('/list_perusahaan', fn() => view('alumni.list_perusahaan'))->name('list_perusahaan');
+    Route::get('/list_perusahaan', [ListPerusahaanController::class, 'index'])->name('alumni.list_perusahaan');
 
     // ---------- HALAMAN LOGIN PROTECTED ----------
     Route::middleware(['auth', 'role:alumni'])->group(function () {
@@ -74,26 +78,31 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
         Route::post('/pengalaman', [ProfileController::class, 'storePengalaman'])->name('pengalaman.store');
         Route::get('/pengalaman/{id}/edit', [ProfileController::class, 'editPengalaman'])->name('pengalaman.edit');
         Route::delete('/pengalaman/{id}', [ProfileController::class, 'destroyPengalaman'])->name('pengalaman.destroy');
-        
+
         // Sertifikasi Routes
         Route::post('/sertifikasi', [ProfileController::class, 'storeSertifikasi'])->name('sertifikasi.store');
         Route::get('/sertifikasi/{id}/edit', [ProfileController::class, 'editSertifikasi'])->name('sertifikasi.edit');
         Route::delete('/sertifikasi/{id}', [ProfileController::class, 'destroySertifikasi'])->name('sertifikasi.destroy');
 
+        //List Perusahaan Routes
+        Route::get('/list_perusahaan', [ListPerusahaanController::class, 'index'])->name('list_perusahaan');
+
+        //Artikel Routes
+        Route::get('/artikel', [AlumniArtikelController::class, 'index'])->name('alumni.artikel.page');
         // Lowongan Routes
         Route::get('/lowongan', [LamaranController::class, 'index'])->name('lowongan.index');
         Route::get('/lowongan/{id}/details', [LamaranController::class, 'details'])->name('lowongan.details');
         Route::get('/lowongan/{id}/apply', [LamaranController::class, 'showApplyForm'])->name('lowongan.apply');
         Route::post('/lowongan/{id}/apply', [LamaranController::class, 'apply'])->name('lowongan.apply.submit');
-        
+
         // Applications Routes
         // Route::get('/applications', [LamaranController::class, 'myApplications'])->name('applications');
         // Route::delete('/applications/{id}/cancel', [LamaranController::class, 'cancelApplication'])->name('applications.cancel');
         Route::get('/applications', [ApplicationController::class, 'index'])->name('applications');
         Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
         Route::delete('/applications/{id}/cancel', [ApplicationController::class, 'cancel'])->name('applications.cancel');
-            
-            
+
+
         // CV Routes
         Route::controller(CvController::class)->group(function () {
             Route::get('/cv', 'index')->name('cv.index');
@@ -117,7 +126,7 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
         // Security Routes
         Route::prefix('security')->name('security.')->group(function () {
             Route::get('/settings', function() {
-                $user = auth()->user();
+                $user = Auth::user();
                 return view('alumni.pengaturan_keamanan', compact('user'));
             })->name('settings');
             Route::post('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
@@ -126,7 +135,7 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
             Route::post('/deactivate-account', [ProfileController::class, 'deactivateAccount'])->name('deactivate-account');
         });
 
-    
+
 
         // Certificate Routes
         Route::get('/certificates', fn() => view('alumni.sertifikat_magang'))->name('certificates');
@@ -137,7 +146,7 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
 //  MITRA ROUTES
 // ====================
 Route::prefix('mitra')->name('mitra.')->group(function () {
-    
+
 
     // ---------- AUTH ----------
     Route::controller(MitraLoginController::class)->group(function () {
@@ -162,7 +171,7 @@ Route::prefix('mitra')->name('mitra.')->group(function () {
         Route::post('/pelamar/bulk-update', [PelamarController::class, 'bulkUpdateStatus'])->name('pelamar.bulkUpdateStatus');
         Route::post('/pelamar/bulk-update-status', [PelamarController::class, 'bulkUpdateStatus'])->name('pelamar.bulk-update-status');
     });
-    
+
 });
 
 // ====================

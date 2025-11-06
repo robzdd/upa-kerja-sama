@@ -40,8 +40,8 @@ class JobSearchController extends Controller
         $lowongan = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Get stats
-        $totalLowongan = LowonganPekerjaan::where('status_aktif', true)->count();
-        $totalPelamar = LowonganPekerjaan::where('status_aktif', true)->sum('jumlah_pelamar');
+    $totalLowongan = LowonganPekerjaan::where('status_aktif', true)->count();
+    $totalPelamar = LowonganPekerjaan::where('status_aktif', true)->sum('jumlah_pelamar');
 
         return view('alumni.cari_lowongan', compact('lowongan', 'totalLowongan', 'totalPelamar'));
     }
