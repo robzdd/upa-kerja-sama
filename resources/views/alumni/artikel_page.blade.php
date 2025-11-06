@@ -31,139 +31,38 @@
     <div class="container mx-auto px-6 py-12">
         <!-- Total Articles -->
         <div class="mb-8">
-            <p class="text-gray-700 font-semibold">Total Artikel: 300</p>
+            <p class="text-gray-700 font-semibold">Total Artikel: {{ $artikels->total() }}</p>
         </div>
 
         <!-- Articles Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <!-- Article Card 1 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <!-- Image Placeholder -->
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-
-                <!-- Content -->
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
+            @forelse($artikels as $artikel)
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    @if($artikel->thumbnail)
+                        <img src="{{ asset('storage/' . $artikel->thumbnail) }}" alt="Thumbnail" class="h-48 w-full object-cover">
+                    @else
+                        <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
+                    @endif
+                    <div class="p-5">
+                        <span class="text-xs text-blue-600 font-semibold">{{ $artikel->kategori->nama ?? '-' }}</span>
+                        <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
+                            {{ $artikel->judul }}
+                        </h3>
+                        <a href="#" class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
+                            Selengkapnya
+                        </a>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Article Card 2 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
+            @empty
+                <div class="col-span-3 text-center text-gray-500 py-12">
+                    Tidak ada artikel ditemukan.
                 </div>
-            </div>
+            @endforelse
+        </div>
 
-            <!-- Article Card 3 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
-                </div>
-            </div>
-
-            <!-- Article Card 4 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
-                </div>
-            </div>
-
-            <!-- Article Card 5 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
-                </div>
-            </div>
-
-            <!-- Article Card 6 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
-                </div>
-            </div>
-
-            <!-- Article Card 7 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
-                </div>
-            </div>
-
-            <!-- Article Card 8 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
-                </div>
-            </div>
-
-            <!-- Article Card 9 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gradient-to-br from-gray-700 to-gray-600"></div>
-                <div class="p-5">
-                    <span class="text-xs text-blue-600 font-semibold">Pengembangan Karir</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-2 mb-3 line-clamp-2">
-                        Lorem ipsum dolor sit amet consectetur Nunc et massa elementum...
-                    </h3>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-800 hover:to-purple-600 transition">
-                        Selengkapnya
-                    </button>
-                </div>
-            </div>
+        <!-- Pagination -->
+        <div class="flex justify-center">
+            {{ $artikels->links() }}
         </div>
     </div>
 @endsection

@@ -31,8 +31,16 @@
                 @forelse($artikels as $artikel)
                 <tr>
                     <td class="px-6 py-4 font-medium">{{ $artikel->judul }}</td>
-                    <td class="px-6 py-4">{{ $artikel->kategori }}</td>
-                    <td class="px-6 py-4">{{ $artikel->penulis }}</td>
+                    <td class="px-6 py-4">
+                        @if($artikel->kategori)
+                            <span class="inline-block px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold">{{ $artikel->kategori->nama }}</span>
+                        @else
+                            <span class="text-gray-400">-</span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ $artikel->user->name ?? '-' }}
+                    </td>
                     <td class="px-6 py-4">{{ $artikel->created_at->format('d M Y') }}</td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">

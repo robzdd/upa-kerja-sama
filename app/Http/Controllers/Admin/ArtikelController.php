@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Artikel;
 use App\Models\KategoriArtikel;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,7 +45,7 @@ class ArtikelController extends Controller
         ]);
 
         $data = [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'judul' => $request->judul,
             'kategori_id' => $request->kategori_id,
             'konten' => $request->konten,
