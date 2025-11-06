@@ -10,7 +10,7 @@ class KategoriArtikel extends Model
 {
     use HasFactory, SoftDeletes, HasUuid;
 
-    protected $table = 'kategori_artikel';
+    protected $table = 'kategori_artikels';
 
 
     protected $fillable = ['nama'];
