@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUuid;
 
 class Alumni extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'alumnis';
     protected $keyType = 'string';
@@ -75,11 +76,6 @@ class Alumni extends Model
     {
         return $this->hasMany(PengalamanSertifikasi::class, 'user_id', 'user_id')
                     ->orderBy('mulai_berlaku', 'desc');
-    }
-
-    public function lamaran()
-    {
-        return $this->hasMany(Lamaran::class, 'user_id', 'user_id');
     }
 
     // ===== HELPER METHODS =====

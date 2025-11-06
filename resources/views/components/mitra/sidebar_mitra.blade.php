@@ -7,7 +7,7 @@
                 <span class="text-blue-600 font-bold text-lg">MP</span>
             </div>
             <div>
-                <h2 class="font-bold text-lg">Mitra Pro</h2>
+                <h2 class="font-bold text-lg">Mitra</h2>
                 <p class="text-xs text-blue-200">Partner Portal</p>
             </div>
         </div>

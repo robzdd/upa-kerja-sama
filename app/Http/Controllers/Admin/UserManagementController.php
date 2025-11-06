@@ -41,10 +41,8 @@ class UserManagementController extends Controller
      */
     public function create(Request $request)
     {
-        $type = $request->get('type', 'alumni');
         $programStudi = ProgramStudi::all();
-
-        return view('admin.users.create', compact('type', 'programStudi'));
+        return view('admin.users.create', compact('programStudi'));
     }
 
     /**
@@ -52,12 +50,38 @@ class UserManagementController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+
+
+        // Basic validation for all users
+        $baseRules = [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'type' => 'required|in:alumni,mitra,mahasiswa',
-        ]);
+        ];
+
+        // Additional validation rules based on user type
+        $typeRules = [];
+        if ($request->type === 'alumni') {
+            $typeRules = [
+                'nim_alumni' => 'required|string|max:20|unique:alumnis,nim',
+                'no_hp' => 'required|string|max:15',
+            ];
+        } elseif ($request->type === 'mitra') {
+            $typeRules = [
+                'nama_perusahaan' => 'required|string|max:255',
+                'sektor' => 'required|string|max:100',
+            ];
+        } elseif ($request->type === 'mahasiswa') {
+            $typeRules = [
+                'program_studi_id' => 'required|exists:program_studis,id',
+                'nim' => 'required|string|max:20|unique:mahasiswa,nim',
+                'angkatan' => 'required|string|max:4',
+            ];
+        }
+
+        // Merge base rules with type-specific rules and validate
+        $validated = $request->validate(array_merge($baseRules, $typeRules));
 
         DB::beginTransaction();
         try {
@@ -74,30 +98,36 @@ class UserManagementController extends Controller
             if ($request->type === 'alumni') {
                 Alumni::create([
                     'user_id' => $user->id,
-                    'nama_lengkap' => $request->name,
-                    'nim' => $request->nim ?? null,
-                    'no_hp' => $request->no_hp ?? null,
+                    'nim' => $request->nim_alumni,
+                    'no_hp' => $request->no_hp,
                 ]);
             } elseif ($request->type === 'mitra') {
                 MitraPerusahaan::create([
                     'user_id' => $user->id,
-                    'nama_perusahaan' => $request->nama_perusahaan ?? $request->name,
-                    'sektor' => $request->sektor ?? null,
+                    'nama_perusahaan' => $request->nama_perusahaan,
+                    'sektor' => $request->sektor,
                 ]);
             } elseif ($request->type === 'mahasiswa') {
                 Mahasiswa::create([
                     'user_id' => $user->id,
-                    'program_studi_id' => $request->program_studi_id ?? null,
-                    'nim' => $request->nim ?? null,
-                    'angkatan' => $request->angkatan ?? null,
+                    'program_studi_id' => $request->program_studi_id,
+                    'nim' => $request->nim,
+                    'angkatan' => $request->angkatan,
                 ]);
             }
 
             DB::commit();
 
+            $successMessage = match($request->type) {
+                'alumni' => 'Alumni berhasil ditambahkan: ' . $request->name . ' (NIM: ' . $request->nim_alumni . ')',
+                'mitra' => 'Mitra Perusahaan berhasil ditambahkan: ' . $request->nama_perusahaan,
+                'mahasiswa' => 'Mahasiswa berhasil ditambahkan: ' . $request->name . ' (NIM: ' . $request->nim . ')',
+                default => 'User berhasil ditambahkan'
+            };
+
             return redirect()
                 ->route('admin.users.index', ['type' => $request->type])
-                ->with('success', 'User berhasil ditambahkan.');
+                ->with('success', $successMessage);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()
@@ -161,7 +191,6 @@ class UserManagementController extends Controller
             // Update specific profile
             if ($user->alumni) {
                 $user->alumni->update([
-                    'nama_lengkap' => $request->name,
                     'nim' => $request->nim ?? $user->alumni->nim,
                     'no_hp' => $request->no_hp ?? $user->alumni->no_hp,
                 ]);
