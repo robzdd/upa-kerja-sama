@@ -30,7 +30,9 @@ Route::get('/jobs/{id}', [JobController::class, 'show']);
 // Mitra-only jobs (by token user mapping)
 Route::get('/mitra/jobs', [JobController::class, 'my']);
 Route::post('/mitra/jobs', [JobController::class, 'store']);
+Route::put('/mitra/jobs/{id}', [JobController::class, 'update']);
 Route::delete('/mitra/jobs/{id}', [JobController::class, 'destroy']);
+Route::put('/mitra/jobs/{id}/activate', [JobController::class, 'activate']);
 Route::put('/mitra/jobs/{id}/status', [JobController::class, 'setStatus']);
 // Applications
 Route::post('/jobs/{id}/apply', [JobController::class, 'apply']);
@@ -38,6 +40,8 @@ Route::get('/applications/my', [JobController::class, 'myApplications']);
 Route::put('/applications/{id}/status', [JobController::class, 'updateApplicationStatus']);
 // Applicants per job (mitra)
 Route::get('/mitra/jobs/{id}/applicants', [JobController::class, 'applicantsForJob']);
+Route::post('/mitra/applications/{id}/archive', [JobController::class, 'archiveApplication']);
+Route::post('/mitra/applications/{id}/unarchive', [JobController::class, 'unarchiveApplication']);
 
 // Saved jobs (alumni)
 Route::get('/saved-jobs', [SavedJobController::class, 'index']);
