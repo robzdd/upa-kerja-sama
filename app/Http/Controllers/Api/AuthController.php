@@ -102,19 +102,20 @@ class AuthController extends Controller
         $role = null;
         
         if ($user->hasRole('alumni')) {
-            // include academic relation for mobile prefill
-            $alumni = $user->alumni;
+            // Load alumni with all relations
+            $alumni = $user->alumni()->with('dataAkademik', 'dataKeluarga', 'dokumenPendukung')->first();
             
             // Create alumni profile if it doesn't exist
             if (!$alumni) {
                 $alumni = $user->alumni()->create([]);
+                // Reload with relations
+                $alumni = $user->alumni()->with('dataAkademik', 'dataKeluarga', 'dokumenPendukung')->first();
             }
-            
-            // Load with academic data
-            $alumni = $user->alumni()->with('dataAkademik')->first();
             
             // Build profile array manually to ensure all fields are included
             $profileArray = null;
+            $cvUrl = null;
+            
             if ($alumni) {
                 $profileArray = [
                     'id' => $alumni->id,
@@ -137,36 +138,91 @@ class AuthController extends Controller
                     'updated_at' => $alumni->updated_at,
                 ];
                 
-                if ($alumni->dataAkademik) {
-                    $profileArray['program_studi'] = $alumni->dataAkademik->program_studi;
-                    $profileArray['angkatan'] = $alumni->dataAkademik->tahun_masuk;
-                }
+                // Add CV URL if exists
                 if ($alumni->file_cv) {
-                    $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+                    $cvUrl = url('storage/' . $alumni->file_cv);
+                    $profileArray['cv_url'] = $cvUrl;
                 }
             }
-            $profileData = $profileArray;
-            $role = 'alumni';
+            
+            // Get supporting documents - always return array, even if empty
+            $dokumenPendukung = [];
+            if ($alumni && $alumni->dokumenPendukung && $alumni->dokumenPendukung->count() > 0) {
+                $dokumenPendukung = $alumni->dokumenPendukung->map(function($doc) {
+                    $docArray = $doc->toArray();
+                    if ($doc->file_path) {
+                        $docArray['file_url'] = url('storage/' . $doc->file_path);
+                    }
+                    return $docArray;
+                })->toArray();
+            }
+            
+            // Ensure data_akademik and data_keluarga are arrays, not null
+            $dataAkademik = null;
+            if ($alumni && $alumni->dataAkademik) {
+                $dataAkademik = $alumni->dataAkademik->toArray();
+            }
+            
+            $dataKeluarga = null;
+            if ($alumni && $alumni->dataKeluarga) {
+                $dataKeluarga = $alumni->dataKeluarga->toArray();
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => (string)$user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'roles' => ['alumni'],
+                    ],
+                    'profile' => $profileArray,
+                    'alumni' => $profileArray, // Also include as 'alumni' for backward compatibility
+                    'cv_url' => $cvUrl,
+                    'data_akademik' => $dataAkademik,
+                    'data_keluarga' => $dataKeluarga,
+                    'dokumen_pendukung' => $dokumenPendukung, // Always array, never null
+                ],
+            ]);
         } elseif ($user->hasRole('mitra')) {
             $profileData = $user->mitraPerusahaan;
             $role = 'mitra';
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => (string)$user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'roles' => $role ? [$role] : [],
+                    ],
+                    'profile' => $profileData,
+                ],
+            ]);
         } elseif ($user->hasRole('admin')) {
             $profileData = $user->admin;
             $role = 'admin';
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => (string)$user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'roles' => $role ? [$role] : [],
+                    ],
+                    'profile' => $profileData,
+                ],
+            ]);
         }
 
         return response()->json([
-            'success' => true,
-            'data' => [
-                'user' => [
-                    'id' => (string)$user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'roles' => $role ? [$role] : [],
-                ],
-                'profile' => $profileData,
-            ],
-        ]);
+            'success' => false,
+            'message' => 'Role tidak dikenali',
+        ], 400);
     }
 
     /**
