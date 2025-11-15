@@ -42,6 +42,7 @@ Route::get('/applications/my', [JobController::class, 'myApplications']);
 Route::put('/applications/{id}/status', [JobController::class, 'updateApplicationStatus']);
 // Applicants per job (mitra)
 Route::get('/mitra/jobs/{id}/applicants', [JobController::class, 'applicantsForJob']);
+Route::get('/mitra/jobs/{id}/download-applicants', [JobController::class, 'downloadApplicants']);
 Route::post('/mitra/applications/{id}/archive', [JobController::class, 'archiveApplication']);
 Route::post('/mitra/applications/{id}/unarchive', [JobController::class, 'unarchiveApplication']);
 

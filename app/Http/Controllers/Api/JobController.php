@@ -7,8 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\LowonganPekerjaan;
 use App\Models\MitraPerusahaan;
 use App\Models\User;
+use App\Models\Alumni;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class JobController extends Controller
 {
@@ -772,5 +775,142 @@ class JobController extends Controller
         ]);
 
         return response()->json(['success' => true, 'message' => 'Lowongan berhasil dikembalikan dari arsip']);
+    }
+
+    /**
+     * Download all applicants data as ZIP file
+     */
+    public function downloadApplicants(Request $request, $jobId)
+    {
+        // Authenticate as mitra via simple token and ensure ownership
+        $token = $request->bearerToken();
+        if (!$token) return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        $parts = explode('|', base64_decode($token));
+        $userId = $parts[0] ?? null;
+        $mitra = $userId ? \App\Models\MitraPerusahaan::where('user_id', $userId)->first() : null;
+        if (!$mitra) return response()->json(['success' => false, 'message' => 'Akun mitra tidak valid'], 401);
+
+        $job = LowonganPekerjaan::where('id', $jobId)->where('mitra_id', $mitra->id)->first();
+        if (!$job) return response()->json(['success' => false, 'message' => 'Lowongan tidak ditemukan atau bukan milik Anda'], 404);
+
+        // Get all applicants for this job
+        $applicants = DB::table('pelamars as p')
+            ->join('users as u', 'u.id', '=', 'p.user_id')
+            ->leftJoin('alumnis as a', 'a.user_id', '=', 'u.id')
+            ->select('p.*', 'u.name', 'u.email', 'a.id as alumni_id')
+            ->where('p.lowongan_id', $job->id)
+            ->whereNull('p.archived_at')
+            ->orderBy('p.created_at', 'desc')
+            ->get();
+
+        if ($applicants->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Tidak ada pelamar untuk lowongan ini'], 404);
+        }
+
+        // Create temporary ZIP file
+        $zipFileName = 'data_pelamar_' . $jobId . '_' . time() . '.zip';
+        $zipPath = storage_path('app/temp/' . $zipFileName);
+        
+        // Create temp directory if not exists
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
+        }
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            return response()->json(['success' => false, 'message' => 'Gagal membuat file ZIP'], 500);
+        }
+
+        // Add job info file
+        $jobInfo = [
+            'judul_lowongan' => $job->judul,
+            'posisi' => $job->posisi,
+            'lokasi' => $job->lokasi,
+            'tanggal_dibuat' => $job->created_at,
+            'total_pelamar' => $applicants->count(),
+            'tanggal_download' => now()->format('Y-m-d H:i:s'),
+        ];
+        $zip->addFromString('00_INFO_LOWONGAN.txt', json_encode($jobInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        // Process each applicant
+        foreach ($applicants as $index => $applicant) {
+            $alumni = Alumni::with('dataAkademik', 'dataKeluarga', 'dokumenPendukung')->find($applicant->alumni_id);
+            
+            if (!$alumni) continue;
+
+            // Create folder for each applicant
+            $folderName = ($index + 1) . '_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $applicant->name);
+            
+            // Add profile data
+            $profileData = [
+                'nama' => $applicant->name,
+                'email' => $applicant->email,
+                'status_lamaran' => $applicant->status,
+                'tanggal_melamar' => $applicant->created_at,
+                'nim' => $alumni->nim,
+                'nik' => $alumni->nik,
+                'no_hp' => $alumni->no_hp,
+                'tempat_lahir' => $alumni->tempat_lahir,
+                'tanggal_lahir' => $alumni->tanggal_lahir ? $alumni->tanggal_lahir->format('Y-m-d') : null,
+                'jenis_kelamin' => $alumni->jenis_kelamin,
+                'alamat' => $alumni->alamat,
+                'kota' => $alumni->kota,
+                'provinsi' => $alumni->provinsi,
+                'kode_pos' => $alumni->kode_pos,
+                'tentang_saya' => $alumni->tentang_saya,
+                'nama_bank' => $alumni->nama_bank,
+                'no_rekening' => $alumni->no_rekening,
+            ];
+            $zip->addFromString($folderName . '/01_Data_Pribadi.json', json_encode($profileData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+            // Add academic data
+            if ($alumni->dataAkademik) {
+                $zip->addFromString($folderName . '/02_Data_Akademik.json', json_encode($alumni->dataAkademik->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            }
+
+            // Add family data
+            if ($alumni->dataKeluarga) {
+                $zip->addFromString($folderName . '/03_Data_Keluarga.json', json_encode($alumni->dataKeluarga->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            }
+
+            // Add CV if exists (from file_cv or from dokumen pendukung)
+            $cvAdded = false;
+            if ($alumni->file_cv && Storage::disk('public')->exists($alumni->file_cv)) {
+                $cvPath = Storage::disk('public')->path($alumni->file_cv);
+                $cvFileName = basename($alumni->file_cv);
+                $zip->addFile($cvPath, $folderName . '/04_CV_' . $cvFileName);
+                $cvAdded = true;
+            }
+
+            // Add supporting documents (including CV from dokumen pendukung if not already added)
+            if ($alumni->dokumenPendukung && $alumni->dokumenPendukung->count() > 0) {
+                $docIndex = 1;
+                foreach ($alumni->dokumenPendukung as $doc) {
+                    $filePath = $doc->file_path ?? $doc->path_file;
+                    if ($filePath && Storage::disk('public')->exists($filePath)) {
+                        $fullPath = Storage::disk('public')->path($filePath);
+                        $fileName = $doc->file_name ?? $doc->nama_dokumen ?? basename($filePath);
+                        $jenisDokumen = $doc->jenis_dokumen ?? $doc->tipe_dokumen ?? 'dokumen';
+                        
+                        // If CV from dokumen pendukung and not already added, add it as CV
+                        if (strtolower($jenisDokumen) === 'cv' && !$cvAdded) {
+                            $zip->addFile($fullPath, $folderName . '/04_CV_' . $fileName);
+                            $cvAdded = true;
+                        } else {
+                            $zip->addFile($fullPath, $folderName . '/05_Dokumen_' . sprintf('%02d', $docIndex) . '_' . $jenisDokumen . '_' . $fileName);
+                            $docIndex++;
+                        }
+                    }
+                }
+            }
+        }
+
+        $zip->close();
+
+        // Return ZIP file as download
+        return response()->download($zipPath, $zipFileName, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
+        ])->deleteFileAfterSend(true);
     }
 }
