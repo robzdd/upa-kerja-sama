@@ -101,10 +101,31 @@ class JobController extends Controller
             ]);
         }
 
-        $jobs = LowonganPekerjaan::with('mitra')
-            ->where('mitra_id', $mitra->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Get archived parameter
+        $archived = $request->query('archived', 'false') === 'true';
+        $search = $request->query('search');
+        
+        $query = LowonganPekerjaan::with('mitra')
+            ->where('mitra_id', $mitra->id);
+        
+        // Filter berdasarkan archived status
+        if ($archived) {
+            $query->whereNotNull('archived_at');
+        } else {
+            $query->whereNull('archived_at');
+        }
+        
+        // Filter berdasarkan search query
+        if ($search && !empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                  ->orWhere('lokasi', 'like', "%{$search}%")
+                  ->orWhere('posisi', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+        
+        $jobs = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'success' => true,
@@ -681,5 +702,75 @@ class JobController extends Controller
         ]);
 
         return response()->json(['success' => true, 'message' => 'Lamaran berhasil dikembalikan dari arsip']);
+    }
+
+    /**
+     * Archive a job (mitra)
+     */
+    public function archive(Request $request, $id)
+    {
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        }
+
+        $decoded = base64_decode($token);
+        $parts = explode('|', $decoded);
+        $userId = $parts[0] ?? null;
+
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Token tidak valid'], 401);
+        }
+
+        $mitra = MitraPerusahaan::where('user_id', $userId)->first();
+        if (!$mitra) {
+            return response()->json(['success' => false, 'message' => 'Akun mitra tidak valid'], 401);
+        }
+
+        $job = LowonganPekerjaan::where('id', $id)->where('mitra_id', $mitra->id)->first();
+        if (!$job) {
+            return response()->json(['success' => false, 'message' => 'Lowongan tidak ditemukan atau bukan milik Anda'], 404);
+        }
+
+        $job->update([
+            'archived_at' => now(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Lowongan berhasil diarsipkan']);
+    }
+
+    /**
+     * Unarchive a job (mitra)
+     */
+    public function unarchive(Request $request, $id)
+    {
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json(['success' => false, 'message' => 'Token tidak ditemukan'], 401);
+        }
+
+        $decoded = base64_decode($token);
+        $parts = explode('|', $decoded);
+        $userId = $parts[0] ?? null;
+
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Token tidak valid'], 401);
+        }
+
+        $mitra = MitraPerusahaan::where('user_id', $userId)->first();
+        if (!$mitra) {
+            return response()->json(['success' => false, 'message' => 'Akun mitra tidak valid'], 401);
+        }
+
+        $job = LowonganPekerjaan::where('id', $id)->where('mitra_id', $mitra->id)->first();
+        if (!$job) {
+            return response()->json(['success' => false, 'message' => 'Lowongan tidak ditemukan atau bukan milik Anda'], 404);
+        }
+
+        $job->update([
+            'archived_at' => null,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Lowongan berhasil dikembalikan dari arsip']);
     }
 }

@@ -28,6 +28,7 @@ class LowonganPekerjaan extends Model
         'rincian_lowongan',
         'jumlah_pelamar',
         'status_aktif',
+        'archived_at',
         'tanggal_penerimaan_lamaran',
         'tanggal_pengumuman',
         'gaji_min',
@@ -44,7 +45,8 @@ class LowonganPekerjaan extends Model
         'tanggal_selesai' => 'date',
         'tanggal_penerimaan_lamaran' => 'date',
         'tanggal_pengumuman' => 'date',
-        'status_aktif' => 'boolean'
+        'status_aktif' => 'boolean',
+        'archived_at' => 'datetime'
     ];
 
     public function mitra()

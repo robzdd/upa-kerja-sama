@@ -34,6 +34,8 @@ Route::put('/mitra/jobs/{id}', [JobController::class, 'update']);
 Route::delete('/mitra/jobs/{id}', [JobController::class, 'destroy']);
 Route::put('/mitra/jobs/{id}/activate', [JobController::class, 'activate']);
 Route::put('/mitra/jobs/{id}/status', [JobController::class, 'setStatus']);
+Route::post('/mitra/jobs/{id}/archive', [JobController::class, 'archive']);
+Route::post('/mitra/jobs/{id}/unarchive', [JobController::class, 'unarchive']);
 // Applications
 Route::post('/jobs/{id}/apply', [JobController::class, 'apply']);
 Route::get('/applications/my', [JobController::class, 'myApplications']);
