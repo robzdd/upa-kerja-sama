@@ -135,6 +135,7 @@ class AuthController extends Controller
                     'nama_bank' => $alumni->nama_bank,
                     'no_rekening' => $alumni->no_rekening,
                     'file_cv' => $alumni->file_cv,
+                    'foto_profil' => $alumni->foto_profil,
                     'created_at' => $alumni->created_at,
                     'updated_at' => $alumni->updated_at,
                 ];
