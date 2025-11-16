@@ -28,6 +28,7 @@ class Alumni extends Model
         'nama_bank',
         'no_rekening',
         'file_cv',
+        'foto_profil',
         'cv_updated_at',
     ];
 

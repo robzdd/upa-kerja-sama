@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\DataAkademik;
@@ -143,6 +144,11 @@ class AuthController extends Controller
                     $cvUrl = url('storage/' . $alumni->file_cv);
                     $profileArray['cv_url'] = $cvUrl;
                 }
+                
+                // Add foto profil URL if exists
+                if ($alumni->foto_profil) {
+                    $profileArray['foto_profil_url'] = url('storage/' . $alumni->foto_profil);
+                }
             }
             
             // Get supporting documents - always return array, even if empty
@@ -189,6 +195,15 @@ class AuthController extends Controller
             $profileData = $user->mitraPerusahaan;
             $role = 'mitra';
             
+            // Add logo_url to profile if logo exists
+            $profileArray = null;
+            if ($profileData) {
+                $profileArray = $profileData->toArray();
+                if ($profileData->logo) {
+                    $profileArray['logo_url'] = url('storage/' . $profileData->logo);
+                }
+            }
+            
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -198,7 +213,7 @@ class AuthController extends Controller
                         'email' => $user->email,
                         'roles' => $role ? [$role] : [],
                     ],
-                    'profile' => $profileData,
+                    'profile' => $profileArray,
                 ],
             ]);
         } elseif ($user->hasRole('admin')) {
@@ -353,6 +368,7 @@ class AuthController extends Controller
             'nama_bank' => 'nullable|string|max:255',
             'no_rekening' => 'nullable|string|max:20',
             'tentang_saya' => 'nullable|string|max:1000',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
         ]);
 
         // Update user
@@ -364,6 +380,19 @@ class AuthController extends Controller
         $alumni = $user->alumni;
         if (!$alumni) {
             $alumni = $user->alumni()->create([]);
+        }
+
+        // Handle foto profil upload if provided
+        if ($request->hasFile('foto_profil')) {
+            // Delete old foto if exists
+            if ($alumni->foto_profil && Storage::disk('public')->exists($alumni->foto_profil)) {
+                Storage::disk('public')->delete($alumni->foto_profil);
+            }
+            
+            // Store new foto profil
+            $fotoPath = $request->file('foto_profil')->store('foto-profil-alumni', 'public');
+            $alumni->foto_profil = $fotoPath;
+            $alumni->save(); // Save immediately if foto uploaded
         }
 
         // Update alumni fields
@@ -397,6 +426,7 @@ class AuthController extends Controller
                 'nama_bank' => $alumni->nama_bank,
                 'no_rekening' => $alumni->no_rekening,
                 'file_cv' => $alumni->file_cv,
+                'foto_profil' => $alumni->foto_profil,
                 'created_at' => $alumni->created_at,
                 'updated_at' => $alumni->updated_at,
             ];
@@ -407,6 +437,9 @@ class AuthController extends Controller
             }
             if ($alumni->file_cv) {
                 $profileArray['cv_url'] = url('storage/' . $alumni->file_cv);
+            }
+            if ($alumni->foto_profil) {
+                $profileArray['foto_profil_url'] = url('storage/' . $alumni->foto_profil);
             }
         }
 

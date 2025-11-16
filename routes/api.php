@@ -65,10 +65,12 @@ Route::get('/profile', [AuthController::class, 'profile']);
 Route::post('/alumni/cv', [AuthController::class, 'uploadAlumniCv']);
 // Update company profile (mitra)
 Route::put('/mitra/company', [CompanyController::class, 'updateMine']);
+Route::post('/mitra/company', [CompanyController::class, 'updateMine']); // Support multipart for logo upload
 // Update alumni profile (basic)
 Route::put('/alumni/profile', [AuthController::class, 'updateAlumni']);
 // Update alumni detail profile (comprehensive)
 Route::put('/alumni/profile/detail', [AuthController::class, 'updateAlumniDetail']);
+Route::post('/alumni/profile/detail', [AuthController::class, 'updateAlumniDetail']); // Support multipart for foto profil upload
 
 // Academic Data routes
 Route::get('/academic-data', [DataAkademikController::class, 'index']);

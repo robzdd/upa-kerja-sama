@@ -39,6 +39,25 @@ class JobController extends Controller
 
         $jobs = $query->get();
 
+        // Add logo_url to each job's mitra relationship
+        $jobs = $jobs->map(function ($job) {
+            $jobData = $job->toArray();
+            if ($job->mitra && $job->mitra->logo) {
+                // Handle both array and object structure
+                if (isset($jobData['mitra_perusahaan']) && is_array($jobData['mitra_perusahaan'])) {
+                    $jobData['mitra_perusahaan']['logo_url'] = url('storage/' . $job->mitra->logo);
+                } elseif ($job->mitra) {
+                    $jobData['mitra_perusahaan'] = [
+                        'id' => $job->mitra->id,
+                        'nama_perusahaan' => $job->mitra->nama_perusahaan,
+                        'logo' => $job->mitra->logo,
+                        'logo_url' => url('storage/' . $job->mitra->logo),
+                    ];
+                }
+            }
+            return $jobData;
+        });
+
         return response()->json([
             'success' => true,
             'data' => $jobs,
@@ -63,9 +82,25 @@ class JobController extends Controller
             ], 404);
         }
 
+        // Add logo_url to job's mitra relationship
+        $jobData = $job->toArray();
+        if ($job->mitra && $job->mitra->logo) {
+            // Handle both array and object structure
+            if (isset($jobData['mitra_perusahaan']) && is_array($jobData['mitra_perusahaan'])) {
+                $jobData['mitra_perusahaan']['logo_url'] = url('storage/' . $job->mitra->logo);
+            } elseif ($job->mitra) {
+                $jobData['mitra_perusahaan'] = [
+                    'id' => $job->mitra->id,
+                    'nama_perusahaan' => $job->mitra->nama_perusahaan,
+                    'logo' => $job->mitra->logo,
+                    'logo_url' => url('storage/' . $job->mitra->logo),
+                ];
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'data' => $job,
+            'data' => $jobData,
             'message' => 'Detail lowongan berhasil diambil'
         ]);
     }
@@ -598,6 +633,7 @@ class JobController extends Controller
                     'nama_bank' => $alumni->nama_bank,
                     'no_rekening' => $alumni->no_rekening,
                     'file_cv' => $alumni->file_cv,
+                    'foto_profil' => $alumni->foto_profil,
                     'created_at' => $alumni->created_at,
                     'updated_at' => $alumni->updated_at,
                 ];
@@ -610,6 +646,11 @@ class JobController extends Controller
                     \Log::info('CV URL generated: ' . $cvUrl . ' from file_cv: ' . $alumni->file_cv);
                 } else {
                     \Log::info('No CV file found for alumni ID: ' . $alumni->id);
+                }
+                
+                // Add foto profil URL if exists
+                if ($alumni->foto_profil) {
+                    $profileArray['foto_profil_url'] = url('storage/' . $alumni->foto_profil);
                 }
                 
                 // Add academic fields

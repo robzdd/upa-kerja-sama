@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MitraPerusahaan;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
@@ -34,6 +35,15 @@ class CompanyController extends Controller
 
         $companies = $query->get();
 
+        // Add logo URL to each company
+        $companies = $companies->map(function ($company) {
+            $companyData = $company->toArray();
+            if ($company->logo) {
+                $companyData['logo_url'] = url('storage/' . $company->logo);
+            }
+            return $companyData;
+        });
+
         return response()->json([
             'success' => true,
             'data' => $companies,
@@ -59,9 +69,15 @@ class CompanyController extends Controller
             ], 404);
         }
 
+        // Add logo URL if exists
+        $companyData = $company->toArray();
+        if ($company->logo) {
+            $companyData['logo_url'] = url('storage/' . $company->logo);
+        }
+
         return response()->json([
             'success' => true,
-            'data' => $company,
+            'data' => $companyData,
             'message' => 'Detail perusahaan berhasil diambil'
         ]);
     }
@@ -83,6 +99,36 @@ class CompanyController extends Controller
             return response()->json(['success' => false, 'message' => 'User tidak valid'], 401);
         }
 
+        // Handle keunggulan before validation - decode JSON string if needed (for multipart)
+        // In multipart form-data, arrays are sent as JSON strings
+        // In JSON request, arrays are sent directly
+        $keunggulanInput = $request->input('keunggulan');
+        if ($keunggulanInput !== null) {
+            if (!is_array($keunggulanInput)) {
+                // Try to decode if it's a JSON string
+                if (is_string($keunggulanInput)) {
+                    $decoded = json_decode($keunggulanInput, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        // Replace the string with array for validation (even if empty)
+                        $request->merge(['keunggulan' => $decoded]);
+                    } else {
+                        // If not valid JSON, try to convert comma/newline separated string to array
+                        $items = array_filter(array_map('trim', preg_split('/[\n,]+/', $keunggulanInput)));
+                        if (!empty($items)) {
+                            $request->merge(['keunggulan' => array_values($items)]);
+                        } else {
+                            // Empty or invalid, set to null
+                            $request->merge(['keunggulan' => null]);
+                        }
+                    }
+                } else {
+                    // Not string and not array, set to null
+                    $request->merge(['keunggulan' => null]);
+                }
+            }
+            // If already array, leave it as is (for JSON requests)
+        }
+
         // Validate incoming fields
         $validated = $request->validate([
             'nama_perusahaan' => 'required|string|max:255',
@@ -94,22 +140,54 @@ class CompanyController extends Controller
             'visi' => 'nullable|string',
             'misi' => 'nullable|string',
             'keunggulan' => 'nullable|array',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
         ]);
+
+        // Handle logo upload if provided
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            // Get or create company to check existing logo
+            $existingCompany = MitraPerusahaan::where('user_id', $user->id)->first();
+            
+            // Delete old logo if exists
+            if ($existingCompany && $existingCompany->logo && Storage::disk('public')->exists($existingCompany->logo)) {
+                Storage::disk('public')->delete($existingCompany->logo);
+            }
+            
+            // Store new logo
+            $logoPath = $request->file('logo')->store('logo-perusahaan', 'public');
+        }
+
+        // Get keunggulan from validated data
+        $keunggulan = $validated['keunggulan'] ?? null;
+        
+        // Convert empty array to null for consistency
+        if (is_array($keunggulan) && empty($keunggulan)) {
+            $keunggulan = null;
+        }
+
+        // Prepare data for update/create
+        $data = [
+            'nama_perusahaan' => $validated['nama_perusahaan'],
+            'sektor' => $validated['sektor'] ?? null,
+            'kontak' => $validated['kontak'] ?? null,
+            'tautan' => $validated['tautan'] ?? null,
+            'alamat' => $validated['alamat'] ?? null,
+            'tentang' => $validated['tentang'] ?? null,
+            'visi' => $validated['visi'] ?? null,
+            'misi' => $validated['misi'] ?? null,
+            'keunggulan' => $keunggulan,
+        ];
+
+        // Add logo path if uploaded
+        if ($logoPath) {
+            $data['logo'] = $logoPath;
+        }
 
         // Upsert company profile for this user
         $company = MitraPerusahaan::updateOrCreate(
             ['user_id' => $user->id],
-            [
-                'nama_perusahaan' => $validated['nama_perusahaan'],
-                'sektor' => $validated['sektor'] ?? null,
-                'kontak' => $validated['kontak'] ?? null,
-                'tautan' => $validated['tautan'] ?? null,
-                'alamat' => $validated['alamat'] ?? null,
-                'tentang' => $validated['tentang'] ?? null,
-                'visi' => $validated['visi'] ?? null,
-                'misi' => $validated['misi'] ?? null,
-                'keunggulan' => $validated['keunggulan'] ?? null,
-            ]
+            $data
         );
 
         // Attach optional non-table fields to response for mobile rendering
@@ -119,6 +197,11 @@ class CompanyController extends Controller
         if (isset($validated['visi'])) $responseData['visi'] = $validated['visi'];
         if (isset($validated['misi'])) $responseData['misi'] = $validated['misi'];
         if (isset($validated['keunggulan'])) $responseData['keunggulan'] = $validated['keunggulan'];
+
+        // Add logo URL if exists
+        if ($company->logo) {
+            $responseData['logo_url'] = url('storage/' . $company->logo);
+        }
 
         return response()->json([
             'success' => true,
