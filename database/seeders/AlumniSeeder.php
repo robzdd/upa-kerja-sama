@@ -47,19 +47,6 @@ class AlumniSeeder extends Seeder
 
         $this->command->info("Alumni berhasil dibuat/diupdate: {$alumni->id}");
 
-        // Buat Data Akademik
-        DataAkademik::updateOrCreate(
-            ['alumni_id' => $alumni->id],
-            [
-                'id' => (string) Str::uuid(),
-                'nim' => '2019010001',
-                'program_studi' => 'Teknik Informatika',
-                'tahun_masuk' => 2019,
-                'tahun_lulus' => 2023,
-                'ipk' => 3.75,
-                'universitas' => 'Institut Teknologi Sepuluh Nopember (ITS)',
-            ]
-        );
 
         $this->command->info("Data Akademik berhasil dibuat/diupdate");
 
