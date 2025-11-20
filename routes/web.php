@@ -20,7 +20,9 @@ use App\Http\Controllers\Mitra\MitraDashboardController;
 use App\Http\Controllers\Alumni\AlumniAkademikController;
 use App\Http\Controllers\Alumni\ListPerusahaanController;
 use App\Http\Controllers\Mitra\Auth\MitraLoginController;
-use App\Http\Controllers\Alumni\Auth\AlumniAuthController;
+use App\Http\Controllers\Alumni\Auth\AlumniLoginController;
+use App\Http\Controllers\Alumni\Auth\AlumniRegisterController;
+use App\Http\Controllers\Alumni\Auth\AlumniGoogleController;
 
 
 // ====================
@@ -34,11 +36,11 @@ Route::get('/cv/{uri}', [CvController::class, 'publicCv'])->name('cv.public');
 Route::get('/artikel', [AlumniArtikelController::class, 'index'])->name('artikel.page');
 Route::get('/alumni/tentang_kami', fn() => view('alumni.tentang_kami'))->name('alumni.tentang_kami');
 
-// ====================
-//  LOGIN GOOGLE (UMUM)
-// ====================
-Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+// ---------- LOGIN GOOGLE ----------
+Route::get('/auth/google', [AlumniGoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('/auth/google/callback', [AlumniGoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+Route::get('/auth/google/register', [AlumniGoogleController::class, 'redirectToGoogleRegister'])->name('google.register');
+Route::get('/auth/google/register/callback', [AlumniGoogleController::class, 'handleGoogleCallbackRegister'])->name('google.register.callback');
 
 // ====================
 //  ALUMNI ROUTES
@@ -46,11 +48,19 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 Route::prefix('alumni')->name('alumni.')->group(function () {
 
     // ---------- AUTH ----------
-    Route::controller(AlumniAuthController::class)->group(function () {
+    Route::controller(AlumniLoginController::class)->group(function () {
         Route::get('/login', 'showLoginForm')->name('login');
         Route::post('/login', 'login')->name('login.submit');
         Route::post('/logout', 'logout')->name('logout');
     });
+
+    // ---------- HALAMAN REGISTER ----------
+    Route::controller(AlumniRegisterController::class)->group(function () {
+        Route::get('/register', 'showRegister')->name('register');
+        Route::post('/register', 'register')->name('register.submit');
+    });
+
+
 
     // ---------- HALAMAN PUBLIK ----------
     Route::get('/beranda', fn() => view('alumni.dashboard_alumni'))->name('beranda');

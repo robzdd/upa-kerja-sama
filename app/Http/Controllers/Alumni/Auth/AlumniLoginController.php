@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class AlumniAuthController extends Controller
+class AlumniLoginController extends Controller
 {
     /**
      * Tampilkan halaman login alumni
