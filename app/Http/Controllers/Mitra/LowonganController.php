@@ -49,7 +49,7 @@ class LowonganController extends Controller
             'lokasi' => $request->lokasi,
             'jenis_pekerjaan' => $request->jenis_pekerjaan,
             'jenjang_pendidikan' => $request->jenjang_pendidikan,
-            'jurusan_diizinkan' => $request->jurusan_diizinkan ?? [],
+            'prodi_diizinkan' => $request->prodi_diizinkan ?? [],
             'persyaratan_dokumen' => $request->persyaratan_dokumen ?? [],
             'rincian_lowongan' => $request->rincian_lowongan,
             'tanggal_penerimaan_lamaran' => $request->tanggal_penerimaan_lamaran,

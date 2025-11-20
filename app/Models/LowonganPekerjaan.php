@@ -23,7 +23,7 @@ class LowonganPekerjaan extends Model
         'tanggal_selesai',
         'jenis_pekerjaan',
         'jenjang_pendidikan',
-        'jurusan_diizinkan',
+        'prodi_diizinkan',
         'persyaratan_dokumen',
         'rincian_lowongan',
         'jumlah_pelamar',
@@ -37,7 +37,7 @@ class LowonganPekerjaan extends Model
     ];
 
     protected $casts = [
-        'jurusan_diizinkan' => 'array',
+        'prodi_diizinkan' => 'array',
         'persyaratan_dokumen' => 'array',
         'skill_required' => 'array',
         'tanggal_mulai' => 'date',
@@ -56,5 +56,7 @@ class LowonganPekerjaan extends Model
     {
         return $this->hasMany(Pelamar::class, 'lowongan_id');
     }
+
+    
 }
 

@@ -43,7 +43,7 @@
                     class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm"
                 >
                 <select class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm">
-                    <option>Jurusan</option>
+                    <option>Prodi</option>
                     <option>Teknik Informatika</option>
                     <option>Teknik Mesin</option>
                 </select>
@@ -191,8 +191,8 @@
                                 <div>
                                     <h4 class="font-semibold text-gray-800 mb-1">Pendidikan</h4>
                                     <p class="text-sm text-gray-600">Jenjang Pendidikan: {{ $firstJob->jenjang_pendidikan }}</p>
-                                    @if($firstJob->jurusan_diizinkan && count($firstJob->jurusan_diizinkan) > 0)
-                                        <p class="text-sm text-gray-600">Jurusan: {{ implode(', ', $firstJob->jurusan_diizinkan) }}</p>
+                                    @if($firstJob->prodi_diizinkan && count($firstJob->prodi_diizinkan) > 0)
+                                        <p class="text-sm text-gray-600">Prodi: {{ implode(', ', $firstJob->prodi_diizinkan) }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -332,10 +332,10 @@
                 });
             };
 
-            // Format jurusan array
-            const formatJurusan = (jurusanArray) => {
-                if (!jurusanArray || jurusanArray.length === 0) return '';
-                return jurusanArray.join(', ');
+            // Format prodi array
+            const formatProdi = (prodiArray) => {
+                if (!prodiArray || prodiArray.length === 0) return '';
+                return prodiArray.join(', ');
             };
 
             // Format persyaratan dokumen
@@ -384,7 +384,7 @@
                         <div>
                             <h4 class="font-semibold text-gray-800 mb-1">Pendidikan</h4>
                             <p class="text-sm text-gray-600">Jenjang Pendidikan: ${job.jenjang_pendidikan}</p>
-                            ${formatJurusan(job.jurusan_diizinkan) ? `<p class="text-sm text-gray-600">Jurusan: ${formatJurusan(job.jurusan_diizinkan)}</p>` : ''}
+                            ${formatProdi(job.prodi_diizinkan) ? `<p class="text-sm text-gray-600">Prodi: ${formatProdi(job.prodi_diizinkan)}</p>` : ''}
                         </div>
                     </div>
 

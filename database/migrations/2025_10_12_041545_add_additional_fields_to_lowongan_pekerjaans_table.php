@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('lowongan_pekerjaans', function (Blueprint $table) {
             $table->string('jenis_pekerjaan')->nullable(); // Full-time, Part-time, Contract, etc.
             $table->string('jenjang_pendidikan')->nullable(); // D3, D4, S1, etc.
-            $table->json('jurusan_diizinkan')->nullable(); // Array of allowed majors
+            $table->json('prodi_diizinkan')->nullable(); // Array of allowed majors
             $table->json('persyaratan_dokumen')->nullable(); // Array of required documents
             $table->text('rincian_lowongan')->nullable(); // Detailed job description
             $table->integer('jumlah_pelamar')->default(0); // Number of applicants
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->dropColumn([
                 'jenis_pekerjaan',
                 'jenjang_pendidikan',
-                'jurusan_diizinkan',
+                'prodi_diizinkan',
                 'persyaratan_dokumen',
                 'rincian_lowongan',
                 'jumlah_pelamar',

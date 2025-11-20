@@ -93,25 +93,25 @@
                 </div>
             </div>
 
-            <!-- Jurusan Diizinkan -->
+            <!-- Prodi Diizinkan -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Jurusan Diizinkan</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Prodi Diizinkan</label>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     @php
-                        $jurusan = [
-                            'Teknik Informatika', 'Sistem Informasi', 'Rekayasa Perangkat Lunak',
-                            'Teknik Komputer', 'Teknologi Informasi', 'Ilmu Komputer',
-                            'Teknik Mesin', 'Teknik Elektro', 'Teknik Sipil',
-                            'Manajemen', 'Akuntansi', 'Ekonomi'
+                        $Prodi = [
+                            'Teknik Informatika', 'Rekayasa Perangkat Lunak', 'Sistem Informasi Kota Cerdas',
+                            'Teknologi Rekayasa Komputer', 'Teknik Mesin', 'Teknik Pendingin',
+                            'Perancangan Manufaktur', 'Teknologi Rekayasa Instrumentasi & Kontrol', 'Keperawatan',
+                            'Teknologi Laboratorium Medis', 'Teknologi Rekayasa Elektro-Medis'
                         ];
-                        $selectedJurusan = old('jurusan_diizinkan', []);
+                        $selectedProdi = old('Prodi_diizinkan', []);
                     @endphp
-                    @foreach($jurusan as $j)
+                    @foreach($Prodi as $p)
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="jurusan_diizinkan[]" value="{{ $j }}"
-                                   {{ in_array($j, $selectedJurusan) ? 'checked' : '' }}
+                            <input type="checkbox" name="Prodi_diizinkan[]" value="{{ $p }}"
+                                   {{ in_array($p, $selectedProdi) ? 'checked' : '' }}
                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                            <span class="text-sm text-gray-700">{{ $j }}</span>
+                            <span class="text-sm text-gray-700">{{ $p }}</span>
                         </label>
                     @endforeach
                 </div>

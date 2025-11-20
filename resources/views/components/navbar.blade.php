@@ -46,13 +46,40 @@
 
                 <!-- User Profile Dropdown -->
                 <div x-data="{ open: false }" class="relative">
-                    <button @click="open = !open" class="flex items-center focus:outline-none">
-                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                            <span class="text-gray-700 font-semibold">
-                                {{ Str::upper(substr(Auth::user()->name ?? Auth::guard('mitra')->user()->name ?? 'U', 0, 1)) }}
-                            </span>
+                    @php
+                        $user = Auth::user() ?? Auth::guard('mitra')->user();
+                        $foto = $user->foto ?? null;
+                    @endphp
+
+                    <!-- Box Profil -->
+                    <button @click="open = !open"
+                            class="flex items-center w-44 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2 focus:outline-none transition group">
+                        <!-- Foto atau Inisial -->
+                        @if ($foto)
+                            <img src="{{ asset('storage/' . $foto) }}"
+                                 alt="Profile Photo"
+                                 class="w-9 h-9 rounded-lg object-cover border border-white/30">
+                        @else
+                            <div class="w-9 h-9 bg-gray-300 rounded-lg flex items-center justify-center border border-white/30">
+                                <span class="text-gray-700 font-semibold text-lg">
+                                    {{ Str::upper(substr($user->name ?? 'U', 0, 1)) }}
+                                </span>
+                            </div>
+                        @endif
+
+                        <!-- Nama -->
+                        <div class="ml-3 flex-1 min-w-0">
+                            <p class="truncate text-sm font-medium text-white">
+                                {{ $user->name ?? 'User' }}
+                            </p>
                         </div>
+
+                        <!-- Icon dropdown -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
+
                     <!-- Dropdown -->
                     <div x-show="open" @click.away="open = false"
                          class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 py-2"
@@ -73,4 +100,5 @@
 
 <!-- Spacer to prevent content from going under fixed navbar -->
 <div class="h-[72px]"></div>
+
 <script src="//unpkg.com/alpinejs" defer></script>

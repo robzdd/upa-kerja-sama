@@ -25,4 +25,19 @@ class User extends Authenticatable
     {
        return $this->hasOne(Alumni::class, 'user_id', 'id');
     }
+
+    public function mitraPerusahaan()
+    {
+        return $this->hasOne(MitraPerusahaan::class);
+    }
+
+    public function mahasiswa()
+    {
+        return $this->hasOne(Mahasiswa::class);
+    }
+
+    public function admin()
+    {
+        return $this->hasOne(Admin::class);
+    }
 }
