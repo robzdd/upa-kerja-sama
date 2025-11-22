@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Alumni extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'alumnis';
     protected $keyType = 'string';
@@ -15,7 +16,7 @@ class Alumni extends Model
 
     protected $fillable = [
         'user_id',
-        'nama_lengkap',
+        'program_studi_id',
         'nim',
         'nik',
         'tempat_lahir',
@@ -77,9 +78,9 @@ class Alumni extends Model
                     ->orderBy('mulai_berlaku', 'desc');
     }
 
-    public function lamaran()
+    public function programStudi()
     {
-        return $this->hasMany(Lamaran::class, 'user_id', 'user_id');
+        return $this->belongsTo(ProgramStudi::class);
     }
 
     // ===== HELPER METHODS =====

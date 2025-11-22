@@ -15,12 +15,26 @@ class Artikel extends Model
 
 
     protected $fillable = [
-    'user_id',
-    'kategori_id',
-    'judul',
-    'konten',
-    'thumbnail'
-];
+        'user_id',
+        'kategori_id',
+        'judul',
+        'slug',
+        'excerpt',
+        'konten',
+        'thumbnail',
+        'meta_description',
+        'tags',
+        'status',
+        'published_at',
+        'reading_time',
+        'is_featured'
+    ];
+
+    protected $casts = [
+        'tags' => 'array',
+        'published_at' => 'datetime',
+        'is_featured' => 'boolean',
+    ];
 
     public function user()
     {

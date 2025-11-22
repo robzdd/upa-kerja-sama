@@ -15,7 +15,7 @@ class RolePermissionSeeder extends Seeder
             // Alumni
             'registrasi pengguna',
             'kelola profil alumni',
-            'kelola profil mahasiswa',
+
             'lihat lowongan',
             'buat lamaran pekerjaan',
             'lihat status lamaran',
@@ -50,7 +50,7 @@ class RolePermissionSeeder extends Seeder
         $alumni = Role::firstOrCreate(['name' => 'alumni']);
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $mitra = Role::firstOrCreate(['name' => 'mitra']);
-        $mahasiswa = Role::firstOrCreate(['name' => 'mahasiswa']); // fix!
+
         $umum = Role::firstOrCreate(['name' => 'umum']);
 
         // 🔹 Assign Permission ke Role
@@ -78,15 +78,7 @@ class RolePermissionSeeder extends Seeder
             'kelola profil perusahaan',
         ]);
 
-        $mahasiswa->givePermissionTo([
-            'registrasi pengguna',
-            'kelola profil mahasiswa',
-            'lihat lowongan',
-            'buat lamaran pekerjaan',
-            'lihat status lamaran',
-            'lihat mitra perusahaan',
-            'lihat artikel berita',
-        ]);
+
 
         $umum->givePermissionTo([
             'lihat profil upa',

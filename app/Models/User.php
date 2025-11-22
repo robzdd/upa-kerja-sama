@@ -31,10 +31,7 @@ class User extends Authenticatable
         return $this->hasOne(MitraPerusahaan::class);
     }
 
-    public function mahasiswa()
-    {
-        return $this->hasOne(Mahasiswa::class);
-    }
+
 
     public function admin()
     {

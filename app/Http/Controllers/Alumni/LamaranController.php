@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Models\Pelamar;
 use App\Models\LowonganPekerjaan;
 use App\Models\Alumni;
+use Illuminate\Support\Facades\Log;
 
 class LamaranController extends Controller
 {
@@ -16,14 +17,14 @@ class LamaranController extends Controller
     {
         $user = Auth::user();
         $lowongan = LowonganPekerjaan::with('mitra')
-            ->where('status', 'aktif')
+            ->where('status_aktif', true)
             ->latest()
             ->paginate(10);
         
-        $totalLowongan = LowonganPekerjaan::where('status', 'aktif')->count();
+        $totalLowongan = LowonganPekerjaan::where('status_aktif', true)->count();
         $totalPelamar = Pelamar::count();
         
-        return view('alumni.lowongan.index', compact('lowongan', 'totalLowongan', 'totalPelamar'));
+        return view('alumni.cari_lowongan', compact('lowongan', 'totalLowongan', 'totalPelamar'));
     }
     
     public function details($id)
@@ -138,7 +139,7 @@ class LamaranController extends Controller
     {
 
         if (!$alumni) {
-            \Log::info("Alumni tidak ditemukan");
+            Log::info("Alumni tidak ditemukan");
             return false;
         }
 
@@ -153,7 +154,7 @@ class LamaranController extends Controller
         ];
 
         foreach ($checks as $key => $value) {
-            \Log::info("Check $key: " . ($value ? 'Ada' : 'KOSONG'));
+            Log::info("Check $key: " . ($value ? 'Ada' : 'KOSONG'));
             if (empty($value)) {
                 return false;
             }
@@ -171,7 +172,7 @@ class LamaranController extends Controller
             // Cek field wajib
             foreach ($requiredFields as $key => $value) {
                 if (empty($value)) {
-                    \Log::info("Field kosong: $key"); // Untuk debugging
+                    Log::info("Field kosong: $key"); // Untuk debugging
                     return false;
                 }
             }
@@ -186,7 +187,7 @@ class LamaranController extends Controller
                 ->exists();
 
             if (!($hasEducation || $hasWork || $hasCert || $hasCV)) {
-                \Log::info("Tidak ada data pendukung"); // Untuk debugging
+                Log::info("Tidak ada data pendukung"); // Untuk debugging
                 return false;
             }
 

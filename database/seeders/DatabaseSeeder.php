@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             UserSeeder::class,
             MitraSeeder::class,
-            MahasiswaSeeder::class,
+            KategoriArtikelSeeder::class,
             AlumniSeeder::class,
             ProgramStudiSeeder::class,
             LowonganPekerjaanSeeder::class,

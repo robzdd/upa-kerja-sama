@@ -30,12 +30,7 @@ class UserSeeder extends Seeder
                 'email' => 'mitra1@example.com',
                 'password' => Hash::make('password'),
             ],
-            [
-                'id' => (string) Str::uuid(),
-                'name' => 'Mahasiswa 1',
-                'email' => 'mahasiswa1@example.com',
-                'password' => Hash::make('password'),
-            ],
+
             [
                 'id' => (string) Str::uuid(),
                 'name' => 'Alumni 1',
@@ -53,8 +48,7 @@ class UserSeeder extends Seeder
                 $user->assignRole('admin'); // Admin Kampus
             } elseif ($index === 2) {
                 $user->assignRole('mitra'); // Mitra 1
-            } elseif ($index === 3) {
-                $user->assignRole('mahasiswa'); // Mahasiswa 1
+
             } elseif ($index === 4) {
                 $user->assignRole('alumni'); // Alumni 1
             }

@@ -1,23 +1,24 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Alumni\CvController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ArtikelController;
+use App\Http\Controllers\Mitra\PelamarController;
+use App\Http\Controllers\Alumni\LamaranController;
+use App\Http\Controllers\Alumni\ProfileController;
+use App\Http\Controllers\Alumni\DocumentController;
+use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Alumni\ApplicationController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Mitra\MitraDashboardController;
+use App\Http\Controllers\Alumni\AlumniAkademikController;
 use App\Http\Controllers\Mitra\Auth\MitraLoginController;
 use App\Http\Controllers\Alumni\Auth\AlumniAuthController;
-use App\Http\Controllers\Alumni\ProfileController;
-use App\Http\Controllers\Alumni\CvController;
-use App\Http\Controllers\Alumni\DocumentController;
-use App\Http\Controllers\Admin\Auth\AdminAuthController;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminProfileController;
-use App\Http\Controllers\Admin\UserManagementController;
-use App\Http\Controllers\Admin\ArtikelController;
-use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Alumni\AlumniAkademikController;
-use App\Http\Controllers\Alumni\LamaranController;
-use App\Http\Controllers\Alumni\ApplicationController;
-use App\Http\Controllers\Mitra\PelamarController;
 
 // ====================
 //  HALAMAN UMUM
@@ -27,7 +28,8 @@ Route::get('/', fn() => view('welcome'))->name('home');
 // CV Public Route
 Route::get('/cv/{uri}', [CvController::class, 'publicCv'])->name('cv.public');
 
-Route::get('/artikel', fn() => view('alumni.artikel_page'))->name('artikel.page');
+Route::get('/artikel', [\App\Http\Controllers\Alumni\AlumniArtikelController::class, 'index'])->name('artikel.page');
+Route::get('/artikel/{slug}', [\App\Http\Controllers\Alumni\AlumniArtikelController::class, 'show'])->name('artikel.detail');
 Route::get('/alumni/tentang_kami', fn() => view('alumni.tentang_kami'))->name('alumni.tentang_kami');
 
 // ====================
@@ -45,6 +47,8 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
     Route::controller(AlumniAuthController::class)->group(function () {
         Route::get('/login', 'showLoginForm')->name('login');
         Route::post('/login', 'login')->name('login.submit');
+        Route::get('/register', 'showRegisterForm')->name('register'); // New Register Route
+        Route::post('/register', 'register')->name('register.submit'); // Submit Register
         Route::post('/logout', 'logout')->name('logout');
     });
 
@@ -117,7 +121,7 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
         // Security Routes
         Route::prefix('security')->name('security.')->group(function () {
             Route::get('/settings', function() {
-                $user = auth()->user();
+                $user = Auth::user();
                 return view('alumni.pengaturan_keamanan', compact('user'));
             })->name('settings');
             Route::post('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
@@ -180,6 +184,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // ---------- DASHBOARD ----------
     Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/search', [AdminDashboardController::class, 'search'])->name('search');
 
         // Profile Routes
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');

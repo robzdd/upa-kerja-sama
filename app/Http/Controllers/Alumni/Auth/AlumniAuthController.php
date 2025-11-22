@@ -18,6 +18,58 @@ class AlumniAuthController extends Controller
     }
 
     /**
+     * Tampilkan halaman register alumni
+     */
+    public function showRegisterForm()
+    {
+        $googleData = session('google_register_data');
+        return view('auth.alumni_register_page', compact('googleData'));
+    }
+
+    /**
+     * Proses register alumni
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'google_id' => ['nullable', 'string'],
+        ]);
+
+        // Jika manual register (tanpa google_id), password wajib
+        if (!$request->google_id && !$request->password) {
+            throw ValidationException::withMessages([
+                'password' => 'Password wajib diisi.',
+            ]);
+        }
+
+        // Buat User
+        $user = \App\Models\User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password ? bcrypt($request->password) : bcrypt(\Illuminate\Support\Str::random(16)),
+            'google_id' => $request->google_id,
+        ]);
+
+        $user->assignRole('alumni');
+
+        // Buat Data Alumni
+        \App\Models\Alumni::create([
+            'user_id' => $user->id,
+        ]);
+
+        // Login
+        Auth::login($user);
+
+        // Hapus session google jika ada
+        session()->forget('google_register_data');
+
+        return redirect()->route('alumni.dashboard')->with('success', 'Registrasi berhasil! Selamat datang.');
+    }
+
+    /**
      * Proses login alumni
      */
     public function login(Request $request)

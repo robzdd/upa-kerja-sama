@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Alumni;
 use App\Models\MitraPerusahaan;
-use App\Models\Mahasiswa;
+
 use App\Models\ProgramStudi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,21 +19,29 @@ class UserManagementController extends Controller
      */
     public function index(Request $request)
     {
-        $type = $request->get('type', 'all'); // all, alumni, mitra, mahasiswa
+        $type = $request->get('type', 'all'); // all, alumni, mitra
+        $search = $request->get('search', '');
 
-        $query = User::with(['alumni', 'mitraPerusahaan', 'mahasiswa']);
+        $query = User::with(['alumni', 'mitraPerusahaan']);
 
+        // Filter by type
         if ($type === 'alumni') {
             $query->whereHas('alumni');
         } elseif ($type === 'mitra') {
             $query->whereHas('mitraPerusahaan');
-        } elseif ($type === 'mahasiswa') {
-            $query->whereHas('mahasiswa');
         }
 
-        $users = $query->latest()->paginate(15);
+        // Search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
 
-        return view('admin.users.index', compact('users', 'type'));
+        $users = $query->latest()->paginate(10)->withQueryString();
+
+        return view('admin.users.index', compact('users', 'type', 'search'));
     }
 
     /**
@@ -56,7 +64,7 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'type' => 'required|in:alumni,mitra,mahasiswa',
+            'type' => 'required|in:alumni,mitra',
         ]);
 
         DB::beginTransaction();
@@ -74,7 +82,7 @@ class UserManagementController extends Controller
             if ($request->type === 'alumni') {
                 Alumni::create([
                     'user_id' => $user->id,
-                    'nama_lengkap' => $request->name,
+                    'program_studi_id' => $request->program_studi_id ?? null,
                     'nim' => $request->nim ?? null,
                     'no_hp' => $request->no_hp ?? null,
                 ]);
@@ -84,14 +92,8 @@ class UserManagementController extends Controller
                     'nama_perusahaan' => $request->nama_perusahaan ?? $request->name,
                     'sektor' => $request->sektor ?? null,
                 ]);
-            } elseif ($request->type === 'mahasiswa') {
-                Mahasiswa::create([
-                    'user_id' => $user->id,
-                    'program_studi_id' => $request->program_studi_id ?? null,
-                    'nim' => $request->nim ?? null,
-                    'angkatan' => $request->angkatan ?? null,
-                ]);
             }
+
 
             DB::commit();
 
@@ -111,7 +113,7 @@ class UserManagementController extends Controller
      */
     public function show($id)
     {
-        $user = User::with(['alumni', 'mitraPerusahaan', 'mahasiswa'])->findOrFail($id);
+        $user = User::with(['alumni', 'mitraPerusahaan'])->findOrFail($id);
 
         return view('admin.users.show', compact('user'));
     }
@@ -121,7 +123,7 @@ class UserManagementController extends Controller
      */
     public function edit($id)
     {
-        $user = User::with(['alumni', 'mitraPerusahaan', 'mahasiswa'])->findOrFail($id);
+        $user = User::with(['alumni', 'mitraPerusahaan'])->findOrFail($id);
         $programStudi = ProgramStudi::all();
 
         // Determine type
@@ -130,9 +132,8 @@ class UserManagementController extends Controller
             $type = 'alumni';
         } elseif ($user->mitraPerusahaan) {
             $type = 'mitra';
-        } elseif ($user->mahasiswa) {
-            $type = 'mahasiswa';
         }
+
 
         return view('admin.users.edit', compact('user', 'type', 'programStudi'));
     }
@@ -170,13 +171,8 @@ class UserManagementController extends Controller
                     'nama_perusahaan' => $request->nama_perusahaan ?? $user->mitraPerusahaan->nama_perusahaan,
                     'sektor' => $request->sektor ?? $user->mitraPerusahaan->sektor,
                 ]);
-            } elseif ($user->mahasiswa) {
-                $user->mahasiswa->update([
-                    'program_studi_id' => $request->program_studi_id ?? $user->mahasiswa->program_studi_id,
-                    'nim' => $request->nim ?? $user->mahasiswa->nim,
-                    'angkatan' => $request->angkatan ?? $user->mahasiswa->angkatan,
-                ]);
             }
+
 
             DB::commit();
 

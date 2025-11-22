@@ -13,7 +13,7 @@ class KategoriArtikel extends Model
     protected $table = 'kategori_artikels';
 
 
-    protected $fillable = ['nama'];
+    protected $fillable = ['nama', 'deskripsi'];
 
     public function artikel()
     {

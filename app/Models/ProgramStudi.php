@@ -17,10 +17,7 @@ class ProgramStudi extends Model
         'program_studi',
 ];
 
-    public function mahasiswa()
-    {
-        return $this->hasMany(Mahasiswa::class);
-    }
+
 
     public function alumni()
     {

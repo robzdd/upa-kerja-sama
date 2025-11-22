@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Artikel;
 use App\Models\KategoriArtikel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ArtikelController extends Controller
@@ -38,16 +39,38 @@ class ArtikelController extends Controller
     {
         $request->validate([
             'judul' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:artikels,slug',
+            'excerpt' => 'nullable|string|max:500',
             'kategori_id' => 'required|exists:kategori_artikels,id',
             'konten' => 'required|string',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'meta_description' => 'nullable|string|max:160',
+            'tags' => 'nullable|string',
+            'status' => 'required|in:draft,published,scheduled',
+            'published_at' => 'nullable|date',
+            'is_featured' => 'nullable|boolean',
         ]);
 
+        // Generate slug if not provided
+        $slug = $request->slug ?: \Illuminate\Support\Str::slug($request->judul);
+        
+        // Calculate reading time (average 200 words per minute)
+        $wordCount = str_word_count(strip_tags($request->konten));
+        $readingTime = ceil($wordCount / 200);
+
         $data = [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'judul' => $request->judul,
+            'slug' => $slug,
+            'excerpt' => $request->excerpt,
             'kategori_id' => $request->kategori_id,
             'konten' => $request->konten,
+            'meta_description' => $request->meta_description,
+            'tags' => $request->tags ? explode(',', $request->tags) : null,
+            'status' => $request->status,
+            'published_at' => $request->status === 'published' ? ($request->published_at ?: now()) : $request->published_at,
+            'reading_time' => $readingTime,
+            'is_featured' => $request->has('is_featured') ? true : false,
         ];
 
         if ($request->hasFile('thumbnail')) {
@@ -89,15 +112,37 @@ class ArtikelController extends Controller
 
         $request->validate([
             'judul' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:artikels,slug,' . $id,
+            'excerpt' => 'nullable|string|max:500',
             'kategori_id' => 'required|exists:kategori_artikels,id',
             'konten' => 'required|string',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'meta_description' => 'nullable|string|max:160',
+            'tags' => 'nullable|string',
+            'status' => 'required|in:draft,published,scheduled',
+            'published_at' => 'nullable|date',
+            'is_featured' => 'nullable|boolean',
         ]);
+
+        // Generate slug if not provided
+        $slug = $request->slug ?: \Illuminate\Support\Str::slug($request->judul);
+        
+        // Calculate reading time
+        $wordCount = str_word_count(strip_tags($request->konten));
+        $readingTime = ceil($wordCount / 200);
 
         $data = [
             'judul' => $request->judul,
+            'slug' => $slug,
+            'excerpt' => $request->excerpt,
             'kategori_id' => $request->kategori_id,
             'konten' => $request->konten,
+            'meta_description' => $request->meta_description,
+            'tags' => $request->tags ? explode(',', $request->tags) : null,
+            'status' => $request->status,
+            'published_at' => $request->status === 'published' ? ($request->published_at ?: now()) : $request->published_at,
+            'reading_time' => $readingTime,
+            'is_featured' => $request->has('is_featured') ? true : false,
         ];
 
         if ($request->hasFile('thumbnail')) {

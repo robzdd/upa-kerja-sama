@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\MitraPerusahaan;
-use App\Models\Mahasiswa;
+
 
 return [
 
@@ -51,10 +51,7 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'mahasiswa' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+
     ],
 
     /*
@@ -88,10 +85,7 @@ return [
             'driver' => 'eloquent',
             'model' => MitraPerusahaan::class,
         ],
-        'mahasiswa' => [
-            'driver' => 'eloquent',
-            'model' => Mahasiswa::class,
-    ],
+
     ],
 
     /*

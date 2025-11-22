@@ -15,15 +15,17 @@ class ProgramStudiSeeder extends Seeder
     {
         $programStudis = [
             ['program_studi' => 'Teknik Informatika'],
-            ['program_studi' => 'Sistem Informasi'],
-            ['program_studi' => 'Teknologi Informasi'],
-            ['program_studi' => 'Manajemen'],
-            ['program_studi' => 'Akuntansi'],
-            ['program_studi' => 'Ilmu Komunikasi'],
-            ['program_studi' => 'Administrasi Publik'],
-            ['program_studi' => 'Pendidikan Bahasa Inggris'],
-            ['program_studi' => 'Agroteknologi'],
-            ['program_studi' => 'Teknik Elektro'],
+            ['program_studi' => 'Sistem Informasi Kota Cerdas'],
+            ['program_studi' => 'Rekayasa Perangkat Lunak'],
+            ['program_studi' => 'Teknologi Rekayasa Komputer'],
+            ['program_studi' => 'Teknik Mesin'],
+            ['program_studi' => 'Teknik Pendingin'],
+            ['program_studi' => 'Perancangan Manufaktur'],
+            ['program_studi' => 'Teknologi Rekayasa Instrumentasi & Kontrol'],
+            ['program_studi' => 'Keperawatan'],
+            ['program_studi' => 'Teknologi Laboratorium Medis'],
+            ['program_studi' => 'Teknologi Rekayasa Elektro-Medis'],
+            
         ];
 
         foreach ($programStudis as $prodi) {
