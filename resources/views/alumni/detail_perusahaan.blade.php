@@ -10,7 +10,7 @@
             <nav class="flex mb-8 text-sm text-blue-200" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('alumni.beranda') }}" class="inline-flex items-center hover:text-white transition">
+                        <a href="{{ Auth::check() ? route('alumni.beranda') : route('home') }}" class="inline-flex items-center hover:text-white transition">
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
                             </svg>
@@ -120,7 +120,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <a href="{{ route('alumni.lowongan.apply', $job->id) }}" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-semibold whitespace-nowrap">
+                                <a href="{{ route('alumni.cari_lowongan', ['job_id' => $job->id]) }}" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-semibold whitespace-nowrap">
                                     Lihat Detail
                                 </a>
                             </div>

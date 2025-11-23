@@ -31,7 +31,7 @@
             <div>
                 <h3 class="text-lg font-bold mb-6">Tautan Cepat</h3>
                 <ul class="space-y-4">
-                    <li><a href="{{ route('alumni.beranda') }}" class="text-gray-400 hover:text-white transition-colors">Beranda</a></li>
+                    <li><a href="{{ Auth::check() ? route('alumni.beranda') : route('home') }}" class="text-gray-400 hover:text-white transition-colors">Beranda</a></li>
                     <li><a href="{{ route('alumni.cari_lowongan') }}" class="text-gray-400 hover:text-white transition-colors">Lowongan Kerja</a></li>
                     <li><a href="{{ route('alumni.list_perusahaan') }}" class="text-gray-400 hover:text-white transition-colors">Daftar Perusahaan</a></li>
                     <li><a href="{{ route('alumni.tentang_kami') }}" class="text-gray-400 hover:text-white transition-colors">Tentang Kami</a></li>

@@ -23,7 +23,7 @@ use App\Http\Controllers\Alumni\Auth\AlumniAuthController;
 // ====================
 //  HALAMAN UMUM
 // ====================
-Route::get('/', fn() => view('welcome'))->name('home');
+Route::get('/', [\App\Http\Controllers\GuestController::class, 'index'])->name('home');
 
 // CV Public Route
 Route::get('/cv/{uri}', [CvController::class, 'publicCv'])->name('cv.public');
@@ -31,6 +31,12 @@ Route::get('/cv/{uri}', [CvController::class, 'publicCv'])->name('cv.public');
 Route::get('/artikel', [\App\Http\Controllers\Alumni\AlumniArtikelController::class, 'index'])->name('artikel.page');
 Route::get('/artikel/{slug}', [\App\Http\Controllers\Alumni\AlumniArtikelController::class, 'show'])->name('artikel.detail');
 Route::get('/alumni/tentang_kami', fn() => view('alumni.tentang_kami'))->name('alumni.tentang_kami');
+
+// Public Access for Job Search & Companies
+Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('alumni.cari_lowongan');
+Route::get('/lowongan/{id}/details', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
+Route::get('/list_perusahaan', [\App\Http\Controllers\Alumni\CompanyController::class, 'index'])->name('alumni.list_perusahaan');
+Route::get('/perusahaan/{id}', [\App\Http\Controllers\Alumni\CompanyController::class, 'show'])->name('alumni.detail_perusahaan');
 
 // ====================
 //  LOGIN GOOGLE (UMUM)
@@ -52,12 +58,12 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
         Route::post('/logout', 'logout')->name('logout');
     });
 
-    // ---------- HALAMAN PUBLIK ----------
+    // ---------- HALAMAN PUBLIK (Moved to Global) ----------
     Route::get('/beranda', fn() => view('alumni.dashboard_alumni'))->name('beranda');
-    Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('cari_lowongan');
-    Route::get('/lowongan/{id}/details', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
-    Route::get('/list_perusahaan', [\App\Http\Controllers\Alumni\CompanyController::class, 'index'])->name('list_perusahaan');
-    Route::get('/perusahaan/{id}', [\App\Http\Controllers\Alumni\CompanyController::class, 'show'])->name('detail_perusahaan');
+    // Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('cari_lowongan');
+    // Route::get('/lowongan/{id}/details', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
+    // Route::get('/list_perusahaan', [\App\Http\Controllers\Alumni\CompanyController::class, 'index'])->name('list_perusahaan');
+    // Route::get('/perusahaan/{id}', [\App\Http\Controllers\Alumni\CompanyController::class, 'show'])->name('detail_perusahaan');
 
     // ---------- HALAMAN LOGIN PROTECTED ----------
     Route::middleware(['auth', 'role:alumni'])->group(function () {

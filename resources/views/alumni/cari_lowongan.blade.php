@@ -244,6 +244,8 @@
     </div>
 
     <script>
+        const isAuth = {{ Auth::check() ? 'true' : 'false' }};
+
         // AJAX Pagination
         document.addEventListener('click', function(e) {
             // Check if clicked element is a pagination link inside job-list-container
@@ -265,20 +267,28 @@
                 .then(html => {
                     document.getElementById('job-list-container').innerHTML = html;
                     document.getElementById('job-list-container').style.opacity = '1';
-                    
-                    // Re-select the first job of the new page if needed, or just leave it
-                    // If we want to auto-select the first job of the new page:
-                    const firstJobCard = document.querySelector('.job-card');
-                    if (firstJobCard) {
-                        // Trigger click to update details
-                        // firstJobCard.click(); 
-                        // Or just update visual state
-                    }
                 })
                 .catch(error => {
                     console.error('Error loading pagination:', error);
                     document.getElementById('job-list-container').style.opacity = '1';
                 });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('job_id');
+            if (jobId) {
+                fetchJobDetails(jobId);
+                // Scroll to detail view on mobile
+                if (window.innerWidth < 1024) {
+                    const jobDetail = document.getElementById('job-detail');
+                    if (jobDetail) {
+                        setTimeout(() => {
+                            jobDetail.scrollIntoView({ behavior: 'smooth' });
+                        }, 500);
+                    }
+                }
             }
         });
 
@@ -318,7 +328,7 @@
                 </div>
             `;
 
-            fetch(`/alumni/lowongan/${jobId}/details`)
+            fetch(`/lowongan/${jobId}/details`)
                 .then(response => {
                     console.log('Response status:', response.status);
                     if (!response.ok) {
@@ -400,9 +410,14 @@
                 </div>
 
                 <!-- Apply Button -->
-               <a href="/alumni/lowongan/${job.id}/apply" class="block w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6 text-center">
-                    Daftar Sekarang
-                </a>
+                ${isAuth ? 
+                    `<a href="/alumni/lowongan/${job.id}/apply" class="block w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6 text-center">
+                        Daftar Sekarang
+                    </a>` : 
+                    `<button onclick="showLoginAlert()" class="block w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white py-3 rounded-lg hover:from-gray-600 hover:to-gray-700 transition font-semibold mb-6 text-center">
+                        Daftar Sekarang
+                    </button>`
+                }
 
                 <!-- Job Details -->
                 <div class="space-y-5 mb-6">
@@ -452,5 +467,93 @@
                 </div>
             `;
         }
+
+        function showLoginAlert() {
+            Swal.fire({
+                title: 'Login Diperlukan',
+                text: "Anda harus login terlebih dahulu",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Login',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoginForm();
+                }
+            });
+        }
+
+        function showLoginForm() {
+            Swal.fire({
+                title: 'Login',
+                html: `
+                    <input type="email" id="login-email" class="swal2-input" placeholder="Email">
+                    <input type="password" id="login-password" class="swal2-input" placeholder="Password">
+                `,
+                confirmButtonText: 'Masuk',
+                focusConfirm: false,
+                showCancelButton: true,
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    const email = Swal.getPopup().querySelector('#login-email').value
+                    const password = Swal.getPopup().querySelector('#login-password').value
+                    if (!email || !password) {
+                        Swal.showValidationMessage(`Email dan password wajib diisi`)
+                    }
+                    return { email: email, password: password }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    performLogin(result.value.email, result.value.password);
+                }
+            });
+        }
+
+        function performLogin(email, password) {
+            Swal.showLoading();
+            
+            fetch('{{ route("alumni.login.submit") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(response => response.json().then(data => ({ status: response.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Berhasil',
+                        text: 'Halaman akan dimuat ulang...',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Gagal',
+                        text: body.message || 'Email atau password salah.'
+                    }).then(() => {
+                        showLoginForm(); // Show form again on error
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: 'Silakan coba lagi nanti.'
+                });
+            });
+        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection

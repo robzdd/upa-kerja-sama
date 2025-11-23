@@ -88,6 +88,13 @@ class AlumniAuthController extends Controller
             if ($user->hasRole('alumni')) {
                 $request->session()->regenerate();
 
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'message' => 'Login berhasil',
+                        'user' => $user
+                    ]);
+                }
+
                 return redirect()
                     ->intended(route('alumni.dashboard'))
                     ->with('success', 'Selamat datang kembali, ' . $user->name . '!');
