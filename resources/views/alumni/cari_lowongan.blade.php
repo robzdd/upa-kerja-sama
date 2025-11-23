@@ -4,9 +4,15 @@
 
 @section('content')
     <!-- Header Section with Gradient Background -->
-    <div class="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 text-white pb-32 relative">
+    <!-- Header Section with Gradient Background -->
+    <div class="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 text-white pb-32 relative overflow-hidden">
+        
+        <!-- Dynamic Grid Background -->
+        <div class="absolute inset-0 animated-grid pointer-events-none"></div>
+
         <!-- Navbar -->
         @include('components.navbar')
+        
         <!-- Hero Content -->
         <div class="container mx-auto px-6 py-8 relative z-10">
             <div class="text-left max-w-2xl">
@@ -17,52 +23,89 @@
         </div>
 
         <!-- Decorative "We're Hiring!" text -->
-        <div class="absolute right-10 top-10 opacity-10 font-bold text-8xl md:text-9xl pointer-events-none">
+        <div class="absolute right-10 top-10 opacity-10 font-bold text-8xl md:text-9xl pointer-events-none floating-text select-none">
             We're<br>HIRING!
         </div>
     </div>
+
+    <style>
+        .animated-grid {
+            background-size: 60px 60px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            animation: moveGrid 15s linear infinite;
+        }
+
+        @keyframes moveGrid {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 60px; }
+        }
+
+        .floating-text {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
 
     <!-- Search Section (Overlapping) -->
     <div class="container mx-auto px-6 -mt-20 relative z-30 mb-8">
         <div class="bg-white rounded-xl shadow-2xl p-6">
             <!-- Search Filters -->
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
+            <!-- Search Filters -->
+            <form action="{{ route('alumni.cari_lowongan') }}" method="GET" class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
                 <input
                     type="text"
+                    name="posisi"
+                    value="{{ request('posisi') }}"
                     placeholder="Posisi"
                     class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm"
                 >
-                <input
-                    type="text"
-                    placeholder="Perusahaan"
-                    class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm"
-                >
-                <input
-                    type="text"
-                    placeholder="Lokasi"
-                    class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm"
-                >
-                <select class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm">
-                    <option>Prodi</option>
-                    <option>Teknik Informatika</option>
-                    <option>Teknik Mesin</option>
+                
+                <select name="perusahaan" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm">
+                    <option value="">Semua Perusahaan</option>
+                    @foreach($companies as $id => $name)
+                        <option value="{{ $id }}" {{ request('perusahaan') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
                 </select>
-                <select class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm">
-                    <option>Jenjang Pendidikan</option>
-                    <option>D3</option>
-                    <option>D4</option>
+
+                <select name="lokasi" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm">
+                    <option value="">Semua Lokasi</option>
+                    @foreach($locations as $loc)
+                        <option value="{{ $loc }}" {{ request('lokasi') == $loc ? 'selected' : '' }}>{{ $loc }}</option>
+                    @endforeach
                 </select>
+
+                <select name="jenis_pekerjaan" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm">
+                    <option value="">Jenis Pekerjaan</option>
+                    @foreach($jobTypes as $type)
+                        <option value="{{ $type }}" {{ request('jenis_pekerjaan') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                    @endforeach
+                </select>
+
+                <select name="jenjang" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 text-sm">
+                    <option value="">Jenjang Pendidikan</option>
+                    @foreach($educationLevels as $level)
+                        <option value="{{ $level }}" {{ request('jenjang') == $level ? 'selected' : '' }}>{{ $level }}</option>
+                    @endforeach
+                </select>
+
                 <div class="flex gap-2 col-span-2 md:col-span-1">
-                    <button class="px-3 text-gray-600 hover:text-gray-800 transition font-semibold text-sm">
+                    <a href="{{ route('alumni.cari_lowongan') }}" class="px-3 text-gray-600 hover:text-gray-800 transition font-semibold text-sm flex items-center justify-center">
                         Clear
-                    </button>
-                    <button class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition flex items-center justify-center flex-1">
+                    </a>
+                    <button type="submit" class="bg-gradient-to-r from-blue-900 to-purple-700 text-white px-4 py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition flex items-center justify-center flex-1">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </button>
                 </div>
-            </div>
+            </form>
 
         </div>
         <!-- AI Recommendation Button -->
@@ -86,61 +129,9 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <!-- Left Side - Job Listings (40%) -->
-            <div class="lg:col-span-2 space-y-4">
-                @forelse($lowongan as $index => $job)
-                    <div class="job-card {{ $index === 0 ? 'active' : '' }} bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition cursor-pointer border-l-4 {{ $index === 0 ? 'border-blue-500' : 'border-transparent' }}"
-                         onclick="selectJob(this, '{{ $job->id }}')">
-                        <div class="flex justify-between items-start mb-3">
-                            <div class="flex-1">
-                                <h3 class="text-lg font-bold text-gray-800 mb-1">{{ $job->judul }}</h3>
-                                <p class="text-gray-600 text-sm mb-3">{{ $job->mitra->nama_perusahaan }}</p>
-                            </div>
-                            <button class="text-blue-600 text-sm font-semibold">Simpan ♥</button>
-                        </div>
-
-                        <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
-                            <div class="flex items-center space-x-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                <span>{{ $job->lokasi }}</span>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span>{{ $job->jenis_pekerjaan }}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-2">
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">{{ $job->jenjang_pendidikan }}</span>
-                            @if($job->pengalaman_minimal)
-                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">{{ $job->pengalaman_minimal }}</span>
-                            @endif
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-12">
-                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-medium text-gray-800 mb-2">Tidak ada lowongan ditemukan</h3>
-                        <p class="text-gray-600">Coba ubah filter pencarian Anda</p>
-                    </div>
-                @endforelse
-
-                <!-- Pagination -->
-                <div class="flex justify-center items-center space-x-2 mt-8">
-                    <button class="w-8 h-8 rounded-full bg-blue-900 text-white flex items-center justify-center text-sm">1</button>
-                    <button class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 flex items-center justify-center text-sm">2</button>
-                    <button class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 flex items-center justify-center text-sm">3</button>
-                    <button class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 flex items-center justify-center text-sm">...</button>
-                    <button class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 flex items-center justify-center text-sm">100</button>
-                    <button class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 flex items-center justify-center text-sm">→</button>
+            <div class="lg:col-span-2 space-y-2">
+                <div id="job-list-container">
+                    @include('alumni.partials.job_list')
                 </div>
             </div>
 
@@ -253,6 +244,44 @@
     </div>
 
     <script>
+        // AJAX Pagination
+        document.addEventListener('click', function(e) {
+            // Check if clicked element is a pagination link inside job-list-container
+            const link = e.target.closest('#job-list-container .pagination a');
+            
+            if (link) {
+                e.preventDefault();
+                const url = link.getAttribute('href');
+                
+                // Show loading state (optional but good for UX)
+                document.getElementById('job-list-container').style.opacity = '0.5';
+                
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('job-list-container').innerHTML = html;
+                    document.getElementById('job-list-container').style.opacity = '1';
+                    
+                    // Re-select the first job of the new page if needed, or just leave it
+                    // If we want to auto-select the first job of the new page:
+                    const firstJobCard = document.querySelector('.job-card');
+                    if (firstJobCard) {
+                        // Trigger click to update details
+                        // firstJobCard.click(); 
+                        // Or just update visual state
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading pagination:', error);
+                    document.getElementById('job-list-container').style.opacity = '1';
+                });
+            }
+        });
+
         function selectJob(element, jobId) {
             console.log('Selecting job with ID:', jobId);
 

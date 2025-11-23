@@ -15,16 +15,7 @@ class LamaranController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        $lowongan = LowonganPekerjaan::with('mitra')
-            ->where('status_aktif', true)
-            ->latest()
-            ->paginate(10);
-        
-        $totalLowongan = LowonganPekerjaan::where('status_aktif', true)->count();
-        $totalPelamar = Pelamar::count();
-        
-        return view('alumni.cari_lowongan', compact('lowongan', 'totalLowongan', 'totalPelamar'));
+        return redirect()->route('alumni.cari_lowongan');
     }
     
     public function details($id)

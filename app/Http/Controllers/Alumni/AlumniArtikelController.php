@@ -13,7 +13,8 @@ class AlumniArtikelController extends Controller
      */
     public function index(Request $request)
     {
-        $featured = Artikel::where('status', 'published')
+        $featured = Artikel::with(['user', 'kategori'])
+            ->where('status', 'published')
             ->where('is_featured', true)
             ->latest()
             ->take(3)
@@ -60,7 +61,8 @@ class AlumniArtikelController extends Controller
             ->firstOrFail();
 
         // Related articles
-        $related = Artikel::where('kategori_id', $artikel->kategori_id)
+        $related = Artikel::with(['user', 'kategori'])
+            ->where('kategori_id', $artikel->kategori_id)
             ->where('id', '!=', $artikel->id)
             ->where('status', 'published')
             ->take(3)

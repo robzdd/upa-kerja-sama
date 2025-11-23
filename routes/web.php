@@ -56,7 +56,8 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
     Route::get('/beranda', fn() => view('alumni.dashboard_alumni'))->name('beranda');
     Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('cari_lowongan');
     Route::get('/lowongan/{id}/details', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
-    Route::get('/list_perusahaan', fn() => view('alumni.list_perusahaan'))->name('list_perusahaan');
+    Route::get('/list_perusahaan', [\App\Http\Controllers\Alumni\CompanyController::class, 'index'])->name('list_perusahaan');
+    Route::get('/perusahaan/{id}', [\App\Http\Controllers\Alumni\CompanyController::class, 'show'])->name('detail_perusahaan');
 
     // ---------- HALAMAN LOGIN PROTECTED ----------
     Route::middleware(['auth', 'role:alumni'])->group(function () {
