@@ -8,6 +8,7 @@ use App\Models\CvData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CvController extends Controller
 {
@@ -142,6 +143,13 @@ class CvController extends Controller
                 return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
             }
 
+            // Check progress percentage
+            $progressPercentage = $this->calculateProgress($user, $alumni);
+            
+            if ($progressPercentage < 100) {
+                return redirect()->back()->with('error', 'Progress CV harus 100% untuk generate CV. Saat ini: ' . $progressPercentage . '%');
+            }
+
             // Generate or reuse CV URI
             if (!$alumni->cv_uri) {
                 $alumni->cv_uri = Str::random(32);
@@ -150,7 +158,7 @@ class CvController extends Controller
             $alumni->cv_generated = true;
             $alumni->save();
 
-            return redirect()->back()->with('success', 'CV berhasil di-generate! Anda sekarang dapat melihat CV Anda.');
+            return redirect()->back()->with('success', 'CV berhasil di-generate! Anda sekarang dapat melihat dan membagikan CV Anda.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -231,6 +239,49 @@ class CvController extends Controller
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadCv()
+    {
+        try {
+            $user = Auth::user();
+            
+            $alumni = Alumni::where('user_id', $user->id)
+                ->with([
+                    'dataKeluarga',
+                    'dokumenPendukung',
+                    'programStudi',
+                    'riwayatPendidikan' => function($query) {
+                        $query->orderBy('tahun_masuk', 'desc');
+                    },
+                    'pengalamanKerja' => function($query) {
+                        $query->orderBy('mulai_kerja', 'desc');
+                    },
+                    'sertifikasi' => function($query) {
+                        $query->orderBy('mulai_berlaku', 'desc');
+                    }
+                ])
+                ->first();
+
+            if (!$alumni || !$alumni->cv_generated) {
+                return redirect()->back()->with('error', 'CV belum di-generate. Silakan generate CV terlebih dahulu.');
+            }
+
+            // Generate PDF from preview view
+            $pdf = Pdf::loadView('alumni.cv.preview', compact('alumni'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'isHtml5ParserEnabled' => true,
+                    'isRemoteEnabled' => true,
+                    'defaultFont' => 'sans-serif'
+                ]);
+
+            $filename = 'CV_' . ($alumni->nama_lengkap ?? $user->name) . '_' . date('Y-m-d') . '.pdf';
+            
+            return $pdf->download($filename);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat download CV: ' . $e->getMessage());
         }
     }
 

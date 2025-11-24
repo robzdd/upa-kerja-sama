@@ -122,6 +122,7 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
             Route::get('/cv', 'index')->name('cv.index');
             Route::post('/cv/generate', 'generateCv')->name('cv.generate');
             Route::get('/cv/preview', 'previewCv')->name('cv.preview');
+            Route::get('/cv/download', 'downloadCv')->name('cv.download');
             Route::post('/cv/toggle-public', 'togglePublic')->name('cv.toggle-public');
             Route::post('/cv/data', 'storeCvData')->name('cv.data.store');
             Route::put('/cv/data/{id}', 'updateCvData')->name('cv.data.update');

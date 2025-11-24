@@ -143,6 +143,16 @@
                         </div>
                     @endif
 
+                    <!-- Download CV Button -->
+                    @if($alumni && $alumni->cv_generated)
+                        <a href="{{ route('alumni.cv.download') }}" class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Download PDF
+                        </a>
+                    @endif
+
                     <!-- Public CV Buttons (only show if CV is generated) -->
                     @if($alumni && $alumni->cv_uri)
                     <a href="{{ route('cv.public', $alumni->cv_uri) }}" target="_blank" class="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors text-sm">
@@ -193,7 +203,7 @@
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-600">NIK</label>
-                            <p class="text-gray-800 mt-1">{{ $alumni->nim ?? '-' }}</p>
+                            <p class="text-gray-800 mt-1">{{ $alumni->nik ?? '-' }}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-600">Jenis Kelamin</label>
