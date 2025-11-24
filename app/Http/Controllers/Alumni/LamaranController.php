@@ -92,6 +92,11 @@ class LamaranController extends Controller
         
         // Update jumlah pelamar di lowongan
         $lowongan->increment('jumlah_pelamar');
+
+        // Send Notification to Mitra
+        if ($lowongan->mitra && $lowongan->mitra->user) {
+            $lowongan->mitra->user->notify(new \App\Notifications\NewApplicantNotification($pelamar));
+        }
         
         return redirect()->route('alumni.applications')->with('success', 'Lamaran berhasil dikirim!');
     }

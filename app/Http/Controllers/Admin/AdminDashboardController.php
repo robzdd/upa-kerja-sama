@@ -20,10 +20,10 @@ class AdminDashboardController extends Controller
             'total_users' => User::count(),
             'total_alumni' => Alumni::count(),
             'total_mitra' => MitraPerusahaan::count(),
-
             'total_artikel' => Artikel::count(),
             'total_lowongan' => LowonganPekerjaan::count(),
             'total_pelamar' => Pelamar::count(),
+            'pending_mitra_requests' => \App\Models\MitraRegistrationRequest::pending()->count(),
         ];
 
         // Recent users
@@ -33,6 +33,12 @@ class AdminDashboardController extends Controller
             ->get();
 
         $recent_artikel = Artikel::with('kategori', 'user')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Recent mitra requests
+        $recent_mitra_requests = \App\Models\MitraRegistrationRequest::pending()
             ->latest()
             ->take(5)
             ->get();
@@ -68,6 +74,7 @@ class AdminDashboardController extends Controller
             'stats', 
             'recent_users', 
             'recent_artikel',
+            'recent_mitra_requests',
             'months',
             'userCounts',
             'articleCategories'

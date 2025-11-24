@@ -1,7 +1,7 @@
 @extends('alumni.layouts.app')
 
 @section('content')
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
     
     <!-- Sidebar -->
     <div class="lg:col-span-1">
@@ -107,7 +107,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="lg:col-span-3">
+    <div class="lg:col-span-2">
         <h2 class="text-2xl font-bold mb-4 text-gray-800">Status Lamaran</h2>
 
         <!-- Statistik -->

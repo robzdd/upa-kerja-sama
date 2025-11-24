@@ -29,8 +29,10 @@
             <div class="flex items-center justify-between">
                 <!-- Logo & Brand -->
                 <div class="flex items-center space-x-3">
-                    <img src="{{ asset('images/logo/polindra_logo.png') }}" alt="Logo" class="w-10 h-10">
-                    <span class="text-xl font-bold">Portal Kerja POLINDRA</span>
+                    <a href="{{ Auth::check() ? route('alumni.beranda') : route('home') }}" class="flex items-center space-x-3">
+                        <img src="{{ asset('images/logo/polindra_logo.png') }}" alt="Logo" class="w-10 h-10">
+                        <span class="text-xl font-bold">Portal Kerja POLINDRA</span>
+                    </a>
                 </div>
 
                 <!-- Navigation Menu -->

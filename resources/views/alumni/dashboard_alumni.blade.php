@@ -4,21 +4,37 @@
 
 @section('content')
     <!-- Header Section with Interactive Grid Background -->
-    <div class="relative bg-slate-900 text-white pb-32 overflow-hidden" id="hero-section">
+    <div class="relative bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 text-white pb-32 overflow-hidden -mb-1" id="hero-section">
         <!-- Interactive Grid Background -->
         <div class="absolute inset-0 z-0 overflow-hidden">
             <!-- Canvas for Interactive Grid -->
             <canvas id="grid-canvas" class="absolute inset-0 w-full h-full"></canvas>
             
             <!-- Glowing Orbs that follow mouse -->
-            <div id="mouse-glow" class="absolute w-96 h-96 bg-blue-500/30 rounded-full blur-[128px] pointer-events-none transition-all duration-300 ease-out" style="transform: translate(-50%, -50%);"></div>
+            <div id="mouse-glow" class="absolute w-80 h-80 rounded-full pointer-events-none transition-opacity duration-300" 
+                 style="background: radial-gradient(circle, rgba(59,130,246,0.4) 0%, rgba(147,51,234,0.2) 40%, transparent 70%); 
+                        transform: translate(-50%, -50%); 
+                        filter: blur(40px);
+                        opacity: 0;"></div>
+            
+            <!-- Floating Particles -->
+            <div id="particles-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
             
             <!-- Static Glowing Orbs -->
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[128px] animate-pulse-slow"></div>
-            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[128px] animate-pulse-slow delay-1000"></div>
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-[128px] animate-pulse-slow"></div>
+            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-400/20 rounded-full blur-[128px] animate-pulse-slow delay-1000"></div>
             
             <!-- Gradient Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/50 to-slate-900 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/30 to-blue-900/50 pointer-events-none"></div>
+            
+            <!-- Seamless Wave Divider -->
+            <div class="absolute bottom-0 left-0 w-full z-[3] pointer-events-none">
+                <svg class="w-full h-auto" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                    <path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,70 L1440,120 L0,120 Z" fill="rgba(249,250,251,0.3)"/>
+                    <path d="M0,80 C240,40 480,100 720,80 C960,60 1200,100 1440,60 L1440,120 L0,120 Z" fill="rgba(249,250,251,0.5)"/>
+                    <path d="M0,100 C180,80 360,110 540,95 C720,80 900,110 1080,95 C1260,80 1380,100 1440,90 L1440,120 L0,120 Z" fill="#ffffff"/>
+                </svg>
+            </div>
         </div>
 
         <!-- Hero Content -->
@@ -26,18 +42,18 @@
             <div class="text-center max-w-4xl mx-auto">
                 <!-- Portal Kerja Polindra Label -->
                 <div class="inline-block mb-8 animate-fade-in-down">
-                    <span class="text-sm font-semibold bg-white/10 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                    <span class="text-sm font-semibold bg-white/15 backdrop-blur-md px-6 py-2 rounded-full border border-white/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
                         Portal Karir Polindra
                     </span>
                 </div>
                 <!-- Main Heading -->
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-200 via-white to-purple-200 animate-fade-in-up">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)] animate-fade-in-up">
                     Temukan Pekerjaan Impian<br>
                     Sesuai Dengan Skill dan<br>
                     Passion Anda
                 </h1>
                 <!-- Subheading -->
-                <p class="text-lg md:text-xl text-gray-300 mb-10 animate-fade-in-up delay-100">
+                <p class="text-lg md:text-xl text-blue-50 mb-10 animate-fade-in-up delay-100 drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
                     Temukan dan daftar pekerjaan dengan mudah
                 </p>
                 <!-- CTA Button -->
@@ -65,6 +81,12 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
         }
+        @keyframes float-particle {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(100px, -100vh) rotate(360deg); opacity: 0; }
+        }
         .animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
         .animate-fade-in-down { animation: fade-in-down 0.8s ease-out forwards; }
         .animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; }
@@ -79,14 +101,19 @@
         const ctx = canvas.getContext('2d');
         const heroSection = document.getElementById('hero-section');
         const mouseGlow = document.getElementById('mouse-glow');
+        const particlesContainer = document.getElementById('particles-container');
         
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
+        let mouseX = -1000;
+        let mouseY = -1000;
+        let targetX = -1000;
+        let targetY = -1000;
+        let isMouseInHero = false;
         const gridSize = 60;
         const influenceRadius = 150;
         const maxDisplacement = 20;
+        const waveAmplitude = 3;
+        const waveSpeed = 0.002;
+        let time = 0;
         
         // Set canvas size
         function resizeCanvas() {
@@ -96,15 +123,62 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         
+        // Create floating particles
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.style.cssText = `
+                position:absolute;
+                width:${Math.random()*4+2}px;
+                height:${Math.random()*4+2}px;
+                background:rgba(255,255,255,${Math.random()*0.3+0.1});
+                border-radius:50%;
+                left:${Math.random()*100}%;
+                top:${Math.random()*100}%;
+                animation:float-particle ${Math.random()*10+10}s linear infinite;
+                animation-delay:${Math.random()*-20}s;
+            `;
+            particlesContainer.appendChild(p);
+        }
+        
         // Track mouse position
         heroSection.addEventListener('mousemove', (e) => {
             const rect = heroSection.getBoundingClientRect();
             targetX = e.clientX - rect.left;
             targetY = e.clientY - rect.top;
             
-            // Move the glow effect
+            // Calculate if mouse is in center area (not near edges)
+            const edgeThreshold = 150; // pixels from edge
+            const isInCenterArea = 
+                targetX > edgeThreshold && 
+                targetX < canvas.width - edgeThreshold &&
+                targetY > edgeThreshold && 
+                targetY < canvas.height - edgeThreshold;
+            
+            isMouseInHero = isInCenterArea;
+            
+            // Move the glow effect - fade based on distance from edges
+            const leftDist = targetX;
+            const rightDist = canvas.width - targetX;
+            const topDist = targetY;
+            const bottomDist = canvas.height - targetY;
+            const minDist = Math.min(leftDist, rightDist, topDist, bottomDist);
+            
+            // Calculate opacity based on distance from nearest edge
+            let glowOpacity = 0;
+            if (minDist > edgeThreshold) {
+                glowOpacity = 1;
+            } else if (minDist > 0) {
+                glowOpacity = minDist / edgeThreshold; // Fade from 0 to 1
+            }
+            
+            mouseGlow.style.opacity = glowOpacity.toString();
             mouseGlow.style.left = targetX + 'px';
             mouseGlow.style.top = targetY + 'px';
+        });
+        
+        heroSection.addEventListener('mouseleave', () => {
+            isMouseInHero = false;
+            mouseGlow.style.opacity = '0';
         });
         
         // Smooth mouse following
@@ -113,38 +187,51 @@
         }
         
         // Calculate displacement based on mouse distance
-        function getDisplacement(px, py, mx, my) {
+        function getDisplacement(px, py, mx, my, t) {
             const dx = px - mx;
             const dy = py - my;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (distance > influenceRadius) return { x: 0, y: 0 };
+            // Wave effect
+            const wave = Math.sin(px * 0.02 + t) * waveAmplitude + 
+                        Math.cos(py * 0.02 + t * 0.7) * waveAmplitude;
             
-            const force = (1 - distance / influenceRadius) * maxDisplacement;
+            // Calculate edge dampening factor - completely disable near edges
+            const edgeMargin = 150; // pixels from edge
+            const leftEdgeFactor = Math.min(px / edgeMargin, 1);
+            const rightEdgeFactor = Math.min((canvas.width - px) / edgeMargin, 1);
+            const topEdgeFactor = Math.min(py / edgeMargin, 1);
+            const bottomEdgeFactor = Math.min((canvas.height - py) / edgeMargin, 1);
+            const edgeDampening = Math.min(leftEdgeFactor, rightEdgeFactor, topEdgeFactor, bottomEdgeFactor);
+            
+            // Only apply mouse effect if in center area
+            if (distance > influenceRadius || !isMouseInHero) {
+                return { x: wave * 0.5, y: wave * 0.5 };
+            }
+            
+            const force = (1 - distance / influenceRadius) * maxDisplacement * edgeDampening;
             const angle = Math.atan2(dy, dx);
             
             return {
-                x: Math.cos(angle) * force,
-                y: Math.sin(angle) * force
+                x: Math.cos(angle) * force + wave,
+                y: Math.sin(angle) * force + wave
             };
         }
         
         // Draw interactive grid
         function drawGrid() {
+            time += waveSpeed;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Smooth mouse movement
             mouseX = lerp(mouseX, targetX, 0.1);
             mouseY = lerp(mouseY, targetY, 0.1);
             
-            // Create gradient mask
-            const gradient = ctx.createRadialGradient(
-                canvas.width / 2, 0, 0,
-                canvas.width / 2, 0, canvas.height * 0.8
-            );
-            gradient.addColorStop(0, 'rgba(79, 79, 79, 0.25)');
-            gradient.addColorStop(0.7, 'rgba(79, 79, 79, 0.15)');
-            gradient.addColorStop(1, 'rgba(79, 79, 79, 0)');
+            // Create gradient for grid lines
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, 'rgba(147, 197, 253, 0.15)');
+            gradient.addColorStop(0.5, 'rgba(196, 181, 253, 0.12)');
+            gradient.addColorStop(1, 'rgba(147, 197, 253, 0.1)');
             
             ctx.strokeStyle = gradient;
             ctx.lineWidth = 1;
@@ -153,7 +240,7 @@
             for (let x = 0; x <= canvas.width + gridSize; x += gridSize) {
                 ctx.beginPath();
                 for (let y = 0; y <= canvas.height; y += 5) {
-                    const displacement = getDisplacement(x, y, mouseX, mouseY);
+                    const displacement = getDisplacement(x, y, mouseX, mouseY, time);
                     const newX = x + displacement.x;
                     const newY = y + displacement.y;
                     
@@ -170,7 +257,7 @@
             for (let y = 0; y <= canvas.height + gridSize; y += gridSize) {
                 ctx.beginPath();
                 for (let x = 0; x <= canvas.width; x += 5) {
-                    const displacement = getDisplacement(x, y, mouseX, mouseY);
+                    const displacement = getDisplacement(x, y, mouseX, mouseY, time);
                     const newX = x + displacement.x;
                     const newY = y + displacement.y;
                     
@@ -184,27 +271,47 @@
             }
             
             // Draw highlight points at intersections near mouse
-            for (let x = 0; x <= canvas.width + gridSize; x += gridSize) {
-                for (let y = 0; y <= canvas.height + gridSize; y += gridSize) {
-                    const displacement = getDisplacement(x, y, mouseX, mouseY);
-                    const distance = Math.sqrt(
-                        Math.pow(x - mouseX, 2) + Math.pow(y - mouseY, 2)
-                    );
-                    
-                    if (distance < influenceRadius) {
-                        const opacity = (1 - distance / influenceRadius) * 0.8;
-                        const size = (1 - distance / influenceRadius) * 4 + 1;
-                        
-                        ctx.beginPath();
-                        ctx.arc(
-                            x + displacement.x,
-                            y + displacement.y,
-                            size,
-                            0,
-                            Math.PI * 2
+            if (isMouseInHero) {
+                for (let x = 0; x <= canvas.width + gridSize; x += gridSize) {
+                    for (let y = 0; y <= canvas.height + gridSize; y += gridSize) {
+                        const displacement = getDisplacement(x, y, mouseX, mouseY, time);
+                        const distance = Math.sqrt(
+                            Math.pow(x - mouseX, 2) + Math.pow(y - mouseY, 2)
                         );
-                        ctx.fillStyle = `rgba(59, 130, 246, ${opacity})`;
-                        ctx.fill();
+                        
+                        if (distance < influenceRadius) {
+                            const opacity = (1 - distance / influenceRadius) * 0.8;
+                            const size = (1 - distance / influenceRadius) * 4 + 1;
+                            
+                            // Calculate edge dampening for highlights too
+                            const edgeMargin = 150;
+                            const leftEdgeFactor = Math.min(x / edgeMargin, 1);
+                            const rightEdgeFactor = Math.min((canvas.width - x) / edgeMargin, 1);
+                            const topEdgeFactor = Math.min(y / edgeMargin, 1);
+                            const bottomEdgeFactor = Math.min((canvas.height - y) / edgeMargin, 1);
+                            const edgeDampening = Math.min(leftEdgeFactor, rightEdgeFactor, topEdgeFactor, bottomEdgeFactor);
+                            
+                            const finalOpacity = opacity * edgeDampening;
+                            const finalSize = size * (0.5 + edgeDampening * 0.5);
+                            
+                            // Glow
+                            ctx.beginPath();
+                            ctx.arc(x + displacement.x, y + displacement.y, finalSize + 3, 0, Math.PI * 2);
+                            ctx.fillStyle = `rgba(147, 197, 253, ${finalOpacity * 0.3})`;
+                            ctx.fill();
+                            
+                            // Core
+                            ctx.beginPath();
+                            ctx.arc(
+                                x + displacement.x,
+                                y + displacement.y,
+                                finalSize,
+                                0,
+                                Math.PI * 2
+                            );
+                            ctx.fillStyle = `rgba(255, 255, 255, ${finalOpacity})`;
+                            ctx.fill();
+                        }
                     }
                 }
             }
@@ -228,16 +335,17 @@
         </style>
         <div class="logo-track">
             <div class="flex animate-scroll">
-                @for ($i = 0; $i < 2; $i++)
-                <div class="flex items-center space-x-16 px-8">
-                    @for ($j = 0; $j < 5; $j++)
-                        <div class="flex items-center space-x-3 text-gray-600 flex-shrink-0">
-                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
-                            </svg>
-                            <span class="font-bold text-xl whitespace-nowrap">PERTAMINA</span>
+                @for ($i = 0; $i < 10; $i++)
+                <div class="flex items-center space-x-8 px-4">
+                    @foreach ($mitra as $item)
+                        <div class="flex items-center justify-center h-16 w-32 grayscale hover:grayscale-0 transition duration-300">
+                            @if($item->logo)
+                                <img src="{{ asset('storage/' . $item->logo) }}" alt="{{ $item->nama_perusahaan }}" class="max-h-full max-w-full object-contain rounded-lg">
+                            @else
+                                <span class="text-gray-400 font-bold">{{ $item->nama_perusahaan }}</span>
+                            @endif
                         </div>
-                    @endfor
+                    @endforeach
                 </div>
                 @endfor
             </div>

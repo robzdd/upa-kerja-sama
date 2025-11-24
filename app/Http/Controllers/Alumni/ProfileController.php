@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers\Alumni;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Alumni;
 use App\Models\DataKeluarga;
-use App\Models\RiwayatPendidikan;
-use App\Models\PengalamanKerjaOrganisasi;
-use App\Models\PengalamanSertifikasi;
+use Illuminate\Http\Request;
 use App\Models\DokumenPendukung;
+use App\Models\RiwayatPendidikan;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\PengalamanSertifikasi;
+use App\Models\PengalamanKerjaOrganisasi;
 
 class ProfileController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $alumni = Alumni::where('user_id', $user->id)
             ->with([
                 'dataKeluarga',
@@ -32,7 +33,7 @@ class ProfileController extends Controller
 
     public function edit()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $alumni = Alumni::where('user_id', $user->id)->firstOrCreate(['user_id' => $user->id]);
 
         // relasi pakai alumni_id
@@ -65,7 +66,7 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $formType = $request->input('form_type');
         $alumni = Alumni::where('user_id', $user->id)->first();
 
@@ -101,6 +102,7 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'nama_lengkap' => 'required|string|max:255',
             'no_hp' => 'nullable|string|max:15',
             'nik' => 'nullable|string|max:16',
             'tempat_lahir' => 'nullable|string|max:255',
@@ -123,6 +125,7 @@ class ProfileController extends Controller
         Alumni::updateOrCreate(
             ['user_id' => $user->id],
             [
+                'nama_lengkap' => $validated['nama_lengkap'],
                 'no_hp' => $validated['no_hp'] ?? null,
                 'nik' => $validated['nik'] ?? null,
                 'tempat_lahir' => $validated['tempat_lahir'] ?? null,
@@ -184,10 +187,10 @@ class ProfileController extends Controller
             'deskripsi' => 'nullable|string',
         ]);
 
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = Auth::id();
 
         if ($request->filled('pendidikan_id')) {
-            $pendidikan = RiwayatPendidikan::where('user_id', auth()->id())
+            $pendidikan = RiwayatPendidikan::where('user_id', Auth::id())
                 ->findOrFail($request->pendidikan_id);
             $pendidikan->update($validated);
             $message = 'Riwayat pendidikan berhasil diperbarui!';
@@ -201,7 +204,7 @@ class ProfileController extends Controller
 
     public function editPendidikan($id)
     {
-        $pendidikan = RiwayatPendidikan::where('user_id', auth()->id())
+        $pendidikan = RiwayatPendidikan::where('user_id', Auth::id())
             ->findOrFail($id);
         
         return response()->json($pendidikan);
@@ -210,7 +213,7 @@ class ProfileController extends Controller
     public function destroyPendidikan($id)
     {
         try {
-            $pendidikan = RiwayatPendidikan::where('user_id', auth()->id())
+            $pendidikan = RiwayatPendidikan::where('user_id', Auth::id())
                 ->findOrFail($id);
             $pendidikan->delete();
 
@@ -239,10 +242,10 @@ class ProfileController extends Controller
             'deskripsi_piri' => 'nullable|string',
         ]);
 
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = Auth::id();
 
         if ($request->filled('pengalaman_id')) {
-            $pengalaman = PengalamanKerjaOrganisasi::where('user_id', auth()->id())
+            $pengalaman = PengalamanKerjaOrganisasi::where('user_id', Auth::id())
                 ->findOrFail($request->pengalaman_id);
             $pengalaman->update($validated);
             $message = 'Pengalaman berhasil diperbarui!';
@@ -256,7 +259,7 @@ class ProfileController extends Controller
 
     public function editPengalaman($id)
     {
-        $pengalaman = PengalamanKerjaOrganisasi::where('user_id', auth()->id())
+        $pengalaman = PengalamanKerjaOrganisasi::where('user_id', Auth::id())
             ->findOrFail($id);
         
         return response()->json($pengalaman);
@@ -265,7 +268,7 @@ class ProfileController extends Controller
     public function destroyPengalaman($id)
     {
         try {
-            $pengalaman = PengalamanKerjaOrganisasi::where('user_id', auth()->id())
+            $pengalaman = PengalamanKerjaOrganisasi::where('user_id', Auth::id())
                 ->findOrFail($id);
             $pengalaman->delete();
 
@@ -293,10 +296,10 @@ class ProfileController extends Controller
             'deskripsi' => 'nullable|string',
         ]);
 
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = Auth::id();
 
         if ($request->filled('sertifikasi_id')) {
-            $sertifikasi = PengalamanSertifikasi::where('user_id', auth()->id())
+            $sertifikasi = PengalamanSertifikasi::where('user_id', Auth::id())
                 ->findOrFail($request->sertifikasi_id);
             $sertifikasi->update($validated);
             $message = 'Sertifikasi berhasil diperbarui!';
@@ -310,7 +313,7 @@ class ProfileController extends Controller
 
     public function editSertifikasi($id)
     {
-        $sertifikasi = PengalamanSertifikasi::where('user_id', auth()->id())
+        $sertifikasi = PengalamanSertifikasi::where('user_id', Auth::id())
             ->findOrFail($id);
         
         return response()->json($sertifikasi);
@@ -319,7 +322,7 @@ class ProfileController extends Controller
     public function destroySertifikasi($id)
     {
         try {
-            $sertifikasi = PengalamanSertifikasi::where('user_id', auth()->id())
+            $sertifikasi = PengalamanSertifikasi::where('user_id', Auth::id())
                 ->findOrFail($id);
             $sertifikasi->delete();
 
@@ -344,7 +347,7 @@ class ProfileController extends Controller
             'new_password' => 'required|min:8|confirmed',
         ]);
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
             return redirect()->back()->with('error', 'Password saat ini tidak sesuai.');
@@ -363,7 +366,7 @@ class ProfileController extends Controller
             'password' => 'required',
         ]);
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!Hash::check($request->password, $user->password)) {
             return redirect()->back()->with('error', 'Password tidak sesuai.');

@@ -13,7 +13,7 @@ class CvController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         // Load alumni dengan semua relasi yang dibutuhkan
         $alumni = Alumni::where('user_id', $user->id)
@@ -42,78 +42,100 @@ class CvController extends Controller
     {
         if (!$alumni) return 0;
 
-        $totalFields = 0;
-        $filledFields = 0;
+        $totalPoints = 100;
+        $earnedPoints = 0;
 
-        // === Data Pribadi (20 poin total) ===
-        $personalFields = [
-            $user->name,
-            $user->email,
-            $alumni->no_hp,
-            $alumni->alamat,
-            $alumni->tentang_saya,
+        // === Data Pribadi (40 poin) - CORE FIELDS ONLY ===
+        $corePersonalFields = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'nama_lengkap' => $alumni->nama_lengkap,
+            'no_hp' => $alumni->no_hp,
+            'alamat' => $alumni->alamat,
         ];
-        foreach ($personalFields as $field) {
-            $totalFields += 4;
-            if (!empty($field)) $filledFields += 4;
+        
+        $personalFilled = 0;
+        foreach ($corePersonalFields as $value) {
+            if (!empty($value)) {
+                $personalFilled++;
+            }
         }
+        // 5 core fields = 40 points (8 points each)
+        $earnedPoints += ($personalFilled / 5) * 40;
 
-        // === Riwayat Pendidikan (15 poin) ===
-        $totalFields += 15;
+        // === Data Akademik (30 poin) - ANY ONE IS ENOUGH ===
+        $academicPoints = 0;
+        
+        // Riwayat Pendidikan (10 poin)
         $riwayat = $alumni->riwayatPendidikan()
             ->whereNotNull('nama_sekolah')
-            ->whereNotNull('strata')
             ->get();
-        if ($riwayat->count() > 0) $filledFields += 15;
+        if ($riwayat->count() > 0) {
+            $academicPoints += 10;
+        }
 
-        // === Pengalaman Kerja (10 poin) ===
-        $totalFields += 10;
+        // Pengalaman Kerja (10 poin)
         $pengalaman = $alumni->pengalamanKerja()
             ->whereNotNull('perusahaan_organisasi')
             ->get();
-        if ($pengalaman->count() > 0) $filledFields += 10;
+        if ($pengalaman->count() > 0) {
+            $academicPoints += 10;
+        }
 
-        // === Sertifikasi (10 poin) ===
-        $totalFields += 10;
-        $sertifikasi = $alumni->sertifikasi()->get();
-        if ($sertifikasi->count() > 0) $filledFields += 10;
+        // Sertifikasi (10 poin)
+        $sertifikasi = $alumni->sertifikasi()
+            ->whereNotNull('nama_sertifikasi')
+            ->get();
+        if ($sertifikasi->count() > 0) {
+            $academicPoints += 10;
+        }
 
-        // === Hard & Soft Skills (10 poin total) ===
-        $totalFields += 10;
-        if (!empty($alumni->keahlian)) $filledFields += 5;
-        if (!empty($alumni->soft_skills)) $filledFields += 5;
+        // Cap at 30 points max for academic section
+        $earnedPoints += min($academicPoints, 30);
 
-        // === Data Keluarga (20 poin) ===
-        $totalFields += 20;
+        // === Skills (20 poin) - ANY ONE IS ENOUGH ===
+        $hardSkillsFilled = !empty($alumni->keahlian) && trim($alumni->keahlian) != '';
+        $softSkillsFilled = !empty($alumni->soft_skills) && trim($alumni->soft_skills) != '';
+        
+        if ($hardSkillsFilled && $softSkillsFilled) {
+            $earnedPoints += 20; // Both = full points
+        } elseif ($hardSkillsFilled || $softSkillsFilled) {
+            $earnedPoints += 15; // One = 15 points
+        }
+
+        // === Data Keluarga (5 poin) - OPTIONAL ===
         $keluarga = $alumni->dataKeluarga;
         if ($keluarga) {
-            $fields = [
+            $familyFields = [
                 $keluarga->nama_ayah,
-                $keluarga->pekerjaan_ayah,
                 $keluarga->nama_ibu,
-                $keluarga->pekerjaan_ibu,
             ];
-            $filledFields += (count(array_filter($fields)) / 4) * 20;
+            $familyFilled = count(array_filter($familyFields, function($val) {
+                return !empty($val);
+            }));
+            // 2 fields minimum for 5 points
+            if ($familyFilled >= 2) {
+                $earnedPoints += 5;
+            } elseif ($familyFilled == 1) {
+                $earnedPoints += 2.5;
+            }
         }
 
-        // === Dokumen Pendukung (20 poin) ===
-        $totalFields += 20;
-        // perbaikan penting: cari berdasarkan alumni_id *ATAU* user_id sementara
-        $dokumen = $alumni->dokumenPendukung()
-            ->orWhere('alumni_id', $alumni->user_id ?? null)
-            ->get();
-        if ($dokumen->count() > 0) {
-            $filledFields += min(($dokumen->count() / 6) * 20, 20);
+        // === Dokumen Pendukung (5 poin) - OPTIONAL ===
+        $dokumen = $alumni->dokumenPendukung()->get();
+        if ($dokumen->count() >= 1) {
+            $earnedPoints += 5; // Any document = 5 points
         }
 
-        return round(($filledFields / $totalFields) * 100);
+        // Total: 40 + 30 + 20 + 5 + 5 = 100 poin
+        return min(round($earnedPoints), 100);
     }
 
 
     public function generateCv()
     {
         try {
-            $user = auth()->user();
+            $user = Auth::user();
             $alumni = Alumni::where('user_id', $user->id)->first();
 
             if (!$alumni) {
@@ -136,13 +158,13 @@ class CvController extends Controller
 
     public function previewCv()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         $alumni = Alumni::where('user_id', $user->id)
             ->with([
-                'dataAkademik',
                 'dataKeluarga',
                 'dokumenPendukung',
+                'programStudi',
                 'riwayatPendidikan' => function($query) {
                     $query->orderBy('tahun_masuk', 'desc');
                 },
@@ -163,8 +185,8 @@ class CvController extends Controller
         $alumni = Alumni::where('cv_uri', $uri)
             ->where('cv_public', true)
             ->with([
-                'dataAkademik',
                 'dataKeluarga',
+                'programStudi',
                 'riwayatPendidikan' => function($query) {
                     $query->orderBy('tahun_masuk', 'desc');
                 },
@@ -187,7 +209,7 @@ class CvController extends Controller
     public function togglePublic()
     {
         try {
-            $user = auth()->user();
+            $user = Auth::user();
             $alumni = Alumni::where('user_id', $user->id)->first();
 
             if (!$alumni) {

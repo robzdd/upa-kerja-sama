@@ -3,167 +3,321 @@
 @section('title', 'Preview CV')
 
 @section('content')
-<div class="max-w-7xl mx-auto mt-8 mb-12 px-4">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Sidebar Left -->
-        <div class="lg:col-span-1">
-            <!-- Profile Card -->
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <!-- Profile Avatar -->
-                <div class="text-center mb-6">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800">{{ auth()->user()->name }}</h3>
-                    <p class="text-sm text-gray-600 mt-1">{{ auth()->user()->email }}</p>
-                </div>
-                <!-- Edit Profile Button -->
-                <button class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all mb-4">
-                    Ubah Profil
-                </button>
+<div class="max-w-4xl mx-auto mt-8 mb-12 px-4">
+    <!-- Header Actions -->
+    <div class="flex items-center justify-between mb-6 print:hidden">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Preview CV</h1>
+            <p class="text-gray-600 text-sm">Pratinjau CV Anda (ATS-Friendly Format)</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{{ route('alumni.cv.index') }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
+                Kembali
+            </a>
+            <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                Print CV
+            </button>
+        </div>
+    </div>
 
-                <!-- Divider -->
-                <hr class="my-4">
-
-                <!-- Menu Items -->
-                <nav class="space-y-2">
-                    <a href="{{ route('alumni.cv.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-50 border-l-4 border-blue-600 text-blue-700 transition-colors">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <span class="text-sm font-semibold">Curriculum Vitae</span>
-                    </a>
-                    <a href="{{ route('alumni.applications') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Status Lamaran</span>
-                    </a>
-                    <a href="{{ route('alumni.certificates') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Sertifikat Magang</span>
-                    </a>
-                    <a href="{{ route('alumni.security.settings') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                        </svg>
-                        <span class="text-sm font-medium">Pengaturan Keamanan</span>
-                    </a>
-
-                    <form method="POST" action="{{ route('alumni.logout') }}" class="w-full">
-                        @csrf
-                        <button type="submit" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 transition-colors text-red-600 w-full text-left">
-                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                            </svg>
-                            <span class="text-sm font-medium">Keluar</span>
-                        </button>
-                    </form>
-                </nav>
+    <!-- CV Preview - ATS Friendly -->
+    <div class="bg-white rounded-lg shadow-lg p-12 print:shadow-none print:p-0" id="cv-content">
+        
+        <!-- HEADER -->
+        <div class="text-center mb-8 pb-6 border-b-2 border-gray-800">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2 uppercase tracking-wide">
+                {{ $alumni->nama_lengkap ?? auth()->user()->name }}
+            </h1>
+            @if($alumni->programStudi)
+                <p class="text-base text-gray-700 font-medium mb-3">{{ $alumni->programStudi->nama }}</p>
+            @endif
+            <div class="text-sm text-gray-700 space-y-1">
+                <p>{{ auth()->user()->email }}
+                    @if($alumni->no_hp) | {{ $alumni->no_hp }} @endif
+                </p>
+                @if($alumni->alamat)
+                <p>{{ $alumni->alamat }}</p>
+                @endif
             </div>
         </div>
 
-        <!-- Main Content Right -->
-        <div class="lg:col-span-2">
-            <!-- Header -->
-            <div class="mb-8">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900 mb-2">Preview CV</h1>
-                        <p class="text-gray-600">Pratinjau CV Anda sebelum dipublikasikan</p>
+        <!-- PROFESSIONAL SUMMARY / TENTANG SAYA -->
+        @if($alumni->tentang_saya)
+        <div class="mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">
+                PROFESSIONAL SUMMARY
+            </h2>
+            <p class="text-gray-800 leading-relaxed text-justify">{{ $alumni->tentang_saya }}</p>
+        </div>
+        @endif
+
+        <!-- EDUCATION -->
+        @if($alumni->riwayatPendidikan && $alumni->riwayatPendidikan->count() > 0)
+        <div class="mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">
+                EDUCATION
+            </h2>
+            <div class="space-y-4">
+                @foreach($alumni->riwayatPendidikan as $pendidikan)
+                <div>
+                    <div class="flex justify-between items-start mb-1">
+                        <div>
+                            <h3 class="font-bold text-gray-900">{{ $pendidikan->strata }}</h3>
+                            <p class="text-gray-800 font-semibold">{{ $pendidikan->nama_sekolah }}</p>
+                        </div>
+                        <p class="text-gray-700 text-sm font-medium">
+                            {{ \Carbon\Carbon::parse($pendidikan->tahun_masuk)->format('Y') }} - 
+                            {{ $pendidikan->tahun_lulus ? \Carbon\Carbon::parse($pendidikan->tahun_lulus)->format('Y') : 'Present' }}
+                        </p>
                     </div>
-                    <div class="flex space-x-2">
-                        <a href="{{ route('alumni.cv.index') }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
-                            Kembali
-                        </a>
-                        <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                            Print
-                        </button>
-                    </div>
+                    @if($pendidikan->deskripsi)
+                    <p class="text-gray-700 text-sm mt-1">{{ $pendidikan->deskripsi }}</p>
+                    @endif
                 </div>
+                @endforeach
             </div>
+        </div>
+        @endif
 
-            <!-- CV Preview -->
-            <div class="bg-white rounded-lg shadow-lg p-8 print:shadow-none">
-                <!-- CV Header -->
-                <div class="text-center mb-8 border-b border-gray-200 pb-6">
-                    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $alumni->nama_lengkap ?? auth()->user()->name }}</h1>
-                    <p class="text-lg text-gray-600 mb-2">{{ auth()->user()->email }}</p>
-                    <p class="text-gray-500">{{ $alumni->no_hp ?? '-' }} | {{ $alumni->alamat ?? '-' }}</p>
-                </div>
-
-                <!-- Personal Information -->
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">Informasi Pribadi</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- WORK EXPERIENCE -->
+        @if($alumni->pengalamanKerja && $alumni->pengalamanKerja->count() > 0)
+        <div class="mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">
+                WORK EXPERIENCE
+            </h2>
+            <div class="space-y-4">
+                @foreach($alumni->pengalamanKerja as $pengalaman)
+                <div>
+                    <div class="flex justify-between items-start mb-1">
                         <div>
-                            <span class="font-medium text-gray-700">Nama Lengkap:</span>
-                            <span class="text-gray-900">{{ $alumni->nama_lengkap ?? auth()->user()->name }}</span>
+                            <h3 class="font-bold text-gray-900">{{ $pengalaman->posisi }}</h3>
+                            <p class="text-gray-800 font-semibold">
+                                {{ $pengalaman->perusahaan_organisasi }}
+                                <span class="text-gray-600 font-normal text-sm">
+                                    ({{ $pengalaman->type == 'organisasi' ? 'Organization' : 'Company' }})
+                                </span>
+                            </p>
                         </div>
-                        <div>
-                            <span class="font-medium text-gray-700">Email:</span>
-                            <span class="text-gray-900">{{ auth()->user()->email }}</span>
-                        </div>
-                        <div>
-                            <span class="font-medium text-gray-700">No Handphone:</span>
-                            <span class="text-gray-900">{{ $alumni->no_hp ?? '-' }}</span>
-                        </div>
-                        <div>
-                            <span class="font-medium text-gray-700">Alamat:</span>
-                            <span class="text-gray-900">{{ $alumni->alamat ?? '-' }}</span>
-                        </div>
+                        <p class="text-gray-700 text-sm font-medium">
+                            {{ \Carbon\Carbon::parse($pengalaman->mulai_kerja)->format('M Y') }} - 
+                            {{ $pengalaman->selesai_kerja ? \Carbon\Carbon::parse($pengalaman->selesai_kerja)->format('M Y') : 'Present' }}
+                        </p>
                     </div>
+                    @if($pengalaman->deskripsi_piri)
+                    <ul class="list-disc list-inside text-gray-700 text-sm mt-2 space-y-1">
+                        @foreach(explode("\n", $pengalaman->deskripsi_piri) as $item)
+                            @if(trim($item))
+                            <li>{{ trim($item) }}</li>
+                            @endif
+                        @endforeach
+                    </ul>
+                    @endif
                 </div>
-
-                <!-- Education -->
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">Pendidikan</h2>
-                    <div class="space-y-4">
-                        <div class="border-l-4 border-blue-500 pl-4">
-                            <h3 class="font-semibold text-gray-900">Universitas ABC</h3>
-                            <p class="text-gray-600">Teknik Informatika - S1</p>
-                            <p class="text-sm text-gray-500">2020 - 2024</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Experience -->
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">Pengalaman Kerja</h2>
-                    <div class="space-y-4">
-                        <div class="border-l-4 border-green-500 pl-4">
-                            <h3 class="font-semibold text-gray-900">Software Developer Intern</h3>
-                            <p class="text-gray-600">PT Teknologi Maju</p>
-                            <p class="text-sm text-gray-500">Jan 2024 - Mar 2024</p>
-                            <p class="text-gray-700 mt-2">Mengembangkan aplikasi web menggunakan Laravel dan React</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Skills -->
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">Keahlian</h2>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Laravel</span>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">PHP</span>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">JavaScript</span>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">React</span>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">MySQL</span>
-                    </div>
-                </div>
+                @endforeach
             </div>
+        </div>
+        @endif
+
+        <!-- CERTIFICATIONS & LICENSES -->
+        @if($alumni->sertifikasi && $alumni->sertifikasi->count() > 0)
+        <div class="mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">
+                CERTIFICATIONS & LICENSES
+            </h2>
+            <div class="space-y-3">
+                @foreach($alumni->sertifikasi as $cert)
+                <div>
+                    <div class="flex justify-between items-start mb-1">
+                        <div>
+                            <h3 class="font-bold text-gray-900">{{ $cert->nama_sertifikasi }}</h3>
+                            <p class="text-gray-800">{{ $cert->lembaga_sertifikasi }}</p>
+                        </div>
+                        <p class="text-gray-700 text-sm font-medium">
+                            {{ \Carbon\Carbon::parse($cert->mulai_berlaku)->format('M Y') }}
+                            @if($cert->selesai_berlaku)
+                                - {{ \Carbon\Carbon::parse($cert->selesai_berlaku)->format('M Y') }}
+                            @else
+                                - No Expiration
+                            @endif
+                        </p>
+                    </div>
+                    @if($cert->deskripsi)
+                    <p class="text-gray-700 text-sm">{{ $cert->deskripsi }}</p>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <!-- SKILLS -->
+        @if(($alumni->keahlian && trim($alumni->keahlian)) || ($alumni->soft_skills && trim($alumni->soft_skills)))
+        <div class="mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">
+                SKILLS
+            </h2>
+            
+            @if($alumni->keahlian && trim($alumni->keahlian))
+            <div class="mb-3">
+                <h3 class="font-semibold text-gray-900 mb-2">Technical Skills:</h3>
+                <p class="text-gray-800">
+                    @foreach(explode(',', $alumni->keahlian) as $index => $skill)
+                        @if(trim($skill))
+                            {{ trim($skill) }}@if(!$loop->last), @endif
+                        @endif
+                    @endforeach
+                </p>
+            </div>
+            @endif
+
+            @if($alumni->soft_skills && trim($alumni->soft_skills))
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-2">Soft Skills:</h3>
+                <p class="text-gray-800">
+                    @foreach(explode(',', $alumni->soft_skills) as $index => $skill)
+                        @if(trim($skill))
+                            {{ trim($skill) }}@if(!$loop->last), @endif
+                        @endif
+                    @endforeach
+                </p>
+            </div>
+            @endif
+        </div>
+        @endif
+
+        <!-- PERSONAL INFORMATION (Optional) -->
+        @if($alumni->dataKeluarga)
+        <div class="mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">
+                PERSONAL INFORMATION
+            </h2>
+            <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                @if($alumni->tempat_lahir && $alumni->tanggal_lahir)
+                <div>
+                    <span class="font-semibold text-gray-900">Place & Date of Birth:</span>
+                    <span class="text-gray-800">{{ $alumni->tempat_lahir }}, {{ \Carbon\Carbon::parse($alumni->tanggal_lahir)->format('d F Y') }}</span>
+                </div>
+                @endif
+                @if($alumni->jenis_kelamin)
+                <div>
+                    <span class="font-semibold text-gray-900">Gender:</span>
+                    <span class="text-gray-800">{{ $alumni->jenis_kelamin }}</span>
+                </div>
+                @endif
+                @if($alumni->dataKeluarga->nama_ayah)
+                <div>
+                    <span class="font-semibold text-gray-900">Father's Name:</span>
+                    <span class="text-gray-800">{{ $alumni->dataKeluarga->nama_ayah }}</span>
+                </div>
+                @endif
+                @if($alumni->dataKeluarga->nama_ibu)
+                <div>
+                    <span class="font-semibold text-gray-900">Mother's Name:</span>
+                    <span class="text-gray-800">{{ $alumni->dataKeluarga->nama_ibu }}</span>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
+        <!-- FOOTER -->
+        <div class="mt-12 pt-4 border-t border-gray-300 text-center text-xs text-gray-600">
+            <p>This CV was generated through Portal Kerja POLINDRA</p>
+            <p class="mt-1">Last Updated: {{ now()->format('d F Y') }}</p>
         </div>
     </div>
 </div>
 
 <style>
+/* Print Styles for ATS-Friendly CV */
 @media print {
-    .print\\:shadow-none {
+    @page {
+        margin: 0.5in;
+        size: A4;
+    }
+    
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 11pt;
+        line-height: 1.4;
+        color: #000;
+    }
+    
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .print\:hidden {
+        display: none !important;
+    }
+    
+    .print\:shadow-none {
         box-shadow: none !important;
+    }
+    
+    .print\:p-0 {
+        padding: 0 !important;
+    }
+    
+    #cv-content {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    h1 {
+        font-size: 18pt;
+        margin-bottom: 8pt;
+    }
+    
+    h2 {
+        font-size: 12pt;
+        margin-top: 12pt;
+        margin-bottom: 8pt;
+        page-break-after: avoid;
+    }
+    
+    h3 {
+        font-size: 11pt;
+        page-break-after: avoid;
+    }
+    
+    p, li {
+        font-size: 11pt;
+        orphans: 3;
+        widows: 3;
+    }
+    
+    /* Prevent page breaks inside sections */
+    .mb-8 {
+        page-break-inside: avoid;
+    }
+    
+    /* Ensure proper spacing */
+    .space-y-4 > * + * {
+        margin-top: 12pt;
+    }
+    
+    .space-y-3 > * + * {
+        margin-top: 10pt;
+    }
+    
+    /* Remove shadows and rounded corners for print */
+    .rounded-lg {
+        border-radius: 0;
+    }
+    
+    .shadow-lg {
+        box-shadow: none;
+    }
+}
+
+/* Screen Styles */
+@media screen {
+    #cv-content {
+        font-family: 'Georgia', 'Times New Roman', Times, serif;
     }
 }
 </style>

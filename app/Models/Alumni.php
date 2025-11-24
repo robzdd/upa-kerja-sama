@@ -18,6 +18,7 @@ class Alumni extends Model
         'user_id',
         'program_studi_id',
         'nim',
+        'nama_lengkap',
         'nik',
         'tempat_lahir',
         'tanggal_lahir',
@@ -172,9 +173,6 @@ class Alumni extends Model
         }
 
         // Add relation checks
-        if ($this->dataAkademik) {
-            $filledCount += 0.5;
-        }
         if ($this->dataKeluarga) {
             $filledCount += 0.5;
         }

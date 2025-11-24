@@ -125,8 +125,33 @@
             const rect = hero.getBoundingClientRect();
             targetX = e.clientX - rect.left;
             targetY = e.clientY - rect.top;
-            isMouseInHero = true;
-            mouseGlow.style.opacity = '1';
+            
+            // Calculate if mouse is in center area (not near edges)
+            const edgeThreshold = 150; // pixels from edge
+            const isInCenterArea = 
+                targetX > edgeThreshold && 
+                targetX < canvas.width - edgeThreshold &&
+                targetY > edgeThreshold && 
+                targetY < canvas.height - edgeThreshold;
+            
+            isMouseInHero = isInCenterArea;
+            
+            // Move the glow effect - fade based on distance from edges
+            const leftDist = targetX;
+            const rightDist = canvas.width - targetX;
+            const topDist = targetY;
+            const bottomDist = canvas.height - targetY;
+            const minDist = Math.min(leftDist, rightDist, topDist, bottomDist);
+            
+            // Calculate opacity based on distance from nearest edge
+            let glowOpacity = 0;
+            if (minDist > edgeThreshold) {
+                glowOpacity = 1;
+            } else if (minDist > 0) {
+                glowOpacity = minDist / edgeThreshold; // Fade from 0 to 1
+            }
+            
+            mouseGlow.style.opacity = glowOpacity.toString();
             mouseGlow.style.left = targetX + 'px';
             mouseGlow.style.top = targetY + 'px';
         });
@@ -143,9 +168,18 @@
             const dist = Math.sqrt(dx*dx + dy*dy);
             const wave = Math.sin(px*0.02+t)*cfg.waveAmplitude + Math.cos(py*0.02+t*0.7)*cfg.waveAmplitude;
             
-            if (dist > cfg.influenceRadius) return { x: wave*0.5, y: wave*0.5 };
+            // Calculate edge dampening factor - completely disable near edges
+            const edgeMargin = 150; // pixels from edge
+            const leftEdgeFactor = Math.min(px / edgeMargin, 1);
+            const rightEdgeFactor = Math.min((canvas.width - px) / edgeMargin, 1);
+            const topEdgeFactor = Math.min(py / edgeMargin, 1);
+            const bottomEdgeFactor = Math.min((canvas.height - py) / edgeMargin, 1);
+            const edgeDampening = Math.min(leftEdgeFactor, rightEdgeFactor, topEdgeFactor, bottomEdgeFactor);
             
-            const force = (1 - dist/cfg.influenceRadius) * cfg.maxDisplacement;
+            // Only apply mouse effect if in center area
+            if (dist > cfg.influenceRadius || !isMouseInHero) return { x: wave*0.5, y: wave*0.5 };
+            
+            const force = (1 - dist/cfg.influenceRadius) * cfg.maxDisplacement * edgeDampening;
             const angle = Math.atan2(dy, dx);
             return { x: Math.cos(angle)*force + wave, y: Math.sin(angle)*force + wave };
         }
@@ -193,14 +227,25 @@
                             const opacity = (1 - dist/cfg.influenceRadius) * 0.9;
                             const size = (1 - dist/cfg.influenceRadius) * 5 + 1;
                             
+                            // Calculate edge dampening for highlights too
+                            const edgeMargin = 150;
+                            const leftEdgeFactor = Math.min(x / edgeMargin, 1);
+                            const rightEdgeFactor = Math.min((canvas.width - x) / edgeMargin, 1);
+                            const topEdgeFactor = Math.min(y / edgeMargin, 1);
+                            const bottomEdgeFactor = Math.min((canvas.height - y) / edgeMargin, 1);
+                            const edgeDampening = Math.min(leftEdgeFactor, rightEdgeFactor, topEdgeFactor, bottomEdgeFactor);
+                            
+                            const finalOpacity = opacity * edgeDampening;
+                            const finalSize = size * (0.5 + edgeDampening * 0.5);
+                            
                             ctx.beginPath();
-                            ctx.arc(x+d.x, y+d.y, size+3, 0, Math.PI*2);
-                            ctx.fillStyle = `rgba(147,197,253,${opacity*0.3})`;
+                            ctx.arc(x+d.x, y+d.y, finalSize+3, 0, Math.PI*2);
+                            ctx.fillStyle = `rgba(147,197,253,${finalOpacity*0.3})`;
                             ctx.fill();
                             
                             ctx.beginPath();
-                            ctx.arc(x+d.x, y+d.y, size, 0, Math.PI*2);
-                            ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                            ctx.arc(x+d.x, y+d.y, finalSize, 0, Math.PI*2);
+                            ctx.fillStyle = `rgba(255,255,255,${finalOpacity})`;
                             ctx.fill();
                         }
                     }

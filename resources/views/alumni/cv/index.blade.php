@@ -32,6 +32,12 @@
                     <p class="text-sm text-gray-600 mt-1">{{ auth()->user()->email }}</p>
                 </div>
 
+                <!-- Edit Profile Button -->
+                <a href="{{ route('alumni.profile.edit') }}" 
+                   class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all mb-4 inline-block text-center">
+                    Edit Profil
+                </a>
+
                 <!-- Divider -->
                 <hr class="my-4">
 
@@ -100,15 +106,44 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-3 flex-wrap">
+                    <!-- Generate CV Button -->
                     <form method="POST" action="{{ route('alumni.cv.generate') }}" class="inline">
                         @csrf
-                        <button type="submit" class="px-4 py-2 {{ $alumni && $alumni->cv_generated ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700' }} text-white font-medium rounded-lg transition-colors text-sm">
-                            {{ $alumni && $alumni->cv_generated ? 'Regenerate CV' : 'Generate CV' }}
-                        </button>
+                        @if($progressPercentage >= 100)
+                            <button type="submit" class="px-4 py-2 {{ $alumni && $alumni->cv_generated ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700' }} text-white font-medium rounded-lg transition-colors text-sm">
+                                {{ $alumni && $alumni->cv_generated ? 'Regenerate CV' : 'Generate CV' }}
+                            </button>
+                        @else
+                            <div class="relative group">
+                                <button type="button" disabled class="px-4 py-2 bg-gray-400 text-gray-200 font-medium rounded-lg cursor-not-allowed text-sm">
+                                    {{ $alumni && $alumni->cv_generated ? 'Regenerate CV' : 'Generate CV' }}
+                                </button>
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                    Progress harus 100% untuk generate CV
+                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                                </div>
+                            </div>
+                        @endif
                     </form>
-                    <a href="{{ route('alumni.cv.preview') }}" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                        Preview CV
-                    </a>
+
+                    <!-- Preview CV Button -->
+                    @if($progressPercentage >= 50)
+                        <a href="{{ route('alumni.cv.preview') }}" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            Preview CV
+                        </a>
+                    @else
+                        <div class="relative group">
+                            <button type="button" disabled class="px-4 py-2 bg-gray-400 text-gray-200 font-medium rounded-lg cursor-not-allowed text-sm">
+                                Preview CV
+                            </button>
+                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                Progress harus minimal 50% untuk preview CV
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Public CV Buttons (only show if CV is generated) -->
                     @if($alumni && $alumni->cv_uri)
                     <a href="{{ route('cv.public', $alumni->cv_uri) }}" target="_blank" class="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors text-sm">
                         Lihat CV Publik
@@ -702,8 +737,14 @@
             <div class="space-y-4">
                 <!-- Data Pribadi -->
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h4 class="font-semibold text-gray-800 mb-3">Data Pribadi</h4>
+                    <h4 class="font-semibold text-gray-800 mb-3">Data Pribadi (25 poin)</h4>
                     <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Nama (Username)</span>
+                            <span class="text-sm {{ auth()->user()->name ? 'text-green-600' : 'text-red-600' }}">
+                                {{ auth()->user()->name ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            </span>
+                        </div>
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Nama Lengkap</span>
                             <span class="text-sm {{ $alumni && $alumni->nama_lengkap ? 'text-green-600' : 'text-red-600' }}">
@@ -728,35 +769,88 @@
                                 {{ $alumni && $alumni->alamat ? '✓ Lengkap' : '✗ Belum diisi' }}
                             </span>
                         </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Tempat Lahir</span>
+                            <span class="text-sm {{ $alumni && $alumni->tempat_lahir ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $alumni && $alumni->tempat_lahir ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Tanggal Lahir</span>
+                            <span class="text-sm {{ $alumni && $alumni->tanggal_lahir ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $alumni && $alumni->tanggal_lahir ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Jenis Kelamin</span>
+                            <span class="text-sm {{ $alumni && $alumni->jenis_kelamin ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $alumni && $alumni->jenis_kelamin ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Tentang Saya</span>
+                            <span class="text-sm {{ $alumni && $alumni->tentang_saya ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $alumni && $alumni->tentang_saya ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Data Akademik -->
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h4 class="font-semibold text-gray-800 mb-3">Data Akademik</h4>
-                    <div class="space-y-2">
+                    <h4 class="font-semibold text-gray-800 mb-3">Data Akademik (Fleksibel - Isi Minimal Salah Satu)</h4>
+                    <div class="space-y-3">
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
+                            <p class="text-xs text-blue-800 font-medium">💡 Cukup isi salah satu dari section berikut untuk mendapat poin</p>
+                        </div>
+                        
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Program Studi</span>
-                            <span class="text-sm {{ $alumni && $alumni->dataAkademik && $alumni->dataAkademik->program_studi ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $alumni && $alumni->dataAkademik && $alumni->dataAkademik->program_studi ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            <span class="text-sm text-gray-600">Riwayat Pendidikan (15 poin)</span>
+                            @php
+                                $hasPendidikan = $alumni && $alumni->riwayatPendidikan && $alumni->riwayatPendidikan->count() > 0;
+                            @endphp
+                            <span class="text-sm {{ $hasPendidikan ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ $hasPendidikan ? '✓ ' . $alumni->riwayatPendidikan->count() . ' data' : '○ Belum diisi' }}
                             </span>
                         </div>
+                        
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Universitas</span>
-                            <span class="text-sm {{ $alumni && $alumni->dataAkademik && $alumni->dataAkademik->universitas ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $alumni && $alumni->dataAkademik && $alumni->dataAkademik->universitas ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            <span class="text-sm text-gray-600">Pengalaman Kerja (15 poin)</span>
+                            @php
+                                $hasPengalaman = $alumni && $alumni->pengalamanKerja && $alumni->pengalamanKerja->count() > 0;
+                            @endphp
+                            <span class="text-sm {{ $hasPengalaman ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ $hasPengalaman ? '✓ ' . $alumni->pengalamanKerja->count() . ' data' : '○ Belum diisi' }}
                             </span>
                         </div>
+                        
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Tahun Masuk</span>
-                            <span class="text-sm {{ $alumni && $alumni->dataAkademik && $alumni->dataAkademik->tahun_masuk ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $alumni && $alumni->dataAkademik && $alumni->dataAkademik->tahun_masuk ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            <span class="text-sm text-gray-600">Sertifikasi (10 poin)</span>
+                            @php
+                                $hasSertifikasi = $alumni && $alumni->sertifikasi && $alumni->sertifikasi->count() > 0;
+                            @endphp
+                            <span class="text-sm {{ $hasSertifikasi ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ $hasSertifikasi ? '✓ ' . $alumni->sertifikasi->count() . ' data' : '○ Belum diisi' }}
                             </span>
                         </div>
+                        
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Tahun Lulus</span>
-                            <span class="text-sm {{ $alumni && $alumni->dataAkademik && $alumni->dataAkademik->tahun_lulus ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $alumni && $alumni->dataAkademik && $alumni->dataAkademik->tahun_lulus ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            <span class="text-sm text-gray-600">Hard Skills (7.5 poin)</span>
+                            @php
+                                $hasHardSkills = $alumni && $alumni->keahlian && trim($alumni->keahlian) != '';
+                            @endphp
+                            <span class="text-sm {{ $hasHardSkills ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ $hasHardSkills ? '✓ Terisi' : '○ Belum diisi' }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Soft Skills (7.5 poin)</span>
+                            @php
+                                $hasSoftSkills = $alumni && $alumni->soft_skills && trim($alumni->soft_skills) != '';
+                            @endphp
+                            <span class="text-sm {{ $hasSoftSkills ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ $hasSoftSkills ? '✓ Terisi' : '○ Belum diisi' }}
                             </span>
                         </div>
                     </div>
@@ -765,7 +859,7 @@
 
                 <!-- Data Keluarga -->
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h4 class="font-semibold text-gray-800 mb-3">Data Keluarga</h4>
+                    <h4 class="font-semibold text-gray-800 mb-3">Data Keluarga (10 poin)</h4>
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Nama Ayah</span>
@@ -774,9 +868,21 @@
                             </span>
                         </div>
                         <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Pekerjaan Ayah</span>
+                            <span class="text-sm {{ $alumni && $alumni->dataKeluarga && $alumni->dataKeluarga->pekerjaan_ayah ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $alumni && $alumni->dataKeluarga && $alumni->dataKeluarga->pekerjaan_ayah ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Nama Ibu</span>
                             <span class="text-sm {{ $alumni && $alumni->dataKeluarga && $alumni->dataKeluarga->nama_ibu ? 'text-green-600' : 'text-red-600' }}">
                                 {{ $alumni && $alumni->dataKeluarga && $alumni->dataKeluarga->nama_ibu ? '✓ Lengkap' : '✗ Belum diisi' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Pekerjaan Ibu</span>
+                            <span class="text-sm {{ $alumni && $alumni->dataKeluarga && $alumni->dataKeluarga->pekerjaan_ibu ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $alumni && $alumni->dataKeluarga && $alumni->dataKeluarga->pekerjaan_ibu ? '✓ Lengkap' : '✗ Belum diisi' }}
                             </span>
                         </div>
                     </div>
@@ -784,12 +890,21 @@
 
                 <!-- Dokumen Pendukung -->
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h4 class="font-semibold text-gray-800 mb-3">Dokumen Pendukung</h4>
+                    <h4 class="font-semibold text-gray-800 mb-3">Dokumen Pendukung (10 poin - Min. 3 dokumen)</h4>
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Jumlah Dokumen</span>
-                            <span class="text-sm {{ $alumni && $alumni->dokumenPendukung && $alumni->dokumenPendukung->count() > 0 ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $alumni && $alumni->dokumenPendukung ? $alumni->dokumenPendukung->count() . ' dokumen' : '✗ Belum ada dokumen' }}
+                            @php
+                                $dokumenCount = $alumni && $alumni->dokumenPendukung ? $alumni->dokumenPendukung->count() : 0;
+                            @endphp
+                            <span class="text-sm {{ $dokumenCount >= 3 ? 'text-green-600' : ($dokumenCount > 0 ? 'text-yellow-600' : 'text-red-600') }}">
+                                @if($dokumenCount >= 3)
+                                    ✓ {{ $dokumenCount }} dokumen (Full points)
+                                @elseif($dokumenCount > 0)
+                                    ⚠ {{ $dokumenCount }} dokumen (Partial points)
+                                @else
+                                    ✗ Belum ada dokumen
+                                @endif
                             </span>
                         </div>
                     </div>

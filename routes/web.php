@@ -19,6 +19,7 @@ use App\Http\Controllers\Mitra\MitraDashboardController;
 use App\Http\Controllers\Alumni\AlumniAkademikController;
 use App\Http\Controllers\Mitra\Auth\MitraLoginController;
 use App\Http\Controllers\Alumni\Auth\AlumniAuthController;
+use App\Http\Controllers\DokumenPublikController;
 
 // ====================
 //  HALAMAN UMUM
@@ -30,7 +31,12 @@ Route::get('/cv/{uri}', [CvController::class, 'publicCv'])->name('cv.public');
 
 Route::get('/artikel', [\App\Http\Controllers\Alumni\AlumniArtikelController::class, 'index'])->name('artikel.page');
 Route::get('/artikel/{slug}', [\App\Http\Controllers\Alumni\AlumniArtikelController::class, 'show'])->name('artikel.detail');
-Route::get('/alumni/tentang_kami', fn() => view('alumni.tentang_kami'))->name('alumni.tentang_kami');
+Route::get('/alumni/tentang_kami', [\App\Http\Controllers\GuestController::class, 'about'])->name('alumni.tentang_kami');
+
+// Public Dokumen Routes
+Route::get('/dokumen', [DokumenPublikController::class, 'index'])->name('dokumen.index');
+Route::get('/dokumen/kategori/{id}', [DokumenPublikController::class, 'category'])->name('dokumen.category');
+Route::get('/dokumen/{id}/download', [DokumenPublikController::class, 'download'])->name('dokumen.download');
 
 // Public Access for Job Search & Companies
 Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('alumni.cari_lowongan');
@@ -59,7 +65,10 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
     });
 
     // ---------- HALAMAN PUBLIK (Moved to Global) ----------
-    Route::get('/beranda', fn() => view('alumni.dashboard_alumni'))->name('beranda');
+    Route::get('/beranda', function() {
+        $mitra = \App\Models\MitraPerusahaan::whereNotNull('logo')->get();
+        return view('alumni.dashboard_alumni', compact('mitra'));
+    })->name('beranda');
     // Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('cari_lowongan');
     // Route::get('/lowongan/{id}/details', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
     // Route::get('/list_perusahaan', [\App\Http\Controllers\Alumni\CompanyController::class, 'index'])->name('list_perusahaan');
@@ -67,7 +76,10 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
 
     // ---------- HALAMAN LOGIN PROTECTED ----------
     Route::middleware(['auth', 'role:alumni'])->group(function () {
-        Route::get('/dashboard', fn() => view('alumni.dashboard_alumni'))->name('dashboard');
+        Route::get('/dashboard', function() {
+            $mitra = \App\Models\MitraPerusahaan::whereNotNull('logo')->get();
+            return view('alumni.dashboard_alumni', compact('mitra'));
+        })->name('dashboard');
         // Profile Routes
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -157,6 +169,10 @@ Route::prefix('mitra')->name('mitra.')->group(function () {
         Route::post('/logout', 'logout')->name('logout');
     });
 
+    // ---------- REGISTRATION ----------
+    Route::get('/register', [\App\Http\Controllers\Mitra\Auth\MitraRegisterController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [\App\Http\Controllers\Mitra\Auth\MitraRegisterController::class, 'register'])->name('register.submit');
+
     // ---------- DASHBOARD ----------
     Route::middleware(['auth:mitra', 'role:mitra'])->group(function () {
         Route::get('/dashboard', [MitraDashboardController::class, 'index'])->name('dashboard');
@@ -172,6 +188,17 @@ Route::prefix('mitra')->name('mitra.')->group(function () {
         Route::post('/pelamar/{id}/status', [PelamarController::class, 'updateStatus'])->name('pelamar.update-status');
         Route::post('/pelamar/bulk-update', [PelamarController::class, 'bulkUpdateStatus'])->name('pelamar.bulkUpdateStatus');
         Route::post('/pelamar/bulk-update-status', [PelamarController::class, 'bulkUpdateStatus'])->name('pelamar.bulk-update-status');
+
+        // Profile & Settings
+        Route::controller(\App\Http\Controllers\Mitra\MitraProfileController::class)->group(function () {
+            Route::get('/profile', 'index')->name('profile.index');
+            Route::put('/profile', 'update')->name('profile.update');
+            Route::get('/settings', 'settings')->name('settings.index');
+            Route::put('/settings/password', 'updatePassword')->name('settings.password');
+        });
+
+        // Notifications
+        Route::post('/notifications/mark-as-read', [\App\Http\Controllers\Mitra\MitraNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
     });
     
 });
@@ -202,6 +229,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Artikel Routes
         Route::resource('artikel', ArtikelController::class);
+
+        // Kategori Dokumen Routes
+        Route::resource('kategori-dokumen', \App\Http\Controllers\Admin\KategoriDokumenController::class);
+
+        // Dokumen Publik Routes
+        Route::resource('dokumen-publik', \App\Http\Controllers\Admin\DokumenPublikController::class);
+        Route::get('dokumen-publik/{id}/download', [\App\Http\Controllers\Admin\DokumenPublikController::class, 'download'])->name('dokumen-publik.download');
+
+        // Mitra Registration Requests Routes
+        Route::get('mitra-requests', [\App\Http\Controllers\Admin\MitraRequestController::class, 'index'])->name('mitra-requests.index');
+        Route::get('mitra-requests/{id}', [\App\Http\Controllers\Admin\MitraRequestController::class, 'show'])->name('mitra-requests.show');
+        Route::post('mitra-requests/{id}/approve', [\App\Http\Controllers\Admin\MitraRequestController::class, 'approve'])->name('mitra-requests.approve');
+        Route::post('mitra-requests/{id}/reject', [\App\Http\Controllers\Admin\MitraRequestController::class, 'reject'])->name('mitra-requests.reject');
 
         // Reports Routes
         Route::resource('reports', ReportController::class);

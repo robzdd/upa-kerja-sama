@@ -168,9 +168,15 @@
                         </div>
 
                         <!-- Apply Button -->
-                        <a href="{{ route('alumni.lowongan.apply', $firstJob->id) }}" class="block w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6 text-center">
-                            Daftar Sekarang
-                        </a>
+                        @auth
+                                <a href="{{ route('alumni.lowongan.apply', $firstJob->id) }}" class="block w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6 text-center">
+                                    Daftar Sekarang
+                                </a>
+                            @else
+                                <button onclick="showLoginAlert()" class="block w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white py-3 rounded-lg hover:from-gray-600 hover:to-gray-700 transition font-semibold mb-6 text-center">
+                                    Daftar Sekarang
+                                </button>
+                            @endauth
 
 
                         <!-- Job Details -->
@@ -471,87 +477,17 @@
         function showLoginAlert() {
             Swal.fire({
                 title: 'Login Diperlukan',
-                text: "Anda harus login terlebih dahulu",
-                icon: 'warning',
+                text: "Anda harus login terlebih dahulu untuk melamar pekerjaan ini.",
+                icon: 'info',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Login',
-                cancelButtonText: 'Batal'
+                cancelButtonText: 'Nanti Saja'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    showLoginForm();
+                    window.location.href = "{{ route('alumni.login') }}";
                 }
-            });
-        }
-
-        function showLoginForm() {
-            Swal.fire({
-                title: 'Login',
-                html: `
-                    <input type="email" id="login-email" class="swal2-input" placeholder="Email">
-                    <input type="password" id="login-password" class="swal2-input" placeholder="Password">
-                `,
-                confirmButtonText: 'Masuk',
-                focusConfirm: false,
-                showCancelButton: true,
-                cancelButtonText: 'Batal',
-                preConfirm: () => {
-                    const email = Swal.getPopup().querySelector('#login-email').value
-                    const password = Swal.getPopup().querySelector('#login-password').value
-                    if (!email || !password) {
-                        Swal.showValidationMessage(`Email dan password wajib diisi`)
-                    }
-                    return { email: email, password: password }
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    performLogin(result.value.email, result.value.password);
-                }
-            });
-        }
-
-        function performLogin(email, password) {
-            Swal.showLoading();
-            
-            fetch('{{ route("alumni.login.submit") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ email: email, password: password })
-            })
-            .then(response => response.json().then(data => ({ status: response.status, body: data })))
-            .then(({ status, body }) => {
-                if (status === 200) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Login Berhasil',
-                        text: 'Halaman akan dimuat ulang...',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Login Gagal',
-                        text: body.message || 'Email atau password salah.'
-                    }).then(() => {
-                        showLoginForm(); // Show form again on error
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Terjadi Kesalahan',
-                    text: 'Silakan coba lagi nanti.'
-                });
             });
         }
     </script>

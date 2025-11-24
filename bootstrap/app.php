@@ -16,11 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
     ]);
-    
-    $middleware->redirectGuestsTo(function () {
-        session()->flash('error', 'Anda harus login terlebih dahulu untuk mengakses halaman ini.');
-        return route('alumni.login');
-    });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->reportable(function (Throwable $e) {

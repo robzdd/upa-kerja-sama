@@ -61,6 +61,9 @@
             <p class="text-gray-500 text-sm font-medium">Lowongan Kerja</p>
             <h3 class="text-3xl font-bold text-gray-900 mt-1">{{ number_format($stats['total_lowongan']) }}</h3>
         </div>
+
+        <!-- Pending Mitra Requests -->
+        
     </div>
 
     <!-- Charts Section -->
@@ -150,7 +153,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <style>
     @keyframes fade-in {

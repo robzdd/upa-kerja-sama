@@ -16,9 +16,29 @@
             <span class="font-medium">Dashboard</span>
         </a>
 
-        <a href="{{ route('admin.artikel.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg relative {{ request()->routeIs('admin.artikel.index') ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'text-gray-700 hover:bg-gray-100' }}">
+        <a href="{{ route('admin.artikel.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg relative {{ request()->routeIs('admin.artikel.*') ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'text-gray-700 hover:bg-gray-100' }}">
             <i class="fas fa-chart-bar"></i>
             <span class="font-medium">Artikel</span>
+        </a>
+
+        <a href="{{ route('admin.dokumen-publik.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.dokumen-publik.*') || request()->routeIs('admin.kategori-dokumen.*') ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'text-gray-700 hover:bg-gray-100' }}">
+            <i class="fas fa-file-download"></i>
+            <span class="font-medium">Dokumen Publik</span>
+        </a>
+
+        @php
+            $pendingMitraCount = \App\Models\MitraRegistrationRequest::pending()->count();
+        @endphp
+        <a href="{{ route('admin.mitra-requests.index') }}" class="flex items-center justify-between px-4 py-3 rounded-lg {{ request()->routeIs('admin.mitra-requests.*') ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'text-gray-700 hover:bg-gray-100' }}">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-user-check"></i>
+                <span class="font-medium">Request Mitra</span>
+            </div>
+            @if($pendingMitraCount > 0)
+                <span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                    {{ $pendingMitraCount > 99 ? '99+' : $pendingMitraCount }}
+                </span>
+            @endif
         </a>
 
         <a href="{{ route('admin.users.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'text-gray-700 hover:bg-gray-100' }}">

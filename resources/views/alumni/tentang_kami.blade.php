@@ -11,6 +11,7 @@
         <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-transparent opacity-90"></div>
         <div class="container mx-auto px-6 relative z-10">
             <div class="max-w-3xl">
+
                 <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                     Membangun Jembatan <br> <span class="text-blue-300">Karir & Industri</span>
                 </h1>
@@ -160,77 +161,74 @@
                 <div>
                     <span class="text-blue-600 font-semibold tracking-wide uppercase text-sm">Unduhan</span>
                     <h2 class="text-3xl font-bold text-gray-800 mt-2">Dokumen Publik</h2>
+                    <p class="text-gray-600 mt-2">Pilih kategori untuk melihat dokumen yang tersedia</p>
                 </div>
-                <a href="#" class="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 mt-4 md:mt-0">
+                <a href="{{ route('dokumen.index') }}" class="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 mt-4 md:mt-0">
                     Lihat Semua
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Doc 1 -->
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-10 h-10 bg-red-50 text-red-500 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        </div>
-                        <span class="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded">PDF</span>
-                    </div>
-                    <h3 class="font-semibold text-gray-800 mb-2">Panduan Kerjasama Industri</h3>
-                    <p class="text-sm text-gray-500 mb-4">Dokumen panduan lengkap untuk mitra industri yang ingin bekerjasama.</p>
-                    <a href="#" class="w-full block text-center bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2 rounded-lg transition text-sm">
-                        Download
-                    </a>
+            @if($categories->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($categories as $category)
+                        <a href="{{ route('dokumen.category', $category->id) }}" 
+                           class="group bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+                            <div class="flex items-start space-x-4">
+                                @if($category->icon)
+                                    @php
+                                        $colorMap = [
+                                            'blue' => ['bg' => '#DBEAFE', 'text' => '#2563EB'],
+                                            'green' => ['bg' => '#D1FAE5', 'text' => '#059669'],
+                                            'purple' => ['bg' => '#E9D5FF', 'text' => '#9333EA'],
+                                            'red' => ['bg' => '#FEE2E2', 'text' => '#DC2626'],
+                                            'yellow' => ['bg' => '#FEF3C7', 'text' => '#D97706'],
+                                            'indigo' => ['bg' => '#E0E7FF', 'text' => '#4F46E5'],
+                                            'pink' => ['bg' => '#FCE7F3', 'text' => '#DB2777'],
+                                            'orange' => ['bg' => '#FFEDD5', 'text' => '#EA580C'],
+                                        ];
+                                        $color = $category->color ?? 'blue';
+                                        $bgColor = $colorMap[$color]['bg'] ?? $colorMap['blue']['bg'];
+                                        $textColor = $colorMap[$color]['text'] ?? $colorMap['blue']['text'];
+                                    @endphp
+                                    <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition" 
+                                         style="background-color: {{ $bgColor }}; color: {{ $textColor }};">
+                                        <i class="fas fa-{{ $category->icon }} text-2xl"></i>
+                                    </div>
+                                @endif
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">
+                                        {{ $category->nama }}
+                                    </h3>
+                                    @if($category->deskripsi)
+                                        <p class="text-sm text-gray-600 mb-3">{{ $category->deskripsi }}</p>
+                                    @endif
+                                    <div class="flex items-center text-sm text-gray-500">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                        {{ $category->dokumen->count() }} dokumen
+                                    </div>
+                                </div>
+                                <div class="text-gray-400 group-hover:text-blue-600 transition">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
-
-                <!-- Doc 2 -->
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        </div>
-                        <span class="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded">DOCX</span>
+            @else
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     </div>
-                    <h3 class="font-semibold text-gray-800 mb-2">Formulir Pendaftaran Mitra</h3>
-                    <p class="text-sm text-gray-500 mb-4">Formulir isian data perusahaan untuk registrasi mitra baru.</p>
-                    <a href="#" class="w-full block text-center bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2 rounded-lg transition text-sm">
-                        Download
-                    </a>
+                    <h3 class="text-lg font-medium text-gray-900">Belum ada kategori dokumen</h3>
+                    <p class="text-gray-500 mt-1">Silakan cek kembali nanti.</p>
                 </div>
-
-                <!-- Doc 3 -->
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-10 h-10 bg-green-50 text-green-500 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2z"></path></svg>
-                        </div>
-                        <span class="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded">XLSX</span>
-                    </div>
-                    <h3 class="font-semibold text-gray-800 mb-2">Laporan Serapan Alumni 2023</h3>
-                    <p class="text-sm text-gray-500 mb-4">Data statistik penyerapan alumni di berbagai sektor industri.</p>
-                    <a href="#" class="w-full block text-center bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2 rounded-lg transition text-sm">
-                        Download
-                    </a>
-                </div>
-            </div>
+            @endif
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section id="kontak" class="py-20 bg-gradient-to-br from-blue-900 to-purple-900 text-white text-center">
-        <div class="container mx-auto px-6">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6">Siap Berkolaborasi?</h2>
-            <p class="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
-                Bergabunglah dengan jaringan mitra kami atau temukan karir impian Anda bersama UPA Kerjasama POLINDRA.
-            </p>
-            <div class="flex flex-col md:flex-row justify-center gap-4">
-                <a href="{{ route('alumni.register') }}" class="bg-white text-blue-900 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition shadow-lg">
-                    Daftar Sebagai Alumni
-                </a>
-                <a href="#" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full font-bold hover:bg-white/10 transition">
-                    Hubungi Kami
-                </a>
-            </div>
-        </div>
-    </section>
 @endsection

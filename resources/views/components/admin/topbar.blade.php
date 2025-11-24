@@ -1,5 +1,6 @@
-<header class="bg-white shadow-sm z-10">
-    <div class="flex items-center justify-between px-8 py-4">
+<header class="bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
+    <div class="flex items-center justify-between px-6 py-4">
+        <!-- Search Bar -->
         <div class="flex items-center flex-1 max-w-xl" x-data="{ 
             searchQuery: '', 
             searchResults: [], 
@@ -13,7 +14,7 @@
                 }
                 this.isLoading = true;
                 this.showResults = true;
-                fetch(`/admin/search?q=${this.searchQuery}`)
+                fetch(`/admin/search?q=${encodeURIComponent(this.searchQuery)}`)
                     .then(res => res.json())
                     .then(data => {
                         this.searchResults = data;
@@ -31,7 +32,7 @@
                        @input.debounce.300ms="performSearch()"
                        @focus="if(searchQuery.length >= 2) showResults = true"
                        placeholder="Cari user, artikel, atau lowongan..." 
-                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                 
                 <!-- Loading Indicator -->
                 <div x-show="isLoading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -84,21 +85,107 @@
             </div>
         </div>
 
-        <div class="flex items-center space-x-4 ml-8">
+        <!-- Right Section: Notifications & Profile -->
+        <div class="flex items-center space-x-3 ml-6">
+            <!-- Mitra Request Notifications -->
+            @php
+                $pendingRequests = \App\Models\MitraRegistrationRequest::pending()->latest()->take(5)->get();
+                $pendingCount = \App\Models\MitraRegistrationRequest::pending()->count();
+            @endphp
+            
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open" class="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+                    <i class="fas fa-bell text-xl"></i>
+                    @if($pendingCount > 0)
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                            {{ $pendingCount > 9 ? '9+' : $pendingCount }}
+                        </span>
+                    @endif
+                </button>
+
+                <!-- Notification Dropdown -->
+                <div x-show="open" 
+                     @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 transform scale-95 -translate-y-2"
+                     x-transition:enter-end="opacity-100 transform scale-100 translate-y-0"
+                     class="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50"
+                     style="display: none;">
+                    
+                    <!-- Header -->
+                    <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-gray-900">Request Mitra Baru</h3>
+                            @if($pendingCount > 0)
+                                <span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                                    {{ $pendingCount }} Pending
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Notification List -->
+                    <div class="max-h-96 overflow-y-auto">
+                        @forelse($pendingRequests as $request)
+                            <a href="{{ route('admin.mitra-requests.show', $request->id) }}" 
+                               class="block px-4 py-3 hover:bg-blue-50 transition border-b border-gray-100 last:border-0">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-building text-white"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold text-gray-900 truncate">
+                                            {{ $request->nama_perusahaan }}
+                                        </p>
+                                        <p class="text-xs text-gray-600 truncate">
+                                            {{ $request->email }}
+                                        </p>
+                                        <div class="flex items-center mt-1 space-x-2">
+                                            <span class="text-xs text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                {{ $request->created_at->diffForHumans() }}
+                                            </span>
+                                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                                                {{ $request->bidang_usaha }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="px-4 py-8 text-center">
+                                <i class="fas fa-check-circle text-green-500 text-3xl mb-2"></i>
+                                <p class="text-sm text-gray-600 font-medium">Tidak ada request pending</p>
+                                <p class="text-xs text-gray-500 mt-1">Semua request sudah diproses</p>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <!-- Footer -->
+                    @if($pendingCount > 0)
+                        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                            <a href="{{ route('admin.mitra-requests.index') }}" 
+                               class="block text-center text-sm font-semibold text-blue-600 hover:text-blue-700 transition">
+                                Lihat Semua Request ({{ $pendingCount }})
+                                <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Help Button -->
             <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
-                <i class="fas fa-bell"></i>
-            </button>
-            <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
-                <i class="fas fa-question-circle"></i>
+                <i class="fas fa-question-circle text-xl"></i>
             </button>
             
             <!-- Profile Dropdown -->
             <div class="relative" x-data="{ open: false }">
-                <button @click="open = !open" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-xl p-2 transition">
+                <button @click="open = !open" class="flex items-center space-x-3 hover:bg-gray-50 rounded-xl p-2 transition">
                     <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-semibold">{{ strtoupper(substr(auth()->user()->name ?? 'AD', 0, 1)) }}</span>
+                        <span class="text-white font-semibold text-sm">{{ strtoupper(substr(auth()->user()->name ?? 'AD', 0, 1)) }}</span>
                     </div>
-                    <div class="text-left">
+                    <div class="text-left hidden md:block">
                         <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->name ?? 'Admin' }}</p>
                         <p class="text-xs text-gray-500">{{ auth()->user()->email ?? '' }}</p>
                     </div>
@@ -111,9 +198,6 @@
                      x-transition:enter="transition ease-out duration-200"
                      x-transition:enter-start="opacity-0 transform scale-95"
                      x-transition:enter-end="opacity-100 transform scale-100"
-                     x-transition:leave="transition ease-in duration-150"
-                     x-transition:leave-start="opacity-100 transform scale-100"
-                     x-transition:leave-end="opacity-0 transform scale-95"
                      class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50"
                      style="display: none;">
                     
@@ -126,17 +210,12 @@
                     <!-- Menu Items -->
                     <div class="py-2">
                         <a href="{{ route('admin.profile.edit') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
+                            <i class="fas fa-user w-5 mr-3"></i>
                             Edit Profile
                         </a>
                         
                         <a href="#" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
+                            <i class="fas fa-cog w-5 mr-3"></i>
                             Pengaturan
                         </a>
                     </div>
@@ -146,9 +225,7 @@
                         <form method="POST" action="{{ route('admin.logout') }}">
                             @csrf
                             <button type="submit" class="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">
-                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                </svg>
+                                <i class="fas fa-sign-out-alt w-5 mr-3"></i>
                                 Logout
                             </button>
                         </form>
@@ -158,6 +235,3 @@
         </div>
     </div>
 </header>
-
-<!-- Alpine.js for dropdown functionality -->
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

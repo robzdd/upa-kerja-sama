@@ -32,8 +32,9 @@
                     <p class="text-sm text-gray-600 mt-1">{{ auth()->user()->email }}</p>
                 </div>
                 <!-- Edit Profile Button -->
-                <a href="{{ route('alumni.profile') }}" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all mb-4 inline-block text-center">
-                    Ubah Profil
+                <a href="{{ route('alumni.profile.edit') }}" 
+                   class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all mb-4 inline-block text-center">
+                    Edit Profil
                 </a>
 
                 <!-- Divider -->
