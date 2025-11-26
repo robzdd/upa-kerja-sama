@@ -28,7 +28,7 @@ class ProfileController extends Controller
             ])
             ->first();
 
-        return view('alumni.profile.index', compact('user', 'alumni'));
+        return view('alumni.profile', compact('user', 'alumni'));
     }
 
     public function edit()
@@ -53,6 +53,8 @@ class ProfileController extends Controller
             ->orderBy('mulai_berlaku', 'desc')
             ->get();
 
+        $programStudis = \App\Models\ProgramStudi::orderBy('program_studi', 'asc')->get();
+
         return view('alumni.profile-edit', compact(
             'user',
             'alumni',
@@ -60,7 +62,8 @@ class ProfileController extends Controller
             'dokumenPendukung',
             'riwayatPendidikan',
             'pengalamanKerja',
-            'sertifikasi'
+            'sertifikasi',
+            'programStudis'
         ));
     }
 
@@ -152,6 +155,7 @@ class ProfileController extends Controller
             [
                 'keahlian' => $hardSkills ?: null,
                 'soft_skills' => $softSkills ?: null,
+                'program_studi_id' => $request->program_studi_id,
             ]
         );
     }
@@ -181,6 +185,7 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'nama_sekolah' => 'required|string|max:255',
+            'program_studi' => 'nullable|string|max:255',
             'strata' => 'required|string',
             'tahun_masuk' => 'required|date',
             'tahun_lulus' => 'nullable|date',

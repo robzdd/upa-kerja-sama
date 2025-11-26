@@ -63,18 +63,6 @@
                     </li>
                 </ul>
             </div>
-
-            <!-- Newsletter -->
-            <div>
-                <h3 class="text-lg font-bold mb-6">Newsletter</h3>
-                <p class="text-gray-400 mb-4">Dapatkan informasi terbaru seputar lowongan kerja dan karir.</p>
-                <form class="flex flex-col gap-3">
-                    <input type="email" placeholder="Email Anda" class="bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    <button class="bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Berlangganan
-                    </button>
-                </form>
-            </div>
         </div>
 
         <!-- Bottom Footer -->

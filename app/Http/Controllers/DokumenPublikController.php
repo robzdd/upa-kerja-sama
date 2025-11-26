@@ -48,8 +48,8 @@ class DokumenPublikController extends Controller
         // Increment download counter
         $dokumen->incrementDownload();
 
-        return Storage::disk('public')->download(
-            $dokumen->file_path,
+        return response()->download(
+            storage_path('app/public/' . $dokumen->file_path),
             $dokumen->judul . '.' . strtolower($dokumen->file_type)
         );
     }

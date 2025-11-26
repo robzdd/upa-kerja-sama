@@ -18,6 +18,7 @@ class RiwayatPendidikan extends Model
     protected $fillable = [
         'user_id',
         'nama_sekolah',
+        'program_studi',
         'strata',
         'tahun_masuk',
         'tahun_lulus',

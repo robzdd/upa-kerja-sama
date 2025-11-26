@@ -173,16 +173,16 @@ class LamaranController extends Controller
                 }
             }
 
+
             // OPSIONAL: Cek minimal ada SATU data tambahan
             // Hapus bagian ini jika tidak perlu
             $hasEducation = $alumni->riwayatPendidikan()->exists();
             $hasWork = $alumni->pengalamanKerja()->exists();
-            $hasCert = $alumni->sertifikasi()->exists();
             $hasCV = $alumni->dokumenPendukung()
                 ->where('tipe_dokumen', 'cv')
                 ->exists();
 
-            if (!($hasEducation || $hasWork || $hasCert || $hasCV)) {
+            if (!($hasEducation || $hasWork || $hasCV)) {
                 Log::info("Tidak ada data pendukung"); // Untuk debugging
                 return false;
             }

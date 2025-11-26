@@ -151,11 +151,12 @@ class DokumenPublikController extends Controller
     public function download($id)
     {
         $dokumen = DokumenPublik::findOrFail($id);
+        $path = storage_path('app/public/' . $dokumen->file_path);
 
-        if (!Storage::disk('public')->exists($dokumen->file_path)) {
+        if (!file_exists($path)) {
             abort(404, 'File tidak ditemukan.');
         }
 
-        return Storage::disk('public')->download($dokumen->file_path, $dokumen->judul . '.' . strtolower($dokumen->file_type));
+        return response()->download($path, $dokumen->judul . '.' . strtolower($dokumen->file_type));
     }
 }

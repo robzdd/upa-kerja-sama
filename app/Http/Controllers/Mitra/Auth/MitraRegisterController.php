@@ -65,7 +65,7 @@ class MitraRegisterController extends Controller
             Mail::to($adminEmail)->send(new MitraRegistrationNotification($registrationRequest));
         } catch (\Exception $e) {
             // Log error but don't fail the registration
-            \Log::error('Failed to send mitra registration email: ' . $e->getMessage());
+            Log::error('Failed to send mitra registration email: ' . $e->getMessage());
         }
 
         return redirect()

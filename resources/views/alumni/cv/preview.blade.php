@@ -64,6 +64,9 @@
                         <div>
                             <h3 class="font-bold text-gray-900">{{ $pendidikan->strata }}</h3>
                             <p class="text-gray-800 font-semibold">{{ $pendidikan->nama_sekolah }}</p>
+                            @if($pendidikan->program_studi)
+                            <p class="text-gray-700 text-sm">{{ $pendidikan->program_studi }}</p>
+                            @endif
                         </div>
                         <p class="text-gray-700 text-sm font-medium">
                             {{ \Carbon\Carbon::parse($pendidikan->tahun_masuk)->format('Y') }} - 

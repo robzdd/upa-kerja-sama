@@ -44,9 +44,9 @@
                         </div>
                         <h3 class="text-xl font-bold text-gray-800">{{ auth()->user()->name }}</h3>
                         <p class="text-sm text-gray-500 mt-1">{{ auth()->user()->email }}</p>
-                        @if($alumni->program_studi)
+                        @if($alumni->programStudi)
                         <span class="inline-block mt-2 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
-                            {{ $alumni->program_studi }}
+                            {{ $alumni->programStudi->program_studi }}
                         </span>
                         @endif
                     </div>
@@ -77,12 +77,7 @@
                             <span class="text-sm font-medium">Status Lamaran</span>
                         </a>
                         
-                        <a href="{{ route('alumni.certificates') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-50 transition-all duration-200 text-gray-700 hover:text-blue-700 group">
-                            <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                            </svg>
-                            <span class="text-sm font-medium">Sertifikat Magang</span>
-                        </a>
+
                         
                         <a href="{{ route('alumni.security.settings') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-50 transition-all duration-200 text-gray-700 hover:text-blue-700 group">
                             <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,6 +319,22 @@
                             <p class="text-sm text-blue-800">Pastikan informasi akademik terisi dengan benar untuk mempermudah proses pendaftaran</p>
                         </div>
 
+                        <!-- Program Studi -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Program Studi
+                            </label>
+                            <select name="program_studi_id" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                <option value="">Pilih Program Studi</option>
+                                @foreach($programStudis as $prodi)
+                                    <option value="{{ $prodi->id }}" {{ old('program_studi_id', $alumni->program_studi_id) == $prodi->id ? 'selected' : '' }}>
+                                        {{ $prodi->program_studi }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('program_studi_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+
 
                         {{-- Riwayat Pendidikan --}}
                         <div class="mt-10">
@@ -350,7 +361,9 @@
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <h5 class="font-semibold text-gray-900">{{ $pendidikan->strata }} di {{ $pendidikan->nama_sekolah }}</h5>
-                                                <p class="text-sm text-gray-600">{{ $pendidikan->program_studi ?? '' }}</p>
+                                                @if($pendidikan->program_studi)
+                                                <p class="text-sm text-gray-600">{{ $pendidikan->program_studi }}</p>
+                                                @endif
                                                 <p class="text-xs text-gray-500 mt-1">
                                                     {{ \Carbon\Carbon::parse($pendidikan->mulai_berlaku)->format('Y') }} - 
                                                     {{ $pendidikan->selesai_berlaku ? \Carbon\Carbon::parse($pendidikan->selesai_berlaku)->format('Y') : 'Sekarang' }}
@@ -758,6 +771,16 @@
                     <input type="text" name="nama_sekolah" id="nama_sekolah" required
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         placeholder="Contoh: Universitas Indonesia">
+                </div>
+
+                {{-- Program Studi --}}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Program Studi / Jurusan
+                    </label>
+                    <input type="text" name="program_studi" id="program_studi_pendidikan"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        placeholder="Contoh: Teknik Informatika">
                 </div>
 
                 {{-- Strata Pendidikan --}}
@@ -1172,6 +1195,7 @@ function editPendidikan(id) {
         // Fill form with data
         document.getElementById('pendidikan_id').value = data.id;
         document.getElementById('nama_sekolah').value = data.nama_sekolah;
+        document.getElementById('program_studi_pendidikan').value = data.program_studi || '';
         document.getElementById('strata').value = data.strata;
         document.getElementById('tahun_masuk').value = data.tahun_masuk;
         document.getElementById('tahun_lulus').value = data.tahun_lulus || '';

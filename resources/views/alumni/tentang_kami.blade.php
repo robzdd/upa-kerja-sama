@@ -22,9 +22,6 @@
                     <a href="#visi-misi" class="bg-white text-blue-900 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 transition shadow-lg">
                         Visi & Misi
                     </a>
-                    <a href="#kontak" class="bg-blue-700 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-600 transition shadow-lg border border-blue-500">
-                        Hubungi Kami
-                    </a>
                 </div>
             </div>
         </div>
