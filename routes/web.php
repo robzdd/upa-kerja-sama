@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ArtikelController;
 use App\Http\Controllers\Mitra\PelamarController;
+use App\Http\Controllers\Alumni\JobSearchController;
 use App\Http\Controllers\Alumni\LamaranController;
 use App\Http\Controllers\Alumni\ProfileController;
 use App\Http\Controllers\Alumni\DocumentController;
@@ -84,6 +85,8 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/upload-photo', [ProfileController::class, 'uploadProfilePhoto'])->name('profile.upload-photo');
+        Route::delete('/profile/delete-photo', [ProfileController::class, 'deleteProfilePhoto'])->name('profile.delete-photo');
         Route::get('/profile/cv/download', [ProfileController::class, 'downloadCv'])->name('profile.cv.download');
         Route::get('/profile/cv/view', [ProfileController::class, 'viewCv'])->name('profile.cv.view');
         Route::delete('/profile/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -105,9 +108,14 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
 
         // Lowongan Routes
         Route::get('/lowongan', [LamaranController::class, 'index'])->name('lowongan.index');
+        Route::get('/lowongan/recommendations', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getRecommendations'])->name('lowongan.recommendations');
+        Route::get('/lowongan/tersimpan', [JobSearchController::class, 'savedJobs'])->name('lowongan.tersimpan');
         Route::get('/lowongan/{id}/details', [LamaranController::class, 'details'])->name('lowongan.details');
+        Route::get('/lowongan/{id}', [LamaranController::class, 'show'])->name('lowongan.show');
         Route::get('/lowongan/{id}/apply', [LamaranController::class, 'showApplyForm'])->name('lowongan.apply');
         Route::post('/lowongan/{id}/apply', [LamaranController::class, 'apply'])->name('lowongan.apply.submit');
+        Route::post('/job-recommendations', [JobSearchController::class, 'getRecommendations'])->name('job.recommendations');
+        Route::post('/lowongan/{id}/save', [JobSearchController::class, 'toggleSave'])->name('lowongan.save');
         
         // Applications Routes
         // Route::get('/applications', [LamaranController::class, 'myApplications'])->name('applications');

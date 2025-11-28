@@ -48,8 +48,7 @@ class UserSeeder extends Seeder
                 $user->assignRole('admin'); // Admin Kampus
             } elseif ($index === 2) {
                 $user->assignRole('mitra'); // Mitra 1
-
-            } elseif ($index === 4) {
+            } elseif ($index === 3) {
                 $user->assignRole('alumni'); // Alumni 1
             }
         }

@@ -19,6 +19,7 @@ class CvController extends Controller
         // Load alumni dengan semua relasi yang dibutuhkan
         $alumni = Alumni::where('user_id', $user->id)
             ->with([
+                'programStudi',
                 'dataKeluarga',
                 'dokumenPendukung',
                 'riwayatPendidikan' => function($query) {

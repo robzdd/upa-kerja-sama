@@ -25,6 +25,13 @@ class LamaranController extends Controller
         return response()->json($lowongan);
     }
     
+    public function show($id)
+    {
+        $lowongan = LowonganPekerjaan::with('mitra')->findOrFail($id);
+        
+        return view('alumni.lowongan_detail', compact('lowongan'));
+    }
+    
     public function showApplyForm($lowonganId)
     {
         $lowongan = LowonganPekerjaan::with('mitra')->findOrFail($lowonganId);

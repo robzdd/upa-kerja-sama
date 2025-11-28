@@ -109,15 +109,36 @@
 
         </div>
         <!-- AI Recommendation Button -->
-        <button class="w-full bg-gradient-to-r from-blue-700 to-purple-700 text-white py-4 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition shadow-lg flex items-center justify-center space-x-3 mt-4">
+        <button id="ai-recommendation-btn" onclick="getAIRecommendations()" class="w-full bg-gradient-to-r from-blue-700 to-purple-700 text-white py-4 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition shadow-lg flex items-center justify-center space-x-3 mt-4">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
             </svg>
-            <span>Coba rekomendasi pekerjaan menggunakan AI</span>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span id="ai-btn-text">Coba rekomendasi pekerjaan menggunakan AI</span>
+            <svg id="ai-btn-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+            </svg>
+            <svg id="ai-btn-loading" class="w-5 h-5 animate-spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
         </button>
+
+        <!-- Recommendation Statistics (Hidden by default) -->
+        <div id="recommendation-stats" class="hidden mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700" id="stats-match-text">Loading...</p>
+                        <p class="text-xs text-gray-600" id="stats-jobs-text">Loading...</p>
+                    </div>
+                </div>
+                <button onclick="clearRecommendations()" class="text-sm text-blue-600 hover:text-blue-800 font-semibold">
+                    Lihat Semua
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -472,6 +493,289 @@
                     </p>
                 </div>
             `;
+        }
+
+        // AI Recommendation Functions
+        function getAIRecommendations() {
+            const btn = document.getElementById('ai-recommendation-btn');
+            const btnText = document.getElementById('ai-btn-text');
+            const btnIcon = document.getElementById('ai-btn-icon');
+            const btnLoading = document.getElementById('ai-btn-loading');
+            const statsDiv = document.getElementById('recommendation-stats');
+            const jobListContainer = document.getElementById('job-list-container');
+
+            // Disable button and show loading
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btnText.textContent = 'Sedang menganalisis profil Anda...';
+            btnIcon.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+
+            // Hide stats initially
+            statsDiv.classList.add('hidden');
+
+            // Make AJAX call
+            fetch('{{ route("alumni.lowongan.recommendations") }}', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update statistics
+                    document.getElementById('stats-match-text').textContent = 
+                        `(${data.average_match}%) pekerjaan cocok dengan kamu`;
+                    document.getElementById('stats-jobs-text').textContent = 
+                        `Ditemukan ${data.total_jobs} pekerjaan yang cocok`;
+                    
+                    // Show statistics
+                    statsDiv.classList.remove('hidden');
+
+                    // Update job list with recommendations
+                    updateJobListWithRecommendations(data.jobs);
+
+                    // Reset button
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    btnText.textContent = 'Coba rekomendasi pekerjaan menggunakan AI';
+                    btnIcon.classList.remove('hidden');
+                    btnLoading.classList.add('hidden');
+                } else {
+                    // Show error message
+                    Swal.fire({
+                        title: 'Oops!',
+                        text: data.message || 'Gagal mendapatkan rekomendasi',
+                        icon: 'warning',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK'
+                    });
+
+                    // Reset button
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    btnText.textContent = 'Coba rekomendasi pekerjaan menggunakan AI';
+                    btnIcon.classList.remove('hidden');
+                    btnLoading.classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching recommendations:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Terjadi kesalahan saat mendapatkan rekomendasi. Silakan coba lagi.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+
+                // Reset button
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                btnText.textContent = 'Coba rekomendasi pekerjaan menggunakan AI';
+                btnIcon.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+            });
+        }
+
+        function updateJobListWithRecommendations(jobs) {
+            const jobListContainer = document.getElementById('job-list-container');
+            
+            if (jobs.length === 0) {
+                jobListContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2">Tidak ada rekomendasi ditemukan</h3>
+                        <p class="text-gray-600">Lengkapi profil Anda untuk mendapatkan rekomendasi yang lebih akurat</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            jobs.forEach((job, index) => {
+                const score = job.similarity_score || 0;
+                let badgeClass = '';
+                if (score >= 70) {
+                    badgeClass = 'bg-green-100 text-green-700 border-green-300';
+                } else if (score >= 40) {
+                    badgeClass = 'bg-yellow-100 text-yellow-700 border-yellow-300';
+                } else {
+                    badgeClass = 'bg-orange-100 text-orange-700 border-orange-300';
+                }
+
+                html += `
+                    <div class="job-card ${index === 0 ? 'active border-blue-500' : 'border-transparent'} bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition cursor-pointer border-l-4"
+                         onclick="selectJob(this, '${job.id}')">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-800 mb-1">${job.judul}</h3>
+                                <p class="text-gray-600 text-sm mb-3">${job.mitra.nama_perusahaan}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 ${badgeClass} rounded-full text-xs font-semibold border">
+                                    ${Math.round(score)}% Match
+                                </span>
+                                <button onclick="toggleSave(event, '${job.id}')" id="save-btn-${job.id}" 
+                                        class="p-2 rounded-lg border transition-all duration-200 transform active:scale-95 ${job.is_saved ? 'bg-blue-50 border-blue-200 text-blue-600' : 'border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-200'}"
+                                        title="${job.is_saved ? 'Hapus dari simpanan' : 'Simpan lowongan'}">
+                                    <i class="${job.is_saved ? 'fas' : 'far'} fa-bookmark transition-transform duration-200"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>${job.lokasi}</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>${job.jenis_pekerjaan}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">${job.jenjang_pendidikan}</span>
+                            ${job.pengalaman_minimal ? `<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">${job.pengalaman_minimal}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            jobListContainer.innerHTML = html;
+
+            // Auto-select and load first job details
+            if (jobs.length > 0) {
+                fetchJobDetails(jobs[0].id);
+            }
+        }
+
+        function clearRecommendations() {
+            // Reload the page to show all jobs again
+            window.location.href = '{{ route("alumni.cari_lowongan") }}';
+        }
+
+        function toggleSave(event, jobId) {
+            // Prevent event bubbling to card click
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            
+            try {
+                const btn = document.getElementById(`save-btn-${jobId}`);
+                if (!btn) {
+                    console.error('Save button not found for job:', jobId);
+                    return;
+                }
+                
+                const icon = btn.querySelector('i');
+                
+                // Add click animation
+                btn.classList.add('scale-95');
+                setTimeout(() => btn.classList.remove('scale-95'), 150);
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                if (!csrfToken) {
+                    console.error('CSRF token not found');
+                    alert('Terjadi kesalahan sistem (CSRF Token missing)');
+                    return;
+                }
+
+                fetch(`/alumni/lowongan/${jobId}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken.getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update navbar badge
+                        updateSavedJobsBadge(data.is_saved);
+                        
+                        if (data.is_saved) {
+                            btn.classList.remove('border-gray-200', 'text-gray-400', 'hover:text-blue-600', 'hover:border-blue-200');
+                            btn.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-600');
+                            btn.title = 'Hapus dari simpanan';
+                            
+                            // Icon animation
+                            icon.classList.remove('far');
+                            icon.classList.add('fas', 'scale-125');
+                            setTimeout(() => icon.classList.remove('scale-125'), 200);
+                            
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Lowongan disimpan'
+                            });
+                        } else {
+                            btn.classList.add('border-gray-200', 'text-gray-400', 'hover:text-blue-600', 'hover:border-blue-200');
+                            btn.classList.remove('bg-blue-50', 'border-blue-200', 'text-blue-600');
+                            btn.title = 'Simpan lowongan';
+                            
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                        }
+                    } else {
+                        if (data.message === 'Unauthorized') {
+                            showLoginAlert();
+                        } else {
+                            alert('Gagal menyimpan lowongan');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menyimpan');
+                });
+            } catch (e) {
+                console.error('Error in toggleSave:', e);
+            }
+        }
+
+        function updateSavedJobsBadge(isSaved) {
+            const badge = document.getElementById('saved-jobs-badge');
+            const countElement = document.getElementById('saved-jobs-count');
+            
+            if (!badge || !countElement) return;
+            
+            // Get current count
+            let currentCount = parseInt(countElement.textContent) || 0;
+            if (countElement.textContent === '9+') {
+                currentCount = 9;
+            }
+            
+            // Update count
+            const newCount = isSaved ? currentCount + 1 : Math.max(0, currentCount - 1);
+            
+            // Update display
+            if (newCount === 0) {
+                badge.classList.add('hidden');
+            } else {
+                badge.classList.remove('hidden');
+                countElement.textContent = newCount > 9 ? '9+' : newCount;
+            }
         }
 
         function showLoginAlert() {

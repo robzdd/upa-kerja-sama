@@ -36,6 +36,7 @@ class Alumni extends Model
         'cv_generated',
         'cv_uri',
         'cv_public',
+        'profile_photo',
     ];
 
     protected $casts = [
@@ -45,6 +46,11 @@ class Alumni extends Model
     ];
 
     // ===== RELATIONSHIPS =====
+
+    public function savedJobs()
+    {
+        return $this->belongsToMany(LowonganPekerjaan::class, 'saved_jobs', 'alumni_id', 'lowongan_pekerjaan_id')->withTimestamps();
+    }
 
     public function user()
     {

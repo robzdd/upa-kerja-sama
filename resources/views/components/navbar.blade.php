@@ -48,6 +48,20 @@
 
                 <!-- User Profile Dropdown or Login Button -->
                 @auth
+                    @if(Auth::user()->alumni)
+                    <a href="{{ route('alumni.lowongan.tersimpan') }}" class="mr-6 text-white hover:text-blue-200 transition relative group" title="Lowongan Tersimpan">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                        </svg>
+                        @php
+                            $savedCount = Auth::user()->alumni->savedJobs()->count();
+                        @endphp
+                        <span id="saved-jobs-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center {{ $savedCount == 0 ? 'hidden' : '' }}">
+                            <span id="saved-jobs-count">{{ $savedCount > 9 ? '9+' : $savedCount }}</span>
+                        </span>
+                    </a>
+                    @endif
+
                     <div x-data="{ open: false }" class="relative">
                         @php
                             $user = Auth::user() ?? Auth::guard('mitra')->user();

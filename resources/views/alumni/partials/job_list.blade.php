@@ -6,7 +6,23 @@
                 <h3 class="text-lg font-bold text-gray-800 mb-1">{{ $job->judul }}</h3>
                 <p class="text-gray-600 text-sm mb-3">{{ $job->mitra->nama_perusahaan }}</p>
             </div>
-            <button class="text-blue-600 text-sm font-semibold">Simpan ♥</button>
+            <div class="flex items-center gap-2">
+                @if(isset($job->similarity_score))
+                    @php
+                        $score = $job->similarity_score;
+                        if ($score >= 70) {
+                            $badgeClass = 'bg-green-100 text-green-700 border-green-300';
+                        } elseif ($score >= 40) {
+                            $badgeClass = 'bg-yellow-100 text-yellow-700 border-yellow-300';
+                        } else {
+                            $badgeClass = 'bg-orange-100 text-orange-700 border-orange-300';
+                        }
+                    @endphp
+                    <span class="px-3 py-1 {{ $badgeClass }} rounded-full text-xs font-semibold border">
+                        {{ number_format($score, 0) }}% Match
+                    </span>
+                @endif
+            </div>
         </div>
 
         <div class="flex flex-wrap gap-3 text-xs text-gray-600 mb-3">
@@ -31,16 +47,31 @@
                 <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">{{ $job->pengalaman_minimal }}</span>
             @endif
         </div>
+
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+            <div class="text-sm text-gray-500">
+                <i class="far fa-clock mr-1"></i> {{ $job->created_at->diffForHumans() }}
+            </div>
+            <div class="flex space-x-2">
+                @auth
+                <button onclick="toggleSave(event, '{{ $job->id }}')" id="save-btn-{{ $job->id }}" 
+                        class="p-2 rounded-lg border transition-all duration-200 transform active:scale-95 {{ Auth::user()->alumni && Auth::user()->alumni->savedJobs->contains($job->id) ? 'bg-blue-50 border-blue-200 text-blue-600' : 'border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-200' }}"
+                        title="{{ Auth::user()->alumni && Auth::user()->alumni->savedJobs->contains($job->id) ? 'Hapus dari simpanan' : 'Simpan lowongan' }}">
+                    <i class="{{ Auth::user()->alumni && Auth::user()->alumni->savedJobs->contains($job->id) ? 'fas' : 'far' }} fa-bookmark transition-transform duration-200"></i>
+                </button>
+                @endauth
+            </div>
+        </div>
     </div>
 @empty
-    <div class="text-center py-12">
-        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    <div class="col-span-full text-center py-12">
+        <div class="inline-block p-4 rounded-full bg-blue-50 mb-4">
+            <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
         </div>
-        <h3 class="text-lg font-medium text-gray-800 mb-2">Tidak ada lowongan ditemukan</h3>
-        <p class="text-gray-600">Coba ubah filter pencarian Anda</p>
+        <h3 class="text-lg font-medium text-gray-900">Tidak ada lowongan ditemukan</h3>
+        <p class="text-gray-500 mt-2">Coba ubah filter pencarian Anda</p>
     </div>
 @endforelse
 

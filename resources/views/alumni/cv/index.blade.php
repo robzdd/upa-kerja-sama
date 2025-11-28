@@ -23,14 +23,24 @@
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <!-- Profile Avatar -->
                 <div class="text-center mb-6">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                        </svg>
-                    </div>
+                    @if($alumni->profile_photo)
+                        <img src="{{ asset('storage/' . $alumni->profile_photo) }}" alt="Profile Photo" class="w-24 h-24 mx-auto mb-4 rounded-full object-cover ring-4 ring-blue-50">
+                    @else
+                        <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+                            </svg>
+                        </div>
+                    @endif
                     <h3 class="text-xl font-bold text-gray-800">{{ auth()->user()->name }}</h3>
                     <p class="text-sm text-gray-600 mt-1">{{ auth()->user()->email }}</p>
+                    @if($alumni->programStudi)
+                    <span class="inline-block mt-3 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
+                        {{ $alumni->programStudi->program_studi }}
+                    </span>
+                    @endif
                 </div>
+                
 
                 <!-- Edit Profile Button -->
                 <a href="{{ route('alumni.profile.edit') }}" 
@@ -170,7 +180,7 @@
                         Data Pribadi
                     </button>
                     <button class="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium text-sm" onclick="showTab('data-akademik')">
-                        Data Akademik
+                        Riwayat & Kompetensi
                     </button>
                     <button class="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium text-sm" onclick="showTab('data-keluarga')">
                         Data Keluarga
@@ -234,6 +244,52 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Skills Section -->
+                <div class="mt-8 border-t pt-6">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        <h4 class="text-md font-bold text-gray-800">Keahlian & Kompetensi</h4>
+                    </div>
+
+                    <!-- Hard Skills -->
+                    <div class="mb-6">
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Hard Skills</label>
+                        @if($alumni && $alumni->keahlian && trim($alumni->keahlian))
+                            <div class="flex flex-wrap gap-2">
+                                @foreach(explode(',', $alumni->keahlian) as $skill)
+                                    @if(trim($skill))
+                                    <span class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                                        {{ trim($skill) }}
+                                    </span>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-gray-500 text-sm italic">Belum ada hard skills yang ditambahkan</p>
+                        @endif
+                    </div>
+
+                    <!-- Soft Skills -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Soft Skills</label>
+                        @if($alumni && $alumni->soft_skills && trim($alumni->soft_skills))
+                            <div class="flex flex-wrap gap-2">
+                                @foreach(explode(',', $alumni->soft_skills) as $skill)
+                                    @if(trim($skill))
+                                    <span class="px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                        {{ trim($skill) }}
+                                    </span>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-gray-500 text-sm italic">Belum ada soft skills yang ditambahkan</p>
+                        @endif
+                    </div>
+                </div>
             </div>
 
             <!-- Data Akademik Content -->
@@ -241,7 +297,7 @@
            <!-- Data Akademik Content -->
             <div id="data-akademik" class="tab-content bg-white rounded-lg shadow p-6 hidden">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-gray-800">Data Akademik</h3>
+                    <h3 class="text-lg font-bold text-gray-800">Riwayat & Kompetensi</h3>
                     <a href="{{ route('alumni.profile.edit') }}#data-akademik" class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -366,53 +422,7 @@
                     @endif
                 </div>
 
-                <!-- Hard Skills Section -->
-                <div class="mb-8">
-                    <div class="flex items-center space-x-2 mb-4">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
-                        <h4 class="text-md font-bold text-gray-800">Hard Skills</h4>
-                    </div>
-                    
-                    @if($alumni && $alumni->keahlian && trim($alumni->keahlian))
-                        <div class="flex flex-wrap gap-2">
-                            @foreach(explode(',', $alumni->keahlian) as $skill)
-                                @if(trim($skill))
-                                <span class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                                    {{ trim($skill) }}
-                                </span>
-                                @endif
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-500 text-sm italic">Belum ada hard skills yang ditambahkan</p>
-                    @endif
-                </div>
 
-                <!-- Soft Skills Section -->
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                        <h4 class="text-md font-bold text-gray-800">Soft Skills</h4>
-                    </div>
-                    
-                    @if($alumni && $alumni->soft_skills && trim($alumni->soft_skills))
-                        <div class="flex flex-wrap gap-2">
-                            @foreach(explode(',', $alumni->soft_skills) as $skill)
-                                @if(trim($skill))
-                                <span class="px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                                    {{ trim($skill) }}
-                                </span>
-                                @endif
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-500 text-sm italic">Belum ada soft skills yang ditambahkan</p>
-                    @endif
-                </div>
             </div>
 
             <!-- Data Keluarga Content -->

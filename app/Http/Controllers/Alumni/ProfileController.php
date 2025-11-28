@@ -10,6 +10,7 @@ use App\Models\RiwayatPendidikan;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use App\Models\PengalamanSertifikasi;
 use App\Models\PengalamanKerjaOrganisasi;
 
@@ -20,6 +21,7 @@ class ProfileController extends Controller
         $user = Auth::user();
         $alumni = Alumni::where('user_id', $user->id)
             ->with([
+                'programStudi',
                 'dataKeluarga',
                 'dokumenPendukung',
                 'riwayatPendidikan',
@@ -125,6 +127,9 @@ class ProfileController extends Controller
             'email' => $validated['email'],
         ]);
 
+        $hardSkills = implode(', ', array_filter($request->input('hard_skills', [])));
+        $softSkills = implode(', ', array_filter($request->input('soft_skills', [])));
+
         Alumni::updateOrCreate(
             ['user_id' => $user->id],
             [
@@ -141,20 +146,17 @@ class ProfileController extends Controller
                 'nama_bank' => $validated['nama_bank'] ?? null,
                 'no_rekening' => $validated['no_rekening'] ?? null,
                 'tentang_saya' => $validated['tentang_saya'] ?? null,
+                'keahlian' => $hardSkills ?: null,
+                'soft_skills' => $softSkills ?: null,
             ]
         );
     }
 
     private function updateDataAkademik(Request $request, $user)
     {
-        $hardSkills = implode(', ', array_filter($request->input('hard_skills', [])));
-        $softSkills = implode(', ', array_filter($request->input('soft_skills', [])));
-
         Alumni::updateOrCreate(
             ['user_id' => $user->id],
             [
-                'keahlian' => $hardSkills ?: null,
-                'soft_skills' => $softSkills ?: null,
                 'program_studi_id' => $request->program_studi_id,
             ]
         );
@@ -344,6 +346,57 @@ class ProfileController extends Controller
     }
 
     // ===== SECURITY METHODS =====
+
+    public function uploadProfilePhoto(Request $request)
+    {
+        $request->validate([
+            'profile_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = Auth::user();
+        $alumni = Alumni::where('user_id', $user->id)->first();
+
+        if (!$alumni) {
+            return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+        }
+
+        // Delete old photo if exists
+        if ($alumni->profile_photo && Storage::disk('public')->exists($alumni->profile_photo)) {
+            Storage::disk('public')->delete($alumni->profile_photo);
+        }
+
+        // Store new photo
+        $path = $request->file('profile_photo')->store('profile-photos', 'public');
+
+        // Update alumni record
+        $alumni->update([
+            'profile_photo' => $path
+        ]);
+
+        return redirect()->back()->with('success', 'Foto profil berhasil diupload!');
+    }
+
+    public function deleteProfilePhoto()
+    {
+        $user = Auth::user();
+        $alumni = Alumni::where('user_id', $user->id)->first();
+
+        if (!$alumni || !$alumni->profile_photo) {
+            return redirect()->back()->with('error', 'Tidak ada foto profil untuk dihapus.');
+        }
+
+        // Delete photo file
+        if (Storage::disk('public')->exists($alumni->profile_photo)) {
+            Storage::disk('public')->delete($alumni->profile_photo);
+        }
+
+        // Update alumni record
+        $alumni->update([
+            'profile_photo' => null
+        ]);
+
+        return redirect()->back()->with('success', 'Foto profil berhasil dihapus!');
+    }
 
     public function updatePassword(Request $request)
     {

@@ -23,13 +23,54 @@
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <!-- Profile Avatar -->
                 <div class="text-center mb-6">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                        </svg>
+                <!-- Profile Avatar -->
+                <div class="text-center mb-6">
+                    <div class="relative inline-block group">
+                        <label for="profile-photo-input" class="cursor-pointer block relative">
+                            @if($alumni->profile_photo)
+                                <img src="{{ asset('storage/' . $alumni->profile_photo) }}" alt="Profile Photo" class="w-24 h-24 mx-auto rounded-full object-cover ring-4 ring-blue-50 group-hover:opacity-75 transition duration-300">
+                            @else
+                                <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center ring-4 ring-blue-50 group-hover:opacity-75 transition duration-300">
+                                    <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+                                    </svg>
+                                </div>
+                            @endif
+                            
+                            <!-- Hover Overlay with Pencil Icon -->
+                            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-full opacity-0 group-hover:opacity-100 transition duration-300">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                            </div>
+                        </label>
+                        
+                        <!-- Delete Button (Icon style) -->
+                        @if($alumni->profile_photo)
+                        <form action="{{ route('alumni.profile.delete-photo') }}" method="POST" class="absolute bottom-0 right-0" onsubmit="return confirm('Hapus foto profil?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition border-2 border-white shadow-sm" title="Hapus Foto">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </form>
+                        @endif
+                        
+                        <!-- Hidden File Input -->
+                        <form action="{{ route('alumni.profile.upload-photo') }}" method="POST" enctype="multipart/form-data" id="photo-upload-form">
+                            @csrf
+                            <input type="file" id="profile-photo-input" name="profile_photo" accept="image/*" class="hidden" onchange="document.getElementById('photo-upload-form').submit()">
+                        </form>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800">{{ $user->name }}</h3>
                     <p class="text-sm text-gray-600 mt-1">{{ $user->email }}</p>
+                    @if($alumni->programStudi)
+                    <span class="inline-block mt-3 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
+                        {{ $alumni->programStudi->program_studi }}
+                    </span>
+                    @endif
                 </div>
                 <!-- Edit Profile Button -->
                 <a href="{{ route('alumni.profile.edit') }}" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all mb-4 inline-block text-center">
@@ -88,7 +129,7 @@
                         Data Pribadi
                     </button>
                     <button class="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium text-sm" onclick="showTab('data-akademik')">
-                        Data Akademik
+                        Riwayat & Kompetensi
                     </button>
                     <button class="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium text-sm" onclick="showTab('data-keluarga')">
                         Data Keluarga
@@ -149,12 +190,54 @@
                         </div>
                     </div>
                 </div>
+
+                        <!-- Skills -->
+                        <div class="mt-8 border-t pt-6">
+                            <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                </svg>
+                                Keahlian & Kompetensi
+                            </h4>
+                            
+                            <!-- Hard Skills -->
+                            <div class="mb-4">
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Hard Skills</label>
+                                @if($alumni->keahlian)
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach(explode(',', $alumni->keahlian) as $skill)
+                                            @if(trim($skill))
+                                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{{ trim($skill) }}</span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-gray-500 italic text-sm">-</p>
+                                @endif
+                            </div>
+
+                            <!-- Soft Skills -->
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Soft Skills</label>
+                                @if($alumni->soft_skills)
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach(explode(',', $alumni->soft_skills) as $skill)
+                                            @if(trim($skill))
+                                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{{ trim($skill) }}</span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-gray-500 italic text-sm">-</p>
+                                @endif
+                            </div>
+                        </div>
             </div>
 
             <!-- Data Akademik Content -->
             <div id="data-akademik" class="tab-content bg-white rounded-lg shadow p-6 hidden">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-gray-800">Data Akademik</h3>
+                    <h3 class="text-lg font-bold text-gray-800">Riwayat & Kompetensi</h3>
                     <a href="{{ route('alumni.profile.edit') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
                         Edit Data Akademik
                     </a>
@@ -260,47 +343,7 @@
                             @endif
                         </div>
 
-                        <!-- Skills -->
-                        <div>
-                            <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center border-b pb-2">
-                                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                                </svg>
-                                Keahlian & Kompetensi
-                            </h4>
-                            
-                            <!-- Hard Skills -->
-                            <div class="mb-4">
-                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Hard Skills</label>
-                                @if($alumni->keahlian)
-                                    <div class="flex flex-wrap gap-2">
-                                        @foreach(explode(',', $alumni->keahlian) as $skill)
-                                            @if(trim($skill))
-                                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{{ trim($skill) }}</span>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <p class="text-gray-500 italic text-sm">-</p>
-                                @endif
-                            </div>
 
-                            <!-- Soft Skills -->
-                            <div>
-                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Soft Skills</label>
-                                @if($alumni->soft_skills)
-                                    <div class="flex flex-wrap gap-2">
-                                        @foreach(explode(',', $alumni->soft_skills) as $skill)
-                                            @if(trim($skill))
-                                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{{ trim($skill) }}</span>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <p class="text-gray-500 italic text-sm">-</p>
-                                @endif
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

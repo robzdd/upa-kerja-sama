@@ -33,14 +33,49 @@
                 <!-- Profile Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 sticky top-6">
                     <!-- Profile Avatar -->
+                    <!-- Profile Avatar -->
                     <div class="text-center mb-6">
-                        <div class="relative inline-block">
-                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center ring-4 ring-blue-50">
-                                <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                                </svg>
-                            </div>
-                            <div class="absolute bottom-3 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                        <div class="relative inline-block group">
+                            <label for="profile-photo-input-edit" class="cursor-pointer block relative">
+                                @if($alumni->profile_photo)
+                                    <img src="{{ asset('storage/' . $alumni->profile_photo) }}" alt="Profile Photo" class="w-24 h-24 mx-auto rounded-full object-cover ring-4 ring-blue-50 group-hover:opacity-75 transition duration-300">
+                                @else
+                                    <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center ring-4 ring-blue-50 group-hover:opacity-75 transition duration-300">
+                                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+                                        </svg>
+                                    </div>
+                                @endif
+                                
+                                <!-- Hover Overlay with Pencil Icon -->
+                                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-full opacity-0 group-hover:opacity-100 transition duration-300">
+                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                    </svg>
+                                </div>
+                                
+                                <!-- Online Status Dot (Optional, kept for consistency) -->
+                                <div class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                            </label>
+
+                            <!-- Delete Button (Icon style) -->
+                            @if($alumni->profile_photo)
+                            <form action="{{ route('alumni.profile.delete-photo') }}" method="POST" class="absolute bottom-0 right-[-10px]" onsubmit="return confirm('Hapus foto profil?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition border-2 border-white shadow-sm" title="Hapus Foto">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                            @endif
+                            
+                            <!-- Hidden File Input -->
+                            <form action="{{ route('alumni.profile.upload-photo') }}" method="POST" enctype="multipart/form-data" id="photo-upload-form-edit">
+                                @csrf
+                                <input type="file" id="profile-photo-input-edit" name="profile_photo" accept="image/*" class="hidden" onchange="document.getElementById('photo-upload-form-edit').submit()">
+                            </form>
                         </div>
                         <h3 class="text-xl font-bold text-gray-800">{{ auth()->user()->name }}</h3>
                         <p class="text-sm text-gray-500 mt-1">{{ auth()->user()->email }}</p>
@@ -125,7 +160,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                 </svg>
-                                <span>Data Akademik</span>
+                                <span>Riwayat & Kompetensi</span>
                             </div>
                         </button>
                         <button class="tab-button flex-1 py-3 px-6 text-sm font-semibold rounded-lg transition-all duration-200 text-gray-600 hover:bg-gray-50" data-tab="data-keluarga">
@@ -215,7 +250,7 @@
                             <!-- Tanggal Lahir -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Lahir</label>
-                                <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $alumni->tanggal_lahir) }}" 
+                                <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $alumni->tanggal_lahir ? $alumni->tanggal_lahir->format('Y-m-d') : '') }}" 
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                                 @error('tanggal_lahir') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
@@ -291,6 +326,114 @@
                             @error('tentang_saya') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
 
+                        <!-- Keahlian Section -->
+                        <div class="mt-10">
+                            <div class="flex items-center space-x-2 mb-6">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                </svg>
+                                <h4 class="text-lg font-bold text-gray-800">Keahlian & Kompetensi</h4>
+                            </div>
+
+                            <!-- Hard Skills -->
+                            <div class="mb-8">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    Hard Skills
+                                    <span class="text-xs font-normal text-gray-500 ml-2">(Keahlian teknis yang Anda kuasai)</span>
+                                </label>
+                                <div class="space-y-3" id="hard-skills-container">
+                                    @if($alumni->keahlian && trim($alumni->keahlian))
+                                        @php
+                                            $hardSkills = array_filter(array_map('trim', explode(',', $alumni->keahlian)));
+                                        @endphp
+                                        @foreach($hardSkills as $skill)
+                                        <div class="flex items-center space-x-2 skill-item">
+                                            <input type="text" name="hard_skills[]" value="{{ $skill }}" 
+                                                class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                                                placeholder="Contoh: Laravel, React, UI/UX Design">
+                                            <button type="button" onclick="removeSkill(this)" 
+                                                class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </div>
+                                        @endforeach
+                                    @else
+                                    <div class="flex items-center space-x-2 skill-item">
+                                        <input type="text" name="hard_skills[]" 
+                                            class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                                            placeholder="Contoh: Laravel, React, UI/UX Design">
+                                        <button type="button" onclick="removeSkill(this)" 
+                                            class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            <span>Hapus</span>
+                                        </button>
+                                    </div>
+                                    @endif
+                                </div>
+                                <button type="button" onclick="addHardSkill()" 
+                                    class="mt-3 px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    <span>Tambah Hard Skill</span>
+                                </button>
+                            </div>
+
+                            <!-- Soft Skills -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    Soft Skills
+                                    <span class="text-xs font-normal text-gray-500 ml-2">(Kemampuan interpersonal Anda)</span>
+                                </label>
+                                <div class="space-y-3" id="soft-skills-container">
+                                    @if($alumni->soft_skills && trim($alumni->soft_skills))
+                                        @php
+                                            $softSkills = array_filter(array_map('trim', explode(',', $alumni->soft_skills)));
+                                        @endphp
+                                        @foreach($softSkills as $skill)
+                                        <div class="flex items-center space-x-2 skill-item">
+                                            <input type="text" name="soft_skills[]" value="{{ $skill }}" 
+                                                class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                                                placeholder="Contoh: Komunikasi, Kerja Tim, Problem Solving">
+                                            <button type="button" onclick="removeSkill(this)" 
+                                                class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </div>
+                                        @endforeach
+                                    @else
+                                    <div class="flex items-center space-x-2 skill-item">
+                                        <input type="text" name="soft_skills[]" 
+                                            class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                                            placeholder="Contoh: Komunikasi, Kerja Tim, Problem Solving">
+                                        <button type="button" onclick="removeSkill(this)" 
+                                            class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            <span>Hapus</span>
+                                        </button>
+                                    </div>
+                                    @endif
+                                </div>
+                                <button type="button" onclick="addSoftSkill()" 
+                                    class="mt-3 px-5 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    <span>Tambah Soft Skill</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Submit Button -->
                         <div class="flex justify-end mt-8 pt-6 border-t border-gray-200">
                             <button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 font-semibold shadow-md hover:shadow-lg transition-all duration-200">
@@ -309,7 +452,7 @@
 
                         <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                             <div>
-                                <h3 class="text-xl font-bold text-gray-800">Data Akademik</h3>
+                                <h3 class="text-xl font-bold text-gray-800">Riwayat & Kompetensi</h3>
                                 <p class="text-sm text-gray-500 mt-1">Riwayat pendidikan dan keahlian Anda</p>
                             </div>
                         </div>
@@ -527,113 +670,7 @@
                             </div>
                         </div>
 
-                        <!-- Keahlian Section -->
-                        <div class="mt-10">
-                            <div class="flex items-center space-x-2 mb-6">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                                </svg>
-                                <h4 class="text-lg font-bold text-gray-800">Keahlian & Kompetensi</h4>
-                            </div>
 
-                            <!-- Hard Skills -->
-                            <div class="mb-8">
-                                <label class="block text-sm font-semibold text-gray-700 mb-3">
-                                    Hard Skills
-                                    <span class="text-xs font-normal text-gray-500 ml-2">(Keahlian teknis yang Anda kuasai)</span>
-                                </label>
-                                <div class="space-y-3" id="hard-skills-container">
-                                    @if($alumni->keahlian && trim($alumni->keahlian))
-                                        @php
-                                            $hardSkills = array_filter(array_map('trim', explode(',', $alumni->keahlian)));
-                                        @endphp
-                                        @foreach($hardSkills as $skill)
-                                        <div class="flex items-center space-x-2 skill-item">
-                                            <input type="text" name="hard_skills[]" value="{{ $skill }}" 
-                                                class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                                                placeholder="Contoh: Laravel, React, UI/UX Design">
-                                            <button type="button" onclick="removeSkill(this)" 
-                                                class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                </svg>
-                                                <span>Hapus</span>
-                                            </button>
-                                        </div>
-                                        @endforeach
-                                    @else
-                                    <div class="flex items-center space-x-2 skill-item">
-                                        <input type="text" name="hard_skills[]" 
-                                            class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                                            placeholder="Contoh: Laravel, React, UI/UX Design">
-                                        <button type="button" onclick="removeSkill(this)" 
-                                            class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                            <span>Hapus</span>
-                                        </button>
-                                    </div>
-                                    @endif
-                                </div>
-                                <button type="button" onclick="addHardSkill()" 
-                                    class="mt-3 px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                    </svg>
-                                    <span>Tambah Hard Skill</span>
-                                </button>
-                            </div>
-
-                            <!-- Soft Skills -->
-                            <div class="mb-6">
-                                <label class="block text-sm font-semibold text-gray-700 mb-3">
-                                    Soft Skills
-                                    <span class="text-xs font-normal text-gray-500 ml-2">(Kemampuan interpersonal Anda)</span>
-                                </label>
-                                <div class="space-y-3" id="soft-skills-container">
-                                    @if($alumni->soft_skills && trim($alumni->soft_skills))
-                                        @php
-                                            $softSkills = array_filter(array_map('trim', explode(',', $alumni->soft_skills)));
-                                        @endphp
-                                        @foreach($softSkills as $skill)
-                                        <div class="flex items-center space-x-2 skill-item">
-                                            <input type="text" name="soft_skills[]" value="{{ $skill }}" 
-                                                class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                                                placeholder="Contoh: Komunikasi, Kerja Tim, Problem Solving">
-                                            <button type="button" onclick="removeSkill(this)" 
-                                                class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                </svg>
-                                                <span>Hapus</span>
-                                            </button>
-                                        </div>
-                                        @endforeach
-                                    @else
-                                    <div class="flex items-center space-x-2 skill-item">
-                                        <input type="text" name="soft_skills[]" 
-                                            class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                                            placeholder="Contoh: Komunikasi, Kerja Tim, Problem Solving">
-                                        <button type="button" onclick="removeSkill(this)" 
-                                            class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                            <span>Hapus</span>
-                                        </button>
-                                    </div>
-                                    @endif
-                                </div>
-                                <button type="button" onclick="addSoftSkill()" 
-                                    class="mt-3 px-5 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                    </svg>
-                                    <span>Tambah Soft Skill</span>
-                                </button>
-                            </div>
-                        </div>
 
                         <!-- Submit Button -->
                         <div class="flex justify-end mt-8 pt-6 border-t border-gray-200">
