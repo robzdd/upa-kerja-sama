@@ -486,53 +486,96 @@ class JobController extends Controller
         $job = LowonganPekerjaan::find($app->lowongan_id);
         $jobTitle = $job ? $job->judul : 'Lowongan';
         
+        // Get mitra info for email sender
+        $token = $request->bearerToken();
+        $parts = $token ? explode('|', base64_decode($token)) : [];
+        $userId = $parts[0] ?? null;
+        $sender = $userId ? User::find($userId) : null;
+        $companyName = $sender ? $sender->name : 'Perusahaan';
+        
+        // Status labels
+        $statusLabels = [
+            'melamar' => 'Lamaran Anda sedang ditinjau',
+            'lolos' => 'Selamat! Anda lolos tahap screening',
+            'interview' => 'Anda lolos ke tahap interview',
+            'diterima' => 'Selamat! Anda diterima',
+            'ditolak' => 'Update Lamaran Anda',
+        ];
+        
+        $statusLabel = $statusLabels[$request->status] ?? 'Update Lamaran';
+        
+        // Default subject and message jika tidak ada
+        $defaultSubjects = [
+            'lolos' => 'Informasi: Anda Lolos Screening',
+            'interview' => 'Undangan Interview',
+            'diterima' => 'Selamat! Anda Diterima',
+            'ditolak' => 'Informasi Hasil Lamaran',
+            'melamar' => 'Update Status Lamaran',
+        ];
+        
+        $defaultMessages = [
+            'lolos' => "Selamat! Kami ingin menginformasikan bahwa Anda telah lolos tahap screening untuk posisi {$jobTitle}. Kami akan menghubungi Anda untuk tahap selanjutnya.",
+            'interview' => "Selamat! Anda telah lolos ke tahap interview untuk posisi {$jobTitle}. Kami akan menghubungi Anda untuk mengatur jadwal interview.",
+            'diterima' => "Selamat! Kami dengan senang hati menginformasikan bahwa Anda diterima untuk posisi {$jobTitle}. Kami akan menghubungi Anda untuk proses selanjutnya.",
+            'ditolak' => "Terima kasih atas minat Anda terhadap posisi {$jobTitle}. Setelah mempertimbangkan dengan seksama, kami memutuskan untuk tidak melanjutkan proses rekrutmen Anda pada kesempatan ini. Kami menghargai waktu yang Anda luangkan untuk melamar.",
+            'melamar' => "Terima kasih telah melamar untuk posisi {$jobTitle}. Lamaran Anda sedang dalam proses peninjauan.",
+        ];
+        
+        $emailSubject = $request->subject ?? $defaultSubjects[$request->status] ?? 'Update Status Lamaran';
+        $emailMessage = $request->message ?? $defaultMessages[$request->status] ?? "Update status lamaran Anda untuk posisi {$jobTitle}.";
+        
         // Update status and save subject/message
         DB::table('pelamars')->where('id', $applicationId)->update([
             'status' => $request->status, 
-            'subject' => $request->subject,
-            'message' => $request->message,
+            'subject' => $emailSubject,
+            'message' => $emailMessage,
             'updated_at' => now()
         ]);
         $app = DB::table('pelamars')->where('id', $applicationId)->first();
         
-        // Send email if subject and message provided
-        if ($request->has('subject') && $request->has('message') && $request->subject && $request->message) {
+        // Always send email untuk status diterima/ditolak, atau jika ada custom message
+        $shouldSendEmail = in_array($request->status, ['diterima', 'ditolak', 'lolos', 'interview']) || 
+                          ($request->has('subject') && $request->has('message') && $request->subject && $request->message);
+        
+        $emailSent = false;
+        $emailError = null;
+        
+        if ($shouldSendEmail) {
             try {
-                // Get mitra info for email sender
-                $token = $request->bearerToken();
-                $parts = $token ? explode('|', base64_decode($token)) : [];
-                $userId = $parts[0] ?? null;
-                $sender = $userId ? User::find($userId) : null;
-                $companyName = $sender ? $sender->name : 'Perusahaan';
-                
-                // Status labels
-                $statusLabels = [
-                    'melamar' => 'Lamaran Anda sedang ditinjau',
-                    'lolos' => 'Selamat! Anda lolos tahap screening',
-                    'interview' => 'Anda lolos ke tahap interview',
-                    'diterima' => 'Selamat! Anda diterima',
-                    'ditolak' => 'Update Lamaran Anda',
-                ];
-                
-                $statusLabel = $statusLabels[$request->status] ?? 'Update Lamaran';
-                
                 // Send email
                 Mail::to($user->email)->send(new \App\Mail\ApplicationStatusUpdate(
                     $user->name,
                     $jobTitle,
                     $request->status,
                     $statusLabel,
-                    $request->subject,
-                    $request->message,
+                    $emailSubject,
+                    $emailMessage,
                     $companyName
                 ));
+                
+                $emailSent = true;
+                \Log::info("Email sent to {$user->email} for application {$applicationId} with status {$request->status}");
             } catch (\Exception $e) {
                 // Log error but don't fail the request
+                $emailError = $e->getMessage();
                 \Log::error('Failed to send email: ' . $e->getMessage());
+                \Log::error('Email error trace: ' . $e->getTraceAsString());
             }
         }
         
-        return response()->json(['success' => true, 'message' => 'Status lamaran diperbarui', 'data' => $app]);
+        $message = 'Status lamaran diperbarui';
+        if ($emailSent) {
+            $message .= ' dan email telah dikirim ke ' . $user->email;
+        } elseif ($emailError) {
+            $message .= '. Peringatan: Gagal mengirim email (' . $emailError . ')';
+        }
+        
+        return response()->json([
+            'success' => true, 
+            'message' => $message,
+            'email_sent' => $emailSent,
+            'data' => $app
+        ]);
     }
 
     /**
@@ -1037,3 +1080,4 @@ class JobController extends Controller
         }
     }
 }
+

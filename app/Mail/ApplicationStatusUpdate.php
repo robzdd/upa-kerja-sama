@@ -16,8 +16,8 @@ class ApplicationStatusUpdate extends Mailable
     public $jobTitle;
     public $status;
     public $statusLabel;
-    public $subject;
-    public $message;
+    public $emailSubject;
+    public $emailMessage;
     public $companyName;
 
     /**
@@ -29,8 +29,8 @@ class ApplicationStatusUpdate extends Mailable
         $this->jobTitle = $jobTitle;
         $this->status = $status;
         $this->statusLabel = $statusLabel;
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->emailSubject = $subject;
+        $this->emailMessage = $message;
         $this->companyName = $companyName;
     }
 
@@ -40,7 +40,7 @@ class ApplicationStatusUpdate extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->subject,
+            subject: $this->emailSubject,
         );
     }
 
@@ -56,7 +56,8 @@ class ApplicationStatusUpdate extends Mailable
                 'jobTitle' => $this->jobTitle,
                 'status' => $this->status,
                 'statusLabel' => $this->statusLabel,
-                'message' => $this->message,
+                'emailSubject' => $this->emailSubject,
+                'emailMessage' => $this->emailMessage,
                 'companyName' => $this->companyName,
             ],
         );
