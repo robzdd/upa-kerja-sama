@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -543,5 +544,253 @@ class AuthController extends Controller
                 'token' => $token,
             ]
         ], 201);
+    }
+
+    /**
+     * Google Login untuk mobile app
+     * Menerima Google ID token dari mobile app dan melakukan autentikasi
+     */
+    public function googleLogin(Request $request)
+    {
+        $validated = $request->validate([
+            'id_token' => 'required|string',
+            'email' => 'required|email',
+            'name' => 'required|string',
+            'google_id' => 'required|string',
+            'photo_url' => 'nullable|string',
+        ]);
+
+        try {
+            // 1) Verifikasi token langsung ke Google
+            $tokenInfoResponse = Http::timeout(10)->get('https://oauth2.googleapis.com/tokeninfo', [
+                'id_token' => $validated['id_token'],
+            ]);
+
+            if (!$tokenInfoResponse->ok()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ID token Google tidak valid atau sudah kedaluwarsa',
+                ], 401);
+            }
+
+            $tokenInfo = $tokenInfoResponse->json();
+            $audience = $tokenInfo['aud'] ?? null;
+            $emailVerified = ($tokenInfo['email_verified'] ?? 'false') === 'true' || ($tokenInfo['email_verified'] ?? '') === '1';
+            $tokenGoogleId = $tokenInfo['sub'] ?? null;
+
+            $allowedAudiences = config('services.google.mobile_client_ids', []);
+            if ($audience === null || (!empty($allowedAudiences) && !in_array($audience, $allowedAudiences, true))) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ID token tidak berasal dari aplikasi ini. Periksa Client ID Google di backend.',
+                ], 401);
+            }
+
+            if (!$emailVerified) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email Google belum diverifikasi.',
+                ], 401);
+            }
+
+            if (!$tokenGoogleId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Google tidak mengembalikan ID pengguna.',
+                ], 401);
+            }
+
+            // Paksa gunakan data dari token Google agar tidak bisa dimanipulasi dari client
+            $emailFromToken = strtolower($tokenInfo['email'] ?? $validated['email']);
+            $nameFromToken = $tokenInfo['name'] ?? $validated['name'];
+            $photoFromToken = $tokenInfo['picture'] ?? $validated['photo_url'];
+
+            // 2) Cari user berdasarkan google_id terlebih dahulu, lalu fallback email (case insensitive)
+            // Cari user berdasarkan email atau google_id
+            $user = User::where('google_id', $tokenGoogleId)
+                ->orWhere(function ($query) use ($emailFromToken) {
+                    $query->whereRaw('LOWER(email) = ?', [$emailFromToken]);
+                })
+                ->first();
+
+            if ($user && $user->google_id && $user->google_id !== $tokenGoogleId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email ini sudah terhubung ke akun Google lain.',
+                ], 409);
+            }
+
+            if ($user) {
+                // Update user dengan data Google terbaru
+                $user->name = $nameFromToken;
+                $user->google_id = $tokenGoogleId;
+                if (!$user->password) {
+                    // Jika user belum punya password, buat random password
+                    $user->password = Hash::make(uniqid('google_', true));
+                }
+                if ($user->email !== $emailFromToken) {
+                    $user->email = $tokenInfo['email'] ?? $validated['email'];
+                }
+                $user->save();
+
+                // Pastikan user punya role alumni (default untuk Google login)
+                if (!$user->hasAnyRole(['alumni', 'mitra', 'admin'])) {
+                    $user->assignRole('alumni');
+                }
+
+                // Pastikan profil alumni ada
+                $alumni = $user->alumni;
+                if (!$alumni) {
+                    $alumni = $user->alumni()->create([]);
+                }
+
+                // Update foto profil jika ada dari Google
+                if (!empty($photoFromToken) && !$alumni->foto_profil) {
+                    // Download foto dari Google dan simpan
+                    try {
+                        $photoContent = file_get_contents($photoFromToken);
+                        if ($photoContent) {
+                            $photoName = 'google_photo_' . $user->id . '_' . time() . '.jpg';
+                            $photoPath = 'foto-profil-alumni/' . $photoName;
+                            Storage::disk('public')->put($photoPath, $photoContent);
+                            $alumni->foto_profil = $photoPath;
+                            $alumni->save();
+                        }
+                    } catch (\Exception $e) {
+                        // Jika gagal download foto, lanjutkan tanpa foto
+                    }
+                }
+            } else {
+                // Buat user baru
+                $user = User::create([
+                    'name' => $nameFromToken,
+                    'email' => $tokenInfo['email'] ?? $validated['email'],
+                    'google_id' => $tokenGoogleId,
+                    'password' => Hash::make(uniqid('google_', true)),
+                ]);
+
+                // Assign role alumni sebagai default
+                $user->assignRole('alumni');
+
+                // Buat profil alumni
+                $alumni = $user->alumni()->create([]);
+
+                // Download dan simpan foto profil dari Google jika ada
+                if (!empty($photoFromToken)) {
+                    try {
+                        $photoContent = file_get_contents($photoFromToken);
+                        if ($photoContent) {
+                            $photoName = 'google_photo_' . $user->id . '_' . time() . '.jpg';
+                            $photoPath = 'foto-profil-alumni/' . $photoName;
+                            Storage::disk('public')->put($photoPath, $photoContent);
+                            $alumni->foto_profil = $photoPath;
+                            $alumni->save();
+                        }
+                    } catch (\Exception $e) {
+                        // Jika gagal download foto, lanjutkan tanpa foto
+                    }
+                }
+            }
+
+            // Generate token
+            $token = base64_encode($user->id . '|' . time() . '|' . rand(1000, 9999));
+
+            // Tentukan role
+            $role = null;
+            if ($user->hasRole('alumni')) {
+                $role = 'alumni';
+            } elseif ($user->hasRole('mitra')) {
+                $role = 'mitra';
+            } elseif ($user->hasRole('admin')) {
+                $role = 'admin';
+            }
+
+            // Load alumni dengan relations untuk response
+            $alumni = $user->alumni()->with('dataAkademik', 'dataKeluarga', 'dokumenPendukung')->first();
+            
+            // Build profile array
+            $profileArray = null;
+            $cvUrl = null;
+            
+            if ($alumni) {
+                $profileArray = [
+                    'id' => $alumni->id,
+                    'user_id' => $alumni->user_id,
+                    'nim' => $alumni->nim,
+                    'nik' => $alumni->nik,
+                    'no_hp' => $alumni->no_hp,
+                    'tempat_lahir' => $alumni->tempat_lahir,
+                    'tanggal_lahir' => $alumni->tanggal_lahir ? $alumni->tanggal_lahir->format('Y-m-d') : null,
+                    'jenis_kelamin' => $alumni->jenis_kelamin,
+                    'alamat' => $alumni->alamat,
+                    'kota' => $alumni->kota,
+                    'provinsi' => $alumni->provinsi,
+                    'kode_pos' => $alumni->kode_pos,
+                    'tentang_saya' => $alumni->tentang_saya,
+                    'nama_bank' => $alumni->nama_bank,
+                    'no_rekening' => $alumni->no_rekening,
+                    'file_cv' => $alumni->file_cv,
+                    'foto_profil' => $alumni->foto_profil,
+                    'created_at' => $alumni->created_at,
+                    'updated_at' => $alumni->updated_at,
+                ];
+                
+                if ($alumni->file_cv) {
+                    $cvUrl = url('storage/' . $alumni->file_cv);
+                    $profileArray['cv_url'] = $cvUrl;
+                }
+                
+                if ($alumni->foto_profil) {
+                    $profileArray['foto_profil_url'] = url('storage/' . $alumni->foto_profil);
+                }
+            }
+
+            // Get supporting documents
+            $dokumenPendukung = [];
+            if ($alumni && $alumni->dokumenPendukung && $alumni->dokumenPendukung->count() > 0) {
+                $dokumenPendukung = $alumni->dokumenPendukung->map(function($doc) {
+                    $docArray = $doc->toArray();
+                    if ($doc->file_path) {
+                        $docArray['file_url'] = url('storage/' . $doc->file_path);
+                    }
+                    return $docArray;
+                })->toArray();
+            }
+
+            $dataAkademik = null;
+            if ($alumni && $alumni->dataAkademik) {
+                $dataAkademik = $alumni->dataAkademik->toArray();
+            }
+
+            $dataKeluarga = null;
+            if ($alumni && $alumni->dataKeluarga) {
+                $dataKeluarga = $alumni->dataKeluarga->toArray();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login dengan Google berhasil',
+                'data' => [
+                    'token' => $token,
+                    'user' => [
+                        'id' => (string)$user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'roles' => $role ? [$role] : ['alumni'],
+                    ],
+                    'profile' => $profileArray,
+                    'alumni' => $profileArray,
+                    'cv_url' => $cvUrl,
+                    'data_akademik' => $dataAkademik,
+                    'data_keluarga' => $dataKeluarga,
+                    'dokumen_pendukung' => $dokumenPendukung,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal login dengan Google: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

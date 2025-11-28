@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\DokumenPendukungController;
 // Public routes (tidak perlu authentication)
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/auth/google', [AuthController::class, 'googleLogin']);
 
 // Job routes (public - bisa diakses tanpa login)
 Route::get('/jobs', [JobController::class, 'index']);
