@@ -90,7 +90,7 @@ jobs:
       - name: Deployment Success Notification
         if: success()
         run: |
-          echo "✅ Deployment successful!"
+          echo "✅ Deployment successful"
           echo "📦 Deployed files to: ${{ secrets.FTP_SERVER }}${{ secrets.REMOTE_PATH }}"
           echo "⚠️  Remember to run post-deployment tasks on the server:"
           echo "   1. php artisan migrate --force"
