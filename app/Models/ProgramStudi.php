@@ -11,17 +11,13 @@ class ProgramStudi extends Model
 {
     use HasFactory, SoftDeletes, HasUuid;
 
-    protected $table = 'program_studi';
+    protected $table = 'program_studis';
 
     protected $fillable = [
-    'nama',
-    'fakultas'
+        'program_studi',
 ];
 
-    public function mahasiswa()
-    {
-        return $this->hasMany(Mahasiswa::class);
-    }
+
 
     public function alumni()
     {

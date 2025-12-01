@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('kategori_artikels', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nama');
+            $table->text('deskripsi')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

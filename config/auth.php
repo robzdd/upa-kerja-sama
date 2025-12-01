@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\MitraPerusahaan;
+
+
 return [
 
     /*
@@ -40,6 +43,15 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'mitra' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'alumni' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+
     ],
 
     /*
@@ -69,6 +81,11 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+         'mitra' => [
+            'driver' => 'eloquent',
+            'model' => MitraPerusahaan::class,
+        ],
+
     ],
 
     /*

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mahasiswas', function (Blueprint $table) {
+        Schema::create('kategori_dokumen', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignUuid('program_studi_id')->nullable()->constrained('program_studis')->nullOnDelete();
-            $table->string('nim')->unique();
-            $table->year('angkatan')->nullable();
-            $table->string('alamat')->nullable();
+            $table->string('nama');
+            $table->text('deskripsi')->nullable();
+            $table->string('icon')->nullable(); // Font Awesome icon name
+            $table->string('color')->default('blue'); // Color for badge/card
+            $table->integer('urutan')->default(0); // For ordering
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mahasiswas');
+        Schema::dropIfExists('kategori_dokumen');
     }
 };
