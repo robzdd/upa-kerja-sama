@@ -53,15 +53,22 @@ jobs:
           mkdir -p deploy
           rsync -av --exclude='.git' \
                     --exclude='node_modules' \
+                    --exclude='vendor' \
                     --exclude='tests' \
                     --exclude='.env' \
                     --exclude='.env.example' \
+                    --exclude='.env.production.example' \
                     --exclude='.github' \
                     --exclude='deploy' \
                     --exclude='storage/logs/*' \
                     --exclude='storage/framework/cache/*' \
                     --exclude='storage/framework/sessions/*' \
                     --exclude='storage/framework/views/*' \
+                    --exclude='*.md' \
+                    --exclude='artisan-web.php' \
+                    --exclude='database-info.php' \
+                    --exclude='migrate-only.php' \
+                    --exclude='deploy-script.sh' \
                     ./ deploy/
 
           # Create necessary directories
@@ -78,14 +85,20 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT }}
-          local-dir: ./deploy/
+          local-dir: ./deploy
           server-dir: ${{ secrets.REMOTE_PATH }}
           dangerous-clean-slate: false
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
+            **/vendor/**
             **/tests/**
+            **/*.md
+            **/artisan-web.php
+            **/database-info.php
+            **/migrate-only.php
+            **/deploy-script.sh
 
       - name: Deployment Success Notification
         if: success()
