@@ -54,7 +54,7 @@
             <div class="mb-6">
                 <label for="judul" class="block text-sm font-semibold text-gray-700 mb-2">Judul Dokumen *</label>
                 <input type="text" name="judul" id="judul" value="{{ old('judul') }}" required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('judul') border-red-500 @enderror">
+                       class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('judul') border-red-500 @else border-gray-300 @enderror">
                 @error('judul')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -64,7 +64,7 @@
             <div class="mb-6">
                 <label for="deskripsi" class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
                 <textarea name="deskripsi" id="deskripsi" rows="3"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('deskripsi') border-red-500 @enderror">{{ old('deskripsi') }}</textarea>
+                          class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('deskripsi') border-red-500 @else border-gray-300 @enderror">{{ old('deskripsi') }}</textarea>
                 @error('deskripsi')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -74,7 +74,7 @@
             <div class="mb-6">
                 <label for="kategori_dokumen_id" class="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
                 <select name="kategori_dokumen_id" id="kategori_dokumen_id" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('kategori_dokumen_id') border-red-500 @enderror">
+                        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('kategori_dokumen_id') border-red-500 @else border-gray-300 @enderror">
                     <option value="">Pilih Kategori</option>
                     @foreach($kategoris as $kategori)
                         <option value="{{ $kategori->id }}" {{ old('kategori_dokumen_id') == $kategori->id ? 'selected' : '' }}>

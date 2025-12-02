@@ -17,6 +17,8 @@ class MitraPerusahaan extends Model
     'nama_perusahaan',
     'logo',
     'sektor',
+    'deskripsi',
+    'alamat',
     'kontak',
     'tautan',
     'mulai_kerjasama',

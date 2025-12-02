@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Mitra\Auth;
 
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use App\Models\MitraRegistrationRequest;
 use App\Mail\MitraRegistrationNotification;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class MitraRegisterController extends Controller
 {

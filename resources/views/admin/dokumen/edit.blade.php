@@ -47,15 +47,15 @@
 
     <!-- Form -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-        <form action="{{ route('admin.dokumen-publik.update', $dokumen->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.dokumen-publik.update', $dokumen?->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <!-- Judul -->
             <div class="mb-6">
                 <label for="judul" class="block text-sm font-semibold text-gray-700 mb-2">Judul Dokumen *</label>
-                <input type="text" name="judul" id="judul" value="{{ old('judul', $dokumen->judul) }}" required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('judul') border-red-500 @enderror">
+                <input type="text" name="judul" id="judul" value="{{ old('judul', $dokumen?->judul) }}" required
+                       class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('judul') border-red-500 @else border-gray-300 @enderror">
                 @error('judul')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -65,7 +65,7 @@
             <div class="mb-6">
                 <label for="deskripsi" class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
                 <textarea name="deskripsi" id="deskripsi" rows="3"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('deskripsi') border-red-500 @enderror">{{ old('deskripsi', $dokumen->deskripsi) }}</textarea>
+                          class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('deskripsi') border-red-500 @else border-gray-300 @enderror">{{ old('deskripsi', $dokumen?->deskripsi) }}</textarea>
                 @error('deskripsi')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -75,10 +75,10 @@
             <div class="mb-6">
                 <label for="kategori_dokumen_id" class="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
                 <select name="kategori_dokumen_id" id="kategori_dokumen_id" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('kategori_dokumen_id') border-red-500 @enderror">
+                        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('kategori_dokumen_id') border-red-500 @else border-gray-300 @enderror">
                     <option value="">Pilih Kategori</option>
                     @foreach($kategoris as $kategori)
-                        <option value="{{ $kategori->id }}" {{ old('kategori_dokumen_id', $dokumen->kategori_dokumen_id) == $kategori->id ? 'selected' : '' }}>
+                        <option value="{{ $kategori->id }}" {{ old('kategori_dokumen_id', $dokumen?->kategori_dokumen_id) == $kategori->id ? 'selected' : '' }}>
                             {{ $kategori->nama }}
                         </option>
                     @endforeach
@@ -91,16 +91,16 @@
             <!-- Current File Info -->
             <div class="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 {{ $dokumen->file_type == 'PDF' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600' }} rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 {{ $dokumen?->file_type == 'PDF' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600' }} rounded-lg flex items-center justify-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                     <div class="flex-1">
                         <p class="text-sm font-semibold text-gray-800">File Saat Ini</p>
-                        <p class="text-xs text-gray-600">{{ $dokumen->file_type }} • {{ $dokumen->file_size_formatted }}</p>
+                        <p class="text-xs text-gray-600">{{ $dokumen?->file_type }} • {{ $dokumen?->file_size_formatted }}</p>
                     </div>
-                    <a href="{{ route('admin.dokumen-publik.download', $dokumen->id) }}" 
+                    <a href="{{ route('admin.dokumen-publik.download', $dokumen?->id) }}" 
                        class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -141,7 +141,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
-                    <span class="text-sm font-semibold">Total Download: {{ $dokumen->download_count }}x</span>
+                    <span class="text-sm font-semibold">Total Download: {{ $dokumen?->download_count ?? 0 }}x</span>
                 </div>
             </div>
 

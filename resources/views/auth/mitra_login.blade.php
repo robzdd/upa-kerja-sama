@@ -48,7 +48,7 @@
                     <input type="email" 
                            name="email" 
                            value="{{ old('email') }}"
-                           class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none @error('email') border-red-500 @enderror" 
+                           class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none @error('email') border-red-500 @else border-gray-200 @enderror" 
                            placeholder="nama@perusahaan.com"
                            required 
                            autofocus>
@@ -63,7 +63,7 @@
                         <input type="password" 
                                name="password" 
                                id="password"
-                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none pr-12 @error('password') border-red-500 @enderror" 
+                               class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none pr-12 @error('password') border-red-500 @else border-gray-200 @enderror" 
                                placeholder="••••••••"
                                required>
                         <button type="button" 

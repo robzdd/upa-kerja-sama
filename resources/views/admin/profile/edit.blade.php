@@ -80,7 +80,7 @@
                                    name="name" 
                                    value="{{ old('name', $user->name) }}" 
                                    required
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 group-hover:border-blue-300 @error('name') border-red-500 @enderror">
+                                   class="w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 group-hover:border-blue-300 @error('name') border-red-500 @else border-gray-200 @enderror">
                             @error('name')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -93,7 +93,7 @@
                                    name="email" 
                                    value="{{ old('email', $user->email) }}" 
                                    required
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 group-hover:border-blue-300 @error('email') border-red-500 @enderror">
+                                   class="w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 group-hover:border-blue-300 @error('email') border-red-500 @else border-gray-200 @enderror">
                             @error('email')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -119,7 +119,7 @@
                             <input type="password" 
                                    id="password" 
                                    name="password"
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 group-hover:border-blue-300 @error('password') border-red-500 @enderror"
+                                   class="w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 group-hover:border-blue-300 @error('password') border-red-500 @else border-gray-200 @enderror"
                                    placeholder="Minimal 8 karakter">
                             @error('password')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

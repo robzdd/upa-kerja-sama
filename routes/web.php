@@ -6,11 +6,13 @@ use App\Http\Controllers\Alumni\CvController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ArtikelController;
+use App\Http\Controllers\DokumenPublikController;
 use App\Http\Controllers\Mitra\PelamarController;
-use App\Http\Controllers\Alumni\JobSearchController;
+use App\Http\Controllers\Alumni\CompanyController;
 use App\Http\Controllers\Alumni\LamaranController;
 use App\Http\Controllers\Alumni\ProfileController;
 use App\Http\Controllers\Alumni\DocumentController;
+use App\Http\Controllers\Alumni\JobSearchController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Alumni\ApplicationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -20,7 +22,6 @@ use App\Http\Controllers\Mitra\MitraDashboardController;
 use App\Http\Controllers\Alumni\AlumniAkademikController;
 use App\Http\Controllers\Mitra\Auth\MitraLoginController;
 use App\Http\Controllers\Alumni\Auth\AlumniAuthController;
-use App\Http\Controllers\DokumenPublikController;
 
 // ====================
 //  HALAMAN UMUM
@@ -40,10 +41,10 @@ Route::get('/dokumen/kategori/{id}', [DokumenPublikController::class, 'category'
 Route::get('/dokumen/{id}/download', [DokumenPublikController::class, 'download'])->name('dokumen.download');
 
 // Public Access for Job Search & Companies
-Route::get('/cari_lowongan', [\App\Http\Controllers\Alumni\JobSearchController::class, 'index'])->name('alumni.cari_lowongan');
-Route::get('/lowongan/{id}/details', [\App\Http\Controllers\Alumni\JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
-Route::get('/list_perusahaan', [\App\Http\Controllers\Alumni\CompanyController::class, 'index'])->name('alumni.list_perusahaan');
-Route::get('/perusahaan/{id}', [\App\Http\Controllers\Alumni\CompanyController::class, 'show'])->name('alumni.detail_perusahaan');
+Route::get('/cari_lowongan', [JobSearchController::class, 'index'])->name('alumni.cari_lowongan');
+Route::get('/lowongan/{id}/details', [JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
+Route::get('/list_perusahaan', [CompanyController::class, 'index'])->name('alumni.list_perusahaan');
+Route::get('/perusahaan/{id}', [CompanyController::class, 'show'])->name('alumni.detail_perusahaan');
 
 // ====================
 //  LOGIN GOOGLE (UMUM)

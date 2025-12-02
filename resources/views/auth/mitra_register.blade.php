@@ -67,7 +67,7 @@
                         <i class="fas fa-building text-gray-400 mr-2"></i>Nama Perusahaan *
                     </label>
                     <input type="text" name="nama_perusahaan" value="{{ old('nama_perusahaan') }}" required
-                           class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('nama_perusahaan') border-red-500 @enderror"
+                           class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('nama_perusahaan') border-red-500 @else border-gray-200 @enderror"
                            placeholder="PT. Contoh Perusahaan">
                 </div>
 
@@ -78,7 +78,7 @@
                             <i class="fas fa-envelope text-gray-400 mr-2"></i>Email Perusahaan *
                         </label>
                         <input type="email" name="email" value="{{ old('email') }}" required
-                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('email') border-red-500 @enderror"
+                               class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('email') border-red-500 @else border-gray-200 @enderror"
                                placeholder="info@perusahaan.com">
                     </div>
 
@@ -88,7 +88,7 @@
                             <i class="fas fa-phone text-gray-400 mr-2"></i>Nomor Telepon *
                         </label>
                         <input type="tel" name="telepon" value="{{ old('telepon') }}" required
-                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('telepon') border-red-500 @enderror"
+                               class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('telepon') border-red-500 @else border-gray-200 @enderror"
                                placeholder="021-12345678">
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                         <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>Alamat Lengkap *
                     </label>
                     <textarea name="alamat" rows="3" required
-                              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('alamat') border-red-500 @enderror"
+                              class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('alamat') border-red-500 @else border-gray-200 @enderror"
                               placeholder="Jl. Contoh No. 123, Kota, Provinsi">{{ old('alamat') }}</textarea>
                 </div>
 
@@ -109,7 +109,7 @@
                         <i class="fas fa-industry text-gray-400 mr-2"></i>Bidang Usaha / Sektor Industri *
                     </label>
                     <select name="bidang_usaha" required
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('bidang_usaha') border-red-500 @enderror">
+                            class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('bidang_usaha') border-red-500 @else border-gray-200 @enderror">
                         <option value="">Pilih Bidang Usaha</option>
                         <option value="Teknologi Informasi" {{ old('bidang_usaha') == 'Teknologi Informasi' ? 'selected' : '' }}>Teknologi Informasi</option>
                         <option value="Manufaktur" {{ old('bidang_usaha') == 'Manufaktur' ? 'selected' : '' }}>Manufaktur</option>
@@ -129,7 +129,7 @@
                         <i class="fas fa-file-alt text-gray-400 mr-2"></i>Deskripsi Perusahaan
                     </label>
                     <textarea name="deskripsi" rows="4"
-                              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('deskripsi') border-red-500 @enderror"
+                              class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none @error('deskripsi') border-red-500 @else border-gray-200 @enderror"
                               placeholder="Ceritakan tentang perusahaan Anda, visi, misi, dan mengapa ingin bermitra dengan POLINDRA...">{{ old('deskripsi') }}</textarea>
                     <p class="mt-1 text-xs text-gray-500">Opsional - Informasi ini akan membantu kami memahami perusahaan Anda lebih baik</p>
                 </div>

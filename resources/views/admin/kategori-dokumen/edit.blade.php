@@ -56,7 +56,7 @@
                 <div class="md:col-span-2">
                     <label for="nama" class="block text-sm font-semibold text-gray-700 mb-2">Nama Kategori *</label>
                     <input type="text" name="nama" id="nama" value="{{ old('nama', $kategori->nama) }}" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('nama') border-red-500 @enderror">
+                           class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('nama') border-red-500 @else border-gray-300 @enderror">
                     @error('nama')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -66,7 +66,7 @@
                 <div class="md:col-span-2">
                     <label for="deskripsi" class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
                     <textarea name="deskripsi" id="deskripsi" rows="3"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('deskripsi') border-red-500 @enderror">{{ old('deskripsi', $kategori->deskripsi) }}</textarea>
+                              class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('deskripsi') border-red-500 @else border-gray-300 @enderror">{{ old('deskripsi', $kategori->deskripsi) }}</textarea>
                     @error('deskripsi')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -76,7 +76,7 @@
                 <div>
                     <label for="icon" class="block text-sm font-semibold text-gray-700 mb-2">Icon (Font Awesome)</label>
                     <select name="icon" id="icon"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('icon') border-red-500 @enderror">
+                            class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('icon') border-red-500 @else border-gray-300 @enderror">
                         <option value="">Pilih Icon</option>
                         <option value="fa-folder" {{ old('icon', $kategori->icon) == 'fa-folder' ? 'selected' : '' }}>📁 Folder</option>
                         <option value="fa-file-alt" {{ old('icon', $kategori->icon) == 'fa-file-alt' ? 'selected' : '' }}>📄 File</option>
@@ -95,7 +95,7 @@
                 <div>
                     <label for="color" class="block text-sm font-semibold text-gray-700 mb-2">Warna *</label>
                     <select name="color" id="color" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('color') border-red-500 @enderror">
+                            class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('color') border-red-500 @else border-gray-300 @enderror">
                         <option value="blue" {{ old('color', $kategori->color) == 'blue' ? 'selected' : '' }}>🔵 Biru</option>
                         <option value="green" {{ old('color', $kategori->color) == 'green' ? 'selected' : '' }}>🟢 Hijau</option>
                         <option value="red" {{ old('color', $kategori->color) == 'red' ? 'selected' : '' }}>🔴 Merah</option>
@@ -113,7 +113,7 @@
                 <div class="md:col-span-2">
                     <label for="urutan" class="block text-sm font-semibold text-gray-700 mb-2">Urutan Tampilan *</label>
                     <input type="number" name="urutan" id="urutan" value="{{ old('urutan', $kategori->urutan) }}" min="0" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('urutan') border-red-500 @enderror">
+                           class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('urutan') border-red-500 @else border-gray-300 @enderror">
                     <p class="mt-1 text-xs text-gray-500">Semakin kecil angka, semakin awal ditampilkan</p>
                     @error('urutan')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
