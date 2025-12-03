@@ -176,6 +176,18 @@
                                    placeholder="Teknologi, Manufaktur, dll">
                         </div>
                     </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="group">
+                            <label for="mulai_kerjasama" class="block text-sm font-medium text-gray-700 mb-2">Mulai Kerjasama</label>
+                            <input type="date" id="mulai_kerjasama" name="mulai_kerjasama" value="{{ old('mulai_kerjasama') }}"
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 group-hover:border-blue-300">
+                        </div>
+                        <div class="group">
+                            <label for="akhir_kerjasama" class="block text-sm font-medium text-gray-700 mb-2">Akhir Kerjasama</label>
+                            <input type="date" id="akhir_kerjasama" name="akhir_kerjasama" value="{{ old('akhir_kerjasama') }}"
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 group-hover:border-blue-300">
+                        </div>
+                    </div>
                 </div>
             </div>
 

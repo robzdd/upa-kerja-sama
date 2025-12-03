@@ -126,4 +126,79 @@ class AlumniAuthController extends Controller
             ->route('alumni.login')
             ->with('success', 'Anda telah berhasil logout.');
     }
+
+    /**
+     * Show forgot password form
+     */
+    public function showForgotPasswordForm()
+    {
+        return view('auth.alumni_forgot_password');
+    }
+
+    /**
+     * Send reset link email
+     */
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        // Check if email exists and belongs to an alumni user
+        $user = \App\Models\User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email tidak ditemukan.']);
+        }
+
+        // Verify user has alumni role
+        if (!$user->hasRole('alumni')) {
+            return back()->withErrors(['email' => 'Email ini tidak terdaftar sebagai alumni. Silakan gunakan halaman reset password yang sesuai.']);
+        }
+
+        $status = \Illuminate\Support\Facades\Password::sendResetLink(
+            $request->only('email')
+        );
+
+        if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
+            return back()->with(['status' => 'Link reset password telah dikirim ke email Anda!']);
+        }
+
+        if ($status === \Illuminate\Support\Facades\Password::RESET_THROTTLED) {
+            return back()->withErrors(['email' => 'Harap tunggu beberapa saat sebelum meminta link reset password lagi.']);
+        }
+
+        return back()->withErrors(['email' => 'Terjadi kesalahan saat mengirim email.']);
+    }
+
+    /**
+     * Show reset password form
+     */
+    public function showResetPasswordForm($token)
+    {
+        return view('auth.alumni_reset_password', ['token' => $token, 'email' => request('email')]);
+    }
+
+    /**
+     * Reset password
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $status = \Illuminate\Support\Facades\Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => \Illuminate\Support\Facades\Hash::make($password)
+                ])->save();
+            }
+        );
+
+        return $status === \Illuminate\Support\Facades\Password::PASSWORD_RESET
+                    ? redirect()->route('alumni.login')->with('success', 'Password berhasil direset! Silakan login dengan password baru.')
+                    : back()->withErrors(['email' => 'Token reset password tidak valid atau sudah kadaluarsa.']);
+    }
 }

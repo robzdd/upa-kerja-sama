@@ -91,6 +91,8 @@ class UserManagementController extends Controller
                     'user_id' => $user->id,
                     'nama_perusahaan' => $request->nama_perusahaan ?? $request->name,
                     'sektor' => $request->sektor ?? null,
+                    'mulai_kerjasama' => $request->mulai_kerjasama ?? null,
+                    'akhir_kerjasama' => $request->akhir_kerjasama ?? null,
                 ]);
             }
 
@@ -170,6 +172,8 @@ class UserManagementController extends Controller
                 $user->mitraPerusahaan->update([
                     'nama_perusahaan' => $request->nama_perusahaan ?? $user->mitraPerusahaan->nama_perusahaan,
                     'sektor' => $request->sektor ?? $user->mitraPerusahaan->sektor,
+                    'mulai_kerjasama' => $request->mulai_kerjasama ?? $user->mitraPerusahaan->mulai_kerjasama,
+                    'akhir_kerjasama' => $request->akhir_kerjasama ?? $user->mitraPerusahaan->akhir_kerjasama,
                 ]);
             }
 

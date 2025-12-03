@@ -41,6 +41,11 @@
             @endif
         </a>
 
+        <a href="{{ route('admin.program-studi.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.program-studi.*') ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'text-gray-700 hover:bg-gray-100' }}">
+            <i class="fas fa-graduation-cap"></i>
+            <span class="font-medium">Program Studi</span>
+        </a>
+
         <a href="{{ route('admin.users.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'text-gray-700 hover:bg-gray-100' }}">
             <i class="fas fa-users"></i>
             <span class="font-medium">Pengguna</span>

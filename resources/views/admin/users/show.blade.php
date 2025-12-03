@@ -152,6 +152,14 @@
                         <div class="w-32 text-sm font-medium text-gray-600">Sektor</div>
                         <div class="flex-1 text-sm text-gray-900">{{ $user->mitraPerusahaan->sektor ?? '-' }}</div>
                     </div>
+                    <div class="flex items-start">
+                        <div class="w-32 text-sm font-medium text-gray-600">Mulai Kerjasama</div>
+                        <div class="flex-1 text-sm text-gray-900">{{ $user->mitraPerusahaan->mulai_kerjasama ? \Carbon\Carbon::parse($user->mitraPerusahaan->mulai_kerjasama)->format('d M Y') : '-' }}</div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-32 text-sm font-medium text-gray-600">Akhir Kerjasama</div>
+                        <div class="flex-1 text-sm text-gray-900">{{ $user->mitraPerusahaan->akhir_kerjasama ? \Carbon\Carbon::parse($user->mitraPerusahaan->akhir_kerjasama)->format('d M Y') : '-' }}</div>
+                    </div>
                 </div>
             </div>
         @endif

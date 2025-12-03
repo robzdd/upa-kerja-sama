@@ -7,6 +7,11 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
         <div>
+            <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                <a href="{{ route('mitra.dashboard') }}" class="hover:text-blue-600">Dashboard</a>
+                <span>/</span>
+                <span class="text-gray-700">Lowongan</span>
+            </div>
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Daftar Lowongan</h1>
             <p class="text-gray-600">Kelola lowongan kerja yang telah Anda buat</p>
         </div>
@@ -140,8 +145,7 @@
                                        class="px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition text-sm">
                                         Edit
                                     </a>
-                                    <form action="{{ route('mitra.lowongan.destroy', $job) }}" method="POST" class="inline"
-                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus lowongan ini?')">
+                                    <form action="{{ route('mitra.lowongan.destroy', $job) }}" method="POST" class="inline delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -173,3 +177,29 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Lowongan yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush

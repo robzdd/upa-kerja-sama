@@ -49,7 +49,7 @@
                            name="email" 
                            value="{{ old('email') }}"
                            class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none @error('email') border-red-500 @else border-gray-200 @enderror" 
-                           placeholder="nama@perusahaan.com"
+                           placeholder="Masukkan Email Perusahaan"
                            required 
                            autofocus>
                 </div>
@@ -64,7 +64,7 @@
                                name="password" 
                                id="password"
                                class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none pr-12 @error('password') border-red-500 @else border-gray-200 @enderror" 
-                               placeholder="••••••••"
+                               placeholder="Masukkan Password"
                                required>
                         <button type="button" 
                                 onclick="togglePassword()"
@@ -80,7 +80,7 @@
                         <input type="checkbox" name="remember" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition">
                         <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-800 transition">Ingat saya</span>
                     </label>
-                    <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium transition">Lupa password?</a>
+                    <a href="{{ route('mitra.password.request') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium transition">Lupa password?</a>
                 </div>
 
                 <!-- Submit Button -->
@@ -107,14 +107,6 @@
                 <i class="fas fa-user-plus mr-2"></i>
                 Daftar Sebagai Mitra
             </a>
-
-            <!-- Back to Home -->
-            <div class="mt-6 text-center">
-                <a href="{{ route('home') }}" class="text-sm text-gray-500 hover:text-gray-700 transition inline-flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Kembali ke Beranda
-                </a>
-            </div>
         </div>
 
         <!-- Footer -->

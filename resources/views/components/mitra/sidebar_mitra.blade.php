@@ -3,10 +3,10 @@
     <!-- Logo/Brand -->
     <div class="p-6 border-b border-slate-800 flex items-center space-x-3">
         <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-            <span class="text-white font-bold text-lg">MP</span>
+            <span class="text-white font-bold text-lg">M</span>
         </div>
         <div>
-            <h2 class="font-bold text-lg tracking-wide">Mitra Pro</h2>
+            <h2 class="font-bold text-lg tracking-wide">Mitra Panel</h2>
             <p class="text-xs text-slate-400">Partner Portal</p>
         </div>
     </div>

@@ -1,33 +1,37 @@
 @extends('mitra.layouts.app')
 
-@section('title', 'Buat Lowongan - Mitra Perusahaan')
+@section('title', 'Edit Lowongan - Mitra Perusahaan')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
     <!-- Header -->
     <div class="mb-8">
-        <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+        <div class="flex items-center gap-2 text-sm text-gray-500 mb-2 ml-14">
             <a href="{{ route('mitra.dashboard') }}" class="hover:text-blue-600">Dashboard</a>
             <span>/</span>
             <a href="{{ route('mitra.lowongan.index') }}" class="hover:text-blue-600">Lowongan</a>
             <span>/</span>
-            <span class="text-gray-700">Buat Lowongan</span>
+            <span class="text-gray-700">Edit Lowongan</span>
         </div>
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Buat Lowongan Kerja</h1>
-        <p class="text-gray-600">Isi informasi lowongan kerja yang akan ditampilkan kepada kandidat</p>
+        <div class="flex items-center gap-4 mb-2">
+            
+            <h1 class="text-3xl font-bold text-gray-800">Edit Lowongan Kerja</h1>
+        </div>
+        <p class="text-gray-600 ml-14">Perbarui informasi lowongan kerja</p>
     </div>
 
     <!-- Form -->
     <div class="bg-white rounded-xl shadow-sm p-8">
-        <form action="{{ route('mitra.lowongan.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('mitra.lowongan.update', $lowongan->id) }}" method="POST" class="space-y-6">
             @csrf
+            @method('PUT')
 
             <!-- Basic Information -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
                     <label for="judul" class="block text-sm font-medium text-gray-700 mb-2">Judul Lowongan *</label>
-                    <input type="text" id="judul" name="judul" value="{{ old('judul') }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('judul') border-red-500 @enderror"
+                    <input type="text" id="judul" name="judul" value="{{ old('judul', $lowongan->judul) }}"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('judul') border-red-500 @else border-gray-300 @enderror"
                            placeholder="Contoh: UI/UX Designer" required>
                     @error('judul')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -36,8 +40,8 @@
 
                 <div>
                     <label for="posisi" class="block text-sm font-medium text-gray-700 mb-2">Posisi *</label>
-                    <input type="text" id="posisi" name="posisi" value="{{ old('posisi') }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('posisi') border-red-500 @enderror"
+                    <input type="text" id="posisi" name="posisi" value="{{ old('posisi', $lowongan->posisi) }}"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('posisi') border-red-500 @else border-gray-300 @enderror"
                            placeholder="Contoh: UI/UX Designer" required>
                     @error('posisi')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -48,8 +52,8 @@
             <div>
                 <label for="deskripsi" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Singkat *</label>
                 <textarea id="deskripsi" name="deskripsi" rows="3"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('deskripsi') border-red-500 @enderror"
-                          placeholder="Deskripsi singkat tentang lowongan kerja" required>{{ old('deskripsi') }}</textarea>
+                          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('deskripsi') border-red-500 @else border-gray-300 @enderror"
+                          placeholder="Deskripsi singkat tentang lowongan kerja" required>{{ old('deskripsi', $lowongan->deskripsi) }}</textarea>
                 @error('deskripsi')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -59,8 +63,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div>
                     <label for="lokasi" class="block text-sm font-medium text-gray-700 mb-2">Lokasi *</label>
-                    <input type="text" id="lokasi" name="lokasi" value="{{ old('lokasi') }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('lokasi') border-red-500 @enderror"
+                    <input type="text" id="lokasi" name="lokasi" value="{{ old('lokasi', $lowongan->lokasi) }}"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('lokasi') border-red-500 @else border-gray-300 @enderror"
                            placeholder="Contoh: Jakarta, Indonesia" required>
                     @error('lokasi')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -70,13 +74,11 @@
                 <div>
                     <label for="jenis_pekerjaan" class="block text-sm font-medium text-gray-700 mb-2">Jenis Pekerjaan *</label>
                     <select id="jenis_pekerjaan" name="jenis_pekerjaan"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('jenis_pekerjaan') border-red-500 @enderror" required>
+                            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('jenis_pekerjaan') border-red-500 @else border-gray-300 @enderror" required>
                         <option value="">Pilih Jenis Pekerjaan</option>
-                        <option value="Full-Time" {{ old('jenis_pekerjaan') == 'Full-Time' ? 'selected' : '' }}>Full-Time</option>
-                        <option value="Part-Time" {{ old('jenis_pekerjaan') == 'Part-Time' ? 'selected' : '' }}>Part-Time</option>
-                        <option value="Contract" {{ old('jenis_pekerjaan') == 'Contract' ? 'selected' : '' }}>Contract</option>
-                        <option value="Internship" {{ old('jenis_pekerjaan') == 'Internship' ? 'selected' : '' }}>Internship</option>
-                        <option value="Freelance" {{ old('jenis_pekerjaan') == 'Freelance' ? 'selected' : '' }}>Freelance</option>
+                        @foreach(['Full-Time', 'Part-Time', 'Contract', 'Internship', 'Freelance'] as $type)
+                            <option value="{{ $type }}" {{ old('jenis_pekerjaan', $lowongan->jenis_pekerjaan) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                        @endforeach
                     </select>
                     @error('jenis_pekerjaan')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -86,13 +88,11 @@
                 <div>
                     <label for="jenjang_pendidikan" class="block text-sm font-medium text-gray-700 mb-2">Jenjang Pendidikan *</label>
                     <select id="jenjang_pendidikan" name="jenjang_pendidikan"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('jenjang_pendidikan') border-red-500 @enderror" required>
+                            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('jenjang_pendidikan') border-red-500 @else border-gray-300 @enderror" required>
                         <option value="">Pilih Jenjang</option>
-                        <option value="D3" {{ old('jenjang_pendidikan') == 'D3' ? 'selected' : '' }}>D3</option>
-                        <option value="D4" {{ old('jenjang_pendidikan') == 'D4' ? 'selected' : '' }}>D4</option>
-                        <option value="S1" {{ old('jenjang_pendidikan') == 'S1' ? 'selected' : '' }}>S1</option>
-                        <option value="S2" {{ old('jenjang_pendidikan') == 'S2' ? 'selected' : '' }}>S2</option>
-                        <option value="Fresh Graduate" {{ old('jenjang_pendidikan') == 'Fresh Graduate' ? 'selected' : '' }}>Fresh Graduate</option>
+                        @foreach(['D3', 'D4', 'S1', 'S2', 'Fresh Graduate'] as $level)
+                            <option value="{{ $level }}" {{ old('jenjang_pendidikan', $lowongan->jenjang_pendidikan) == $level ? 'selected' : '' }}>{{ $level }}</option>
+                        @endforeach
                     </select>
                     @error('jenjang_pendidikan')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -105,7 +105,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Prodi Diizinkan</label>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     @php
-                        $selectedProdi = old('prodi_diizinkan', []);
+                        $selectedProdi = old('prodi_diizinkan', $lowongan->prodi_diizinkan ?? []);
                     @endphp
                     @foreach($prodi as $p)
                         <label class="flex items-center space-x-2">
@@ -124,7 +124,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     @php
                         $dokumen = ['CV/Resume', 'Portfolio', 'Sertifikat', 'Transkrip Nilai', 'Surat Lamaran', 'KTP'];
-                        $selectedDokumen = old('persyaratan_dokumen', []);
+                        $selectedDokumen = old('persyaratan_dokumen', $lowongan->persyaratan_dokumen ?? []);
                     @endphp
                     @foreach($dokumen as $d)
                         <label class="flex items-center space-x-2">
@@ -141,8 +141,8 @@
             <div>
                 <label for="rincian_lowongan" class="block text-sm font-medium text-gray-700 mb-2">Rincian Lowongan *</label>
                 <textarea id="rincian_lowongan" name="rincian_lowongan" rows="6"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('rincian_lowongan') border-red-500 @enderror"
-                          placeholder="Jelaskan secara detail tentang lowongan kerja, tanggung jawab, dan persyaratan yang dibutuhkan" required>{{ old('rincian_lowongan') }}</textarea>
+                          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('rincian_lowongan') border-red-500 @else border-gray-300 @enderror"
+                          placeholder="Jelaskan secara detail tentang lowongan kerja, tanggung jawab, dan persyaratan yang dibutuhkan" required>{{ old('rincian_lowongan', $lowongan->rincian_lowongan) }}</textarea>
                 @error('rincian_lowongan')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -152,15 +152,15 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
                     <label for="gaji_min" class="block text-sm font-medium text-gray-700 mb-2">Gaji Minimum</label>
-                    <input type="number" id="gaji_min" name="gaji_min" value="{{ old('gaji_min') }}" min="0"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    <input type="number" id="gaji_min" name="gaji_min" value="{{ old('gaji_min', $lowongan->gaji_min) }}" min="0"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('gaji_min') border-red-500 @else border-gray-300 @enderror"
                            placeholder="5000000">
                 </div>
 
                 <div>
                     <label for="gaji_max" class="block text-sm font-medium text-gray-700 mb-2">Gaji Maksimum</label>
-                    <input type="number" id="gaji_max" name="gaji_max" value="{{ old('gaji_max') }}" min="0"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    <input type="number" id="gaji_max" name="gaji_max" value="{{ old('gaji_max', $lowongan->gaji_max) }}" min="0"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('gaji_max') border-red-500 @else border-gray-300 @enderror"
                            placeholder="8000000">
                 </div>
             </div>
@@ -170,8 +170,8 @@
                 <div>
                     <label for="tanggal_penerimaan_lamaran" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Penerimaan Lamaran *</label>
                     <input type="date" id="tanggal_penerimaan_lamaran" name="tanggal_penerimaan_lamaran"
-                           value="{{ old('tanggal_penerimaan_lamaran') }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('tanggal_penerimaan_lamaran') border-red-500 @enderror" required>
+                           value="{{ old('tanggal_penerimaan_lamaran', $lowongan->tanggal_penerimaan_lamaran ? $lowongan->tanggal_penerimaan_lamaran->format('Y-m-d') : '') }}"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('tanggal_penerimaan_lamaran') border-red-500 @else border-gray-300 @enderror" required>
                     @error('tanggal_penerimaan_lamaran')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -180,8 +180,8 @@
                 <div>
                     <label for="tanggal_pengumuman" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pengumuman *</label>
                     <input type="date" id="tanggal_pengumuman" name="tanggal_pengumuman"
-                           value="{{ old('tanggal_pengumuman') }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('tanggal_pengumuman') border-red-500 @enderror" required>
+                           value="{{ old('tanggal_pengumuman', $lowongan->tanggal_pengumuman ? $lowongan->tanggal_pengumuman->format('Y-m-d') : '') }}"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('tanggal_pengumuman') border-red-500 @else border-gray-300 @enderror" required>
                     @error('tanggal_pengumuman')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -195,17 +195,16 @@
                     <select id="pengalaman_minimal" name="pengalaman_minimal"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Pilih Pengalaman</option>
-                        <option value="Fresh Graduate" {{ old('pengalaman_minimal') == 'Fresh Graduate' ? 'selected' : '' }}>Fresh Graduate</option>
-                        <option value="1-2 tahun" {{ old('pengalaman_minimal') == '1-2 tahun' ? 'selected' : '' }}>1-2 tahun</option>
-                        <option value="2-3 tahun" {{ old('pengalaman_minimal') == '2-3 tahun' ? 'selected' : '' }}>2-3 tahun</option>
-                        <option value="3-5 tahun" {{ old('pengalaman_minimal') == '3-5 tahun' ? 'selected' : '' }}>3-5 tahun</option>
-                        <option value="5+ tahun" {{ old('pengalaman_minimal') == '5+ tahun' ? 'selected' : '' }}>5+ tahun</option>
+                        @foreach(['Fresh Graduate', '1-2 tahun', '2-3 tahun', '3-5 tahun', '5+ tahun'] as $exp)
+                            <option value="{{ $exp }}" {{ old('pengalaman_minimal', $lowongan->pengalaman_minimal) == $exp ? 'selected' : '' }}>{{ $exp }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div>
                     <label for="skill_required" class="block text-sm font-medium text-gray-700 mb-2">Skill yang Dibutuhkan</label>
-                    <input type="text" id="skill_required" name="skill_required" value="{{ old('skill_required') }}"
+                    <input type="text" id="skill_required" name="skill_required" 
+                           value="{{ old('skill_required', is_array($lowongan->skill_required) ? implode(', ', $lowongan->skill_required) : $lowongan->skill_required) }}"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            placeholder="Contoh: JavaScript, React, Figma (pisahkan dengan koma)">
                     <p class="text-xs text-gray-500 mt-1">Pisahkan skill dengan koma (,)</p>
@@ -216,11 +215,11 @@
             <div class="flex justify-end space-x-4 pt-6 border-t">
                 <a href="{{ route('mitra.lowongan.index') }}"
                    class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-                    Batal
+                    Kembali
                 </a>
                 <button type="submit"
                         class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                    Buat Lowongan
+                    Simpan Perubahan
                 </button>
             </div>
         </form>

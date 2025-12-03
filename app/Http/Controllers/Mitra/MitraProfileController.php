@@ -64,4 +64,21 @@ class MitraProfileController extends Controller
 
         return back()->with('success', 'Password berhasil diperbarui.');
     }
+
+    public function updateAccount(Request $request)
+    {
+        $user = auth()->guard('mitra')->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        return back()->with('success', 'Informasi akun berhasil diperbarui.');
+    }
 }

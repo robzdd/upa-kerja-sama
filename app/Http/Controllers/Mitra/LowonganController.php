@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mitra;
 use App\Http\Controllers\Controller;
 use App\Models\LowonganPekerjaan;
 use App\Models\MitraPerusahaan;
+use App\Models\ProgramStudi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,7 +23,8 @@ class LowonganController extends Controller
 
     public function create()
     {
-        return view('mitra.lowongan.create');
+        $prodi = ProgramStudi::all();
+        return view('mitra.lowongan.create', compact('prodi'));
     }
 
     public function store(Request $request)
@@ -37,6 +39,8 @@ class LowonganController extends Controller
             'rincian_lowongan' => 'required|string',
             'tanggal_penerimaan_lamaran' => 'required|date',
             'tanggal_pengumuman' => 'required|date',
+            'gaji_min' => 'nullable|numeric|min:0',
+            'gaji_max' => 'nullable|numeric|min:0',
         ]);
 
         $mitra = MitraPerusahaan::where('user_id', Auth::id())->first();
@@ -72,7 +76,8 @@ class LowonganController extends Controller
 
     public function edit(LowonganPekerjaan $lowongan)
     {
-        return view('mitra.lowongan.edit', compact('lowongan'));
+        $prodi = ProgramStudi::all();
+        return view('mitra.lowongan.edit', compact('lowongan', 'prodi'));
     }
 
     public function update(Request $request, LowonganPekerjaan $lowongan)
@@ -87,6 +92,8 @@ class LowonganController extends Controller
             'rincian_lowongan' => 'required|string',
             'tanggal_penerimaan_lamaran' => 'required|date',
             'tanggal_pengumuman' => 'required|date',
+            'gaji_min' => 'nullable|numeric|min:0',
+            'gaji_max' => 'nullable|numeric|min:0',
         ]);
 
         $lowongan->update($request->all());
