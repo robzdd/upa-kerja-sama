@@ -24,7 +24,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-slate-50 text-slate-800 antialiased" x-data="{ sidebarOpen: false }">
     <!-- Sidebar -->
     @include('components.mitra.sidebar_mitra')
 
@@ -32,8 +32,8 @@
     @include('components.mitra.topbar')
 
     <!-- Main Content -->
-    <main class="ml-64 pt-16 min-h-screen transition-all duration-300">
-        <div class="p-6 lg:p-8 max-w-7xl mx-auto">
+    <main class="pt-16 min-h-screen transition-all duration-300" :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-64'">
+        <div class="p-4 lg:p-8 max-w-7xl mx-auto">
             <!-- Breadcrumb -->
             @if(isset($breadcrumbs))
                 <nav class="flex mb-6" aria-label="Breadcrumb">
@@ -101,6 +101,19 @@
             @yield('content')
         </div>
     </main>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div x-show="sidebarOpen" 
+         @click="sidebarOpen = false"
+         x-transition:enter="transition-opacity ease-linear duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-linear duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900/50 z-40 lg:hidden"
+         style="display: none;">
+    </div>
 
     <!-- Logout Form (Hidden) -->
     <form id="logout-form" action="{{ route('mitra.logout') }}" method="POST" style="display: none;">

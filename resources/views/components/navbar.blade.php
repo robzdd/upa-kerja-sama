@@ -24,7 +24,7 @@
 </style>
 
 <header class="fixed top-0 left-0 w-full z-50" id="sticky-nav">
-    <nav class="text-white bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 transition-all duration-300">
+    <nav class="text-white bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 transition-all duration-300" x-data="{ mobileMenuOpen: false }">
         <div class="container mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
                 <!-- Logo & Brand -->
@@ -46,8 +46,9 @@
                     <a href="{{ route('alumni.tentang_kami') }}" class="hover:text-gray-200 transition {{ request()->routeIs('alumni.tentang_kami') ? 'font-semibold border-b-2 border-white pb-1' : '' }}">Tentang Kami</a>
                 </div>
 
-                <!-- User Profile Dropdown or Login Button -->
-                @auth
+                <!-- User Profile Dropdown or Login Button (Desktop) -->
+                <div class="hidden md:flex items-center">
+                    @auth
                     @if(Auth::user()->alumni)
                     <a href="{{ route('alumni.lowongan.tersimpan') }}" class="mr-6 text-white hover:text-blue-200 transition relative group" title="Lowongan Tersimpan">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,6 +115,83 @@
                     <a href="{{ route('alumni.login') }}" class="bg-white text-blue-900 hover:bg-blue-50 px-6 py-2 rounded-full font-semibold transition shadow-lg">
                         Masuk
                     </a>
+                @endauth
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-blue-900/95 backdrop-blur-sm border-t border-white/10">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <a href="{{ Auth::check() ? route('alumni.beranda') : route('home') }}"
+                    class="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('home') || request()->routeIs('alumni.beranda') ? 'bg-white/20' : '' }}">Beranda</a>
+                <a href="{{ route('artikel.page') }}"
+                    class="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('artikel.page') ? 'bg-white/20' : '' }}">Artikel</a>
+                <a href="{{ route('alumni.cari_lowongan') }}"
+                    class="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('alumni.cari_lowongan') ? 'bg-white/20' : '' }}">Cari Lowongan</a>
+                <a href="{{ route('alumni.list_perusahaan') }}"
+                    class="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('alumni.list_perusahaan') ? 'bg-white/20' : '' }}">List Perusahaan</a>
+                <a href="{{ route('alumni.tentang_kami') }}"
+                    class="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('alumni.tentang_kami') ? 'bg-white/20' : '' }}">Tentang Kami</a>
+
+                @auth
+                    <div class="border-t border-white/20 mt-4 pt-4">
+                        <div class="flex items-center px-3">
+                            @php
+                                $user = Auth::user() ?? Auth::guard('mitra')->user();
+                                $foto = $user->foto ?? null;
+                            @endphp
+                            @if ($foto)
+                                <img src="{{ asset('storage/' . $foto) }}" alt="Profile Photo" class="w-10 h-10 rounded-full object-cover border border-white/30">
+                            @else
+                                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center border border-white/30">
+                                    <span class="text-gray-700 font-semibold text-lg">
+                                        {{ Str::upper(substr($user->name ?? 'U', 0, 1)) }}
+                                    </span>
+                                </div>
+                            @endif
+                            <div class="ml-3">
+                                <div class="text-base font-medium text-white">{{ $user->name ?? 'User' }}</div>
+                                <div class="text-sm font-medium text-gray-300">{{ $user->email ?? '' }}</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 space-y-1">
+                            @if(Auth::user()->alumni)
+                                <a href="{{ route('alumni.lowongan.tersimpan') }}" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 transition">
+                                    Lowongan Tersimpan
+                                    @php
+                                        $savedCount = Auth::user()->alumni->savedJobs()->count();
+                                    @endphp
+                                    @if($savedCount > 0)
+                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500 text-white">
+                                            {{ $savedCount }}
+                                        </span>
+                                    @endif
+                                </a>
+                            @endif
+                            <a href="{{ route('alumni.cv.index') }}" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 transition">Profile</a>
+                            <form method="POST" action="{{ Auth::user() ? route('alumni.logout') : route('mitra.logout') }}">
+                                @csrf
+                                <button type="submit" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 transition">Logout</button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <div class="mt-4 px-3">
+                        <a href="{{ route('alumni.login') }}" class="block w-full text-center bg-white text-blue-900 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition shadow-lg">
+                            Masuk
+                        </a>
+                    </div>
                 @endauth
             </div>
         </div>

@@ -79,16 +79,17 @@
             </div>
         </div>
         <a href="{{ route('admin.users.create', ['type' => 'alumni']) }}"
-           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+           class="w-full md:w-auto inline-flex justify-center items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
             Tambah User
         </a>
     </div>
-<!-- Search and Filter Bar -->
+
+    <!-- Search and Filter Bar -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-        <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-col md:flex-row gap-4">
+        <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-col lg:flex-row gap-4">
             <input type="hidden" name="type" value="{{ $type }}">
             
             <div class="flex-1 relative">
@@ -104,43 +105,39 @@
                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200">
             </div>
             
-            <div class="flex gap-2">
+            <div class="flex flex-col sm:flex-row gap-2">
                 <button type="submit"
-                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-md">
-                    <span class="flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        Cari
-                    </span>
+                        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-md flex justify-center items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Cari
                 </button>
                 
                 @if($search)
                     <a href="{{ route('admin.users.index', ['type' => $type]) }}"
-                       class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200">
-                        <span class="flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            Reset
-                        </span>
+                       class="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200 flex justify-center items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Reset
                     </a>
                 @endif
             </div>
         </form>
 
         @if($search)
-            <div class="mt-4 text-sm text-gray-600">
+            <div class="mt-4 text-sm text-gray-600 text-center sm:text-left">
                 Menampilkan hasil pencarian untuk: <span class="font-semibold text-gray-900">"{{ $search }}"</span>
             </div>
         @endif
     </div>
 
     <!-- Filter Tabs -->
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-2">
-        <div class="flex flex-wrap gap-2">
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-2 overflow-x-auto">
+        <div class="flex gap-2 min-w-max">
             <a href="{{ route('admin.users.index', ['type' => 'all']) }}"
-               class="px-6 py-3 rounded-xl font-medium transition-all duration-200 {{ $type == 'all' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md' : 'bg-gray-50 text-gray-700 hover:bg-gray-100' }}">
+               class="px-6 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap {{ $type == 'all' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md' : 'bg-gray-50 text-gray-700 hover:bg-gray-100' }}">
                 <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -149,7 +146,7 @@
                 </span>
             </a>
             <a href="{{ route('admin.users.index', ['type' => 'alumni']) }}"
-               class="px-6 py-3 rounded-xl font-medium transition-all duration-200 {{ $type == 'alumni' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md' : 'bg-gray-50 text-gray-700 hover:bg-gray-100' }}">
+               class="px-6 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap {{ $type == 'alumni' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md' : 'bg-gray-50 text-gray-700 hover:bg-gray-100' }}">
                 <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
@@ -158,7 +155,7 @@
                 </span>
             </a>
             <a href="{{ route('admin.users.index', ['type' => 'mitra']) }}"
-               class="px-6 py-3 rounded-xl font-medium transition-all duration-200 {{ $type == 'mitra' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md' : 'bg-gray-50 text-gray-700 hover:bg-gray-100' }}">
+               class="px-6 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap {{ $type == 'mitra' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md' : 'bg-gray-50 text-gray-700 hover:bg-gray-100' }}">
                 <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>

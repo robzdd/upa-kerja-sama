@@ -43,7 +43,7 @@ Route::get('/dokumen/{id}/download', [DokumenPublikController::class, 'download'
 
 // Public Access for Job Search & Companies
 Route::get('/cari_lowongan', [JobSearchController::class, 'index'])->name('alumni.cari_lowongan');
-Route::get('/lowongan/{id}/details', [JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
+Route::get('/lowongan/{lowongan}/details', [JobSearchController::class, 'show'])->name('lowongan.details');
 Route::get('/list_perusahaan', [CompanyController::class, 'index'])->name('alumni.list_perusahaan');
 Route::get('/perusahaan/{id}', [CompanyController::class, 'show'])->name('alumni.detail_perusahaan');
 
@@ -268,6 +268,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('mitra-requests/{id}/reject', [\App\Http\Controllers\Admin\MitraRequestController::class, 'reject'])->name('mitra-requests.reject');
 
         // Reports Routes
-        Route::resource('reports', ReportController::class);
+        Route::get('/reports/download', [ReportController::class, 'download'])->name('reports.download');
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     });
 });

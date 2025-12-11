@@ -168,8 +168,8 @@
                 </div>
 
                 <!-- Tabs -->
-                <div class="bg-white rounded-t-xl shadow-sm border border-gray-100 border-b-0">
-                    <div class="flex space-x-1 p-2">
+                <div class="bg-white rounded-t-xl shadow-sm border border-gray-100 border-b-0 overflow-x-auto">
+                    <div class="flex space-x-1 p-2 min-w-max">
                         <button class="tab-button flex-1 py-3 px-6 text-sm font-semibold rounded-lg transition-all duration-200 bg-blue-600 text-white" data-tab="data-pribadi">
                             <div class="flex items-center justify-center space-x-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

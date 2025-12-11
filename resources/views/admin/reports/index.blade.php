@@ -22,10 +22,10 @@
 
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-900">Laporan & Statistik</h2>
-        <button onclick="window.print()" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2">
-            <i class="fas fa-print"></i>
-            <span>Cetak Laporan</span>
-        </button>
+        <a href="{{ route('admin.reports.download', request()->only(['start_date', 'end_date'])) }}" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center space-x-2 shadow-sm transition">
+            <i class="fas fa-file-pdf"></i>
+            <span>Export PDF</span>
+        </a>
     </div>
 
     <!-- Summary Cards -->

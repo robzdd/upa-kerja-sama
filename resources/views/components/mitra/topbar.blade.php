@@ -1,8 +1,16 @@
 <!-- Topbar Component -->
-<nav class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 shadow-sm ml-64 z-40 transition-all duration-300">
-    <div class="h-full flex items-center justify-between px-6">
+<nav class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 shadow-sm z-40 transition-all duration-300"
+     :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-64'">
+    <div class="h-full flex items-center justify-between px-4 lg:px-6">
         <!-- Left Section -->
         <div class="flex items-center space-x-4">
+            <!-- Hamburger Menu (Mobile) -->
+            <button @click="sidebarOpen = true" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+
             <h1 class="text-xl font-bold text-gray-800 tracking-tight">
                 @yield('title', 'Dashboard')
             </h1>

@@ -34,8 +34,8 @@
             <!-- Logo Upload -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-3">Logo Perusahaan</label>
-                <div class="flex items-start space-x-6">
-                    <div class="flex-shrink-0">
+                <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
+                    <div class="flex-shrink-0 mx-auto sm:mx-0">
                         <div class="w-32 h-32 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden relative group hover:border-blue-400 transition">
                             @if($mitra->logo)
                                 <img id="logo-preview" src="{{ asset('storage/' . $mitra->logo) }}" alt="Logo" class="w-full h-full object-contain p-2">
@@ -59,9 +59,9 @@
                             <input type="file" name="logo" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewImage(this)">
                         </div>
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 text-center sm:text-left">
                         <p class="text-sm text-gray-600 mb-2">Unggah logo perusahaan Anda</p>
-                        <ul class="text-xs text-gray-500 space-y-1">
+                        <ul class="text-xs text-gray-500 space-y-1 inline-block sm:block text-left">
                             <li>• Format: PNG, JPG, JPEG, GIF</li>
                             <li>• Ukuran maksimal: 2MB</li>
                             <li>• Rekomendasi: Rasio 1:1 (persegi)</li>

@@ -82,7 +82,7 @@ class JobSearchController extends Controller
     public function show(LowonganPekerjaan $lowongan)
     {
         $lowongan->load('mitra');
-        return view('alumni.detail_lowongan', compact('lowongan'));
+        return view('alumni.lowongan_detail', compact('lowongan'));
     }
 
     public function getJobDetails($id)

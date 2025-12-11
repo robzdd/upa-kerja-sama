@@ -38,26 +38,26 @@
         </div>
 
         <!-- Hero Content -->
-        <div class="container mx-auto px-6 py-20 relative z-10">
+        <div class="container mx-auto px-4 md:px-6 py-12 md:py-20 relative z-10">
             <div class="text-center max-w-4xl mx-auto">
                 <!-- Portal Kerja Polindra Label -->
-                <div class="inline-block mb-8 animate-fade-in-down">
-                    <span class="text-sm font-semibold bg-white/15 backdrop-blur-md px-6 py-2 rounded-full border border-white/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                <div class="inline-block mb-6 md:mb-8 animate-fade-in-down">
+                    <span class="text-xs md:text-sm font-semibold bg-white/15 backdrop-blur-md px-4 md:px-6 py-2 rounded-full border border-white/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
                         Portal Karir Polindra
                     </span>
                 </div>
                 <!-- Main Heading -->
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)] animate-fade-in-up">
-                    Temukan Pekerjaan Impian<br>
-                    Sesuai Dengan Skill dan<br>
+                <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 leading-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)] animate-fade-in-up">
+                    Temukan Pekerjaan Impian<br class="hidden md:block">
+                    Sesuai Dengan Skill dan<br class="hidden md:block">
                     Passion Anda
                 </h1>
                 <!-- Subheading -->
-                <p class="text-lg md:text-xl text-blue-50 mb-10 animate-fade-in-up delay-100 drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
+                <p class="text-base md:text-xl text-blue-50 mb-8 md:mb-10 animate-fade-in-up delay-100 drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)] px-4">
                     Temukan dan daftar pekerjaan dengan mudah
                 </p>
                 <!-- CTA Button -->
-                <a href="{{ route('alumni.cari_lowongan') }}" class="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-12 py-4 rounded-full font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.7)] transform hover:-translate-y-1 animate-bounce-subtle">
+                <a href="{{ route('alumni.cari_lowongan') }}" class="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 md:px-12 py-3 md:py-4 rounded-full font-bold text-base md:text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.7)] transform hover:-translate-y-1 animate-bounce-subtle">
                     Temukan Pekerjaan
                 </a>
             </div>
@@ -335,7 +335,7 @@
         </style>
         <div class="logo-track">
             <div class="flex animate-scroll">
-                @for ($i = 0; $i < 10; $i++)
+                @for ($i = 0; $i < 1; $i++)
                 <div class="flex items-center space-x-8 px-4">
                     @foreach ($mitra as $item)
                         <div class="flex items-center justify-center h-16 w-32 grayscale hover:grayscale-0 transition duration-300">

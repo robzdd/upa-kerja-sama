@@ -15,59 +15,73 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        $data = $this->getReportData($request);
+        return view('admin.reports.index', $data);
+    }
+
+    public function download(Request $request)
+    {
+        $data = $this->getReportData($request);
+        
+        $pdf = app('dompdf.wrapper')->loadView('admin.reports.pdf', $data);
+        return $pdf->download('Laporan-UPA-Polindra-' . $data['startDate'] . '-to-' . $data['endDate'] . '.pdf');
+    }
+
+    private function getReportData(Request $request)
+    {
         // 1. Validation & Sanitization
         try {
             $startDate = Carbon::parse($request->input('start_date', Carbon::now()->subYear()->startOfMonth()->format('Y-m-d')));
             $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d')));
         } catch (\Exception $e) {
-            // Fallback if invalid dates provided
             $startDate = Carbon::now()->subYear()->startOfMonth();
             $endDate = Carbon::now()->endOfMonth();
         }
 
         // 2. Logic Mitigation: Ensure Start <= End
         if ($startDate->gt($endDate)) {
-            // Swap dates automatically
             $temp = $startDate;
             $startDate = $endDate;
             $endDate = $temp;
             
-            session()->flash('warning', 'Tanggal awal ditemukan lebih besar dari tanggal akhir. Rentang waktu telah disesuaikan otomatis.');
+            if (!$request->routeIs('admin.reports.download')) {
+                session()->flash('warning', 'Tanggal awal ditemukan lebih besar dari tanggal akhir. Rentang waktu telah disesuaikan otomatis.');
+            }
         }
 
-        // Format for query and view
-        $startDate = $startDate->format('Y-m-d');
-        $endDate = $endDate->format('Y-m-d');
+        // Format for query
+        $startStr = $startDate->format('Y-m-d');
+        $endStr = $endDate->format('Y-m-d');
 
-        // 3. Summary Statistics (Filtered by Date)
-        $totalAlumni = User::role('alumni')->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
-        $totalMitra = MitraPerusahaan::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
-        $totalLowongan = LowonganPekerjaan::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
-        $totalLamaran = Pelamar::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
+        // 3. Summary Statistics
+        $totalAlumni = User::role('alumni')->whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59'])->count();
+        $totalMitra = MitraPerusahaan::whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59'])->count();
+        $totalLowongan = LowonganPekerjaan::whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59'])->count();
+        $totalLamaran = Pelamar::whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59'])->count();
 
-        // 4. User Growth Chart (Alumni & Mitra)
+        // 4. User Growth
         $userGrowth = User::select(
             DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
             DB::raw("COUNT(*) as count")
         )
-        ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+        ->whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59'])
         ->groupBy('month')
         ->orderBy('month')
         ->get();
 
-        // 5. Lowongan Growth Chart
+        // 5. Lowongan Growth
         $lowonganGrowth = LowonganPekerjaan::select(
             DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
             DB::raw("COUNT(*) as count")
         )
-        ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+        ->whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59'])
         ->groupBy('month')
         ->orderBy('month')
         ->get();
 
-        // 6. Lamaran Status Distribution (Pie Chart)
+        // 6. Lamaran Status
         $lamaranStatus = Pelamar::select('status', DB::raw('count(*) as total'))
-            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59'])
             ->groupBy('status')
             ->pluck('total', 'status')
             ->toArray();
@@ -77,7 +91,6 @@ class ReportController extends Controller
         $userCounts = [];
         $lowonganCounts = [];
 
-        // Generate labels for the selected range
         $period = \Carbon\CarbonPeriod::create($startDate, '1 month', $endDate);
         foreach ($period as $date) {
             $monthKey = $date->format('Y-m');
@@ -87,24 +100,38 @@ class ReportController extends Controller
             $lowonganCounts[] = $lowonganGrowth->where('month', $monthKey)->first()->count ?? 0;
         }
 
-        // 5. Top Companies by Job Postings
+        // 7. Top Companies
         $topCompanies = MitraPerusahaan::withCount('lowongan')
             ->orderBy('lowongan_count', 'desc')
             ->take(5)
             ->get();
 
-        return view('admin.reports.index', compact(
-            'totalAlumni',
-            'totalMitra',
-            'totalLowongan',
-            'totalLamaran',
-            'months',
-            'userCounts',
-            'lowonganCounts',
-            'lamaranStatus',
-            'startDate',
-            'endDate',
-            'topCompanies'
-        ));
+        // 8. Alumni Distribution by Program Studi
+        $alumniByProdi = \App\Models\ProgramStudi::withCount(['alumni' => function($query) use ($startStr, $endStr) {
+            $query->whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59']);
+        }])->get();
+
+        // 9. Recent Vacancies (Activity)
+        $recentLowongan = LowonganPekerjaan::with('mitra')
+            ->whereBetween('created_at', [$startStr . ' 00:00:00', $endStr . ' 23:59:59'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return [
+            'totalAlumni' => $totalAlumni,
+            'totalMitra' => $totalMitra,
+            'totalLowongan' => $totalLowongan,
+            'totalLamaran' => $totalLamaran,
+            'months' => $months,
+            'userCounts' => $userCounts,
+            'lowonganCounts' => $lowonganCounts,
+            'lamaranStatus' => $lamaranStatus,
+            'startDate' => $startStr,
+            'endDate' => $endStr,
+            'topCompanies' => $topCompanies,
+            'alumniByProdi' => $alumniByProdi,
+            'recentLowongan' => $recentLowongan
+        ];
     }
 }

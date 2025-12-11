@@ -46,5 +46,7 @@ class AdminProfileController extends Controller
             ->route('admin.profile.edit')
             ->with('success', 'Profile berhasil diperbarui.');
     }
+
+
 }
 
