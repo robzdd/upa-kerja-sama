@@ -123,8 +123,8 @@
             </div>
 
             <!-- Tabs -->
-            <div class="border-b border-gray-200 mb-6">
-                <div class="flex space-x-6">
+            <div class="border-b border-gray-200 mb-6 overflow-x-auto">
+                <div class="flex space-x-6 min-w-max pb-1">
                     <button class="pb-3 px-1 border-b-2 border-blue-600 text-blue-600 font-semibold text-sm" onclick="showTab('data-pribadi')">
                         Data Pribadi
                     </button>

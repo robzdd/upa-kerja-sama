@@ -336,6 +336,16 @@
 
             // Fetch job details and update the right side
             fetchJobDetails(jobId);
+
+            // Scroll to detail view on mobile
+            if (window.innerWidth < 1024) {
+                const jobDetail = document.getElementById('job-detail');
+                if (jobDetail) {
+                    setTimeout(() => {
+                        jobDetail.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                }
+            }
         }
 
         function fetchJobDetails(jobId) {

@@ -5,13 +5,18 @@
 @section('content')
 <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Daftar Lowongan</h1>
-            <p class="text-gray-600">Kelola lowongan kerja yang telah Anda buat</p>
+            <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                <a href="{{ route('mitra.dashboard') }}" class="hover:text-blue-600">Dashboard</a>
+                <span>/</span>
+                <span class="text-gray-700">Lowongan</span>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-1">Daftar Lowongan</h1>
+            <p class="text-gray-600 text-sm">Kelola lowongan kerja yang telah Anda buat</p>
         </div>
         <a href="{{ route('mitra.lowongan.create') }}"
-           class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
+           class="w-full md:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center space-x-2 touch-manipulation">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -20,7 +25,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
         <div class="bg-white p-6 rounded-xl shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
@@ -86,9 +91,9 @@
                 <div class="space-y-4">
                     @foreach($lowongan as $job)
                         <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <div class="flex items-center space-x-3 mb-2">
+                            <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+                                <div class="flex-1 w-full">
+                                    <div class="flex flex-wrap items-center gap-3 mb-2">
                                         <h3 class="text-lg font-bold text-gray-800">{{ $job->judul }}</h3>
                                         @if($job->status_aktif)
                                             <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Aktif</span>
@@ -99,7 +104,7 @@
 
                                     <p class="text-gray-600 text-sm mb-3">{{ $job->mitra->nama_perusahaan }}</p>
 
-                                    <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                                    <div class="flex flex-wrap gap-3 text-sm text-gray-600 mb-4">
                                         <div class="flex items-center space-x-1">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -121,9 +126,9 @@
                                         </div>
                                     </div>
 
-                                    <p class="text-sm text-gray-600 mb-4">{{ Str::limit($job->deskripsi, 150) }}</p>
+                                    <p class="text-sm text-gray-600 mb-4 line-clamp-2 md:line-clamp-none">{{ Str::limit($job->deskripsi, 150) }}</p>
 
-                                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                    <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500">
                                         <span>Dibuat: {{ $job->created_at->format('d M Y') }}</span>
                                         @if($job->tanggal_penerimaan_lamaran)
                                             <span>Deadline: {{ \Carbon\Carbon::parse($job->tanggal_penerimaan_lamaran)->format('d M Y') }}</span>
@@ -131,21 +136,20 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center space-x-2 ml-4">
+                                <div class="flex flex-row md:flex-col gap-2 w-full md:w-auto mt-4 md:mt-0">
                                     <a href="{{ route('mitra.lowongan.show', $job) }}"
-                                       class="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition text-sm">
+                                       class="flex-1 md:flex-none text-center px-4 py-2 text-blue-600 hover:bg-blue-50 bg-blue-50/50 md:bg-transparent rounded-lg transition text-sm">
                                         Lihat
                                     </a>
                                     <a href="{{ route('mitra.lowongan.edit', $job) }}"
-                                       class="px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition text-sm">
+                                       class="flex-1 md:flex-none text-center px-4 py-2 text-green-600 hover:bg-green-50 bg-green-50/50 md:bg-transparent rounded-lg transition text-sm">
                                         Edit
                                     </a>
-                                    <form action="{{ route('mitra.lowongan.destroy', $job) }}" method="POST" class="inline"
-                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus lowongan ini?')">
+                                    <form action="{{ route('mitra.lowongan.destroy', $job) }}" method="POST" class="inline delete-form flex-1 md:flex-none">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                                class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition text-sm">
+                                                class="w-full px-4 py-2 text-red-600 hover:bg-red-50 bg-red-50/50 md:bg-transparent rounded-lg transition text-sm">
                                             Hapus
                                         </button>
                                     </form>
@@ -173,3 +177,29 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Lowongan yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush

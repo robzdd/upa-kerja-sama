@@ -18,6 +18,7 @@ use App\Http\Controllers\Alumni\ApplicationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\ProgramStudiController;
 use App\Http\Controllers\Mitra\MitraDashboardController;
 use App\Http\Controllers\Alumni\AlumniAkademikController;
 use App\Http\Controllers\Mitra\Auth\MitraLoginController;
@@ -42,7 +43,7 @@ Route::get('/dokumen/{id}/download', [DokumenPublikController::class, 'download'
 
 // Public Access for Job Search & Companies
 Route::get('/cari_lowongan', [JobSearchController::class, 'index'])->name('alumni.cari_lowongan');
-Route::get('/lowongan/{id}/details', [JobSearchController::class, 'getJobDetails'])->name('lowongan.details');
+Route::get('/lowongan/{lowongan}/details', [JobSearchController::class, 'show'])->name('lowongan.details');
 Route::get('/list_perusahaan', [CompanyController::class, 'index'])->name('alumni.list_perusahaan');
 Route::get('/perusahaan/{id}', [CompanyController::class, 'show'])->name('alumni.detail_perusahaan');
 
@@ -64,6 +65,12 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
         Route::get('/register', 'showRegisterForm')->name('register'); // New Register Route
         Route::post('/register', 'register')->name('register.submit'); // Submit Register
         Route::post('/logout', 'logout')->name('logout');
+        
+        // Password Reset Routes
+        Route::get('/password/reset', 'showForgotPasswordForm')->name('password.request');
+        Route::post('/password/email', 'sendResetLinkEmail')->name('password.email');
+        Route::get('/password/reset/{token}', 'showResetPasswordForm')->name('password.reset');
+        Route::post('/password/reset', 'resetPassword')->name('password.update');
     });
 
     // ---------- HALAMAN PUBLIK (Moved to Global) ----------
@@ -149,14 +156,10 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
 
         // Security Routes
         Route::prefix('security')->name('security.')->group(function () {
-            Route::get('/settings', function() {
-                $user = Auth::user();
-                return view('alumni.pengaturan_keamanan', compact('user'));
-            })->name('settings');
-            Route::post('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
-            Route::post('/update-profile', [ProfileController::class, 'updateProfile'])->name('update-profile');
-            Route::delete('/delete-account', [ProfileController::class, 'deleteAccount'])->name('delete-account');
-            Route::post('/deactivate-account', [ProfileController::class, 'deactivateAccount'])->name('deactivate-account');
+            Route::get('/settings', [\App\Http\Controllers\Alumni\AlumniSecurityController::class, 'settings'])->name('settings');
+            Route::post('/update-password', [\App\Http\Controllers\Alumni\AlumniSecurityController::class, 'updatePassword'])->name('update-password');
+            Route::post('/deactivate-account', [\App\Http\Controllers\Alumni\AlumniSecurityController::class, 'deactivateAccount'])->name('deactivate-account');
+            Route::post('/delete-account', [\App\Http\Controllers\Alumni\AlumniSecurityController::class, 'deleteAccount'])->name('delete-account');
         });
 
     
@@ -177,6 +180,12 @@ Route::prefix('mitra')->name('mitra.')->group(function () {
         Route::get('/login', 'showLoginForm')->name('login');
         Route::post('/login', 'login')->name('login.submit');
         Route::post('/logout', 'logout')->name('logout');
+        
+        // Password Reset Routes
+        Route::get('/password/reset', 'showForgotPasswordForm')->name('password.request');
+        Route::post('/password/email', 'sendResetLinkEmail')->name('password.email');
+        Route::get('/password/reset/{token}', 'showResetPasswordForm')->name('password.reset');
+        Route::post('/password/reset', 'resetPassword')->name('password.update');
     });
 
     // ---------- REGISTRATION ----------
@@ -203,6 +212,8 @@ Route::prefix('mitra')->name('mitra.')->group(function () {
         Route::controller(\App\Http\Controllers\Mitra\MitraProfileController::class)->group(function () {
             Route::get('/profile', 'index')->name('profile.index');
             Route::put('/profile', 'update')->name('profile.update');
+            Route::put('/profile/account', 'updateAccount')->name('profile.update-account');
+            Route::put('/profile/password', 'updatePassword')->name('profile.update-password');
             Route::get('/settings', 'settings')->name('settings.index');
             Route::put('/settings/password', 'updatePassword')->name('settings.password');
         });
@@ -237,6 +248,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // User Management Routes
         Route::resource('users', UserManagementController::class);
 
+        // Program Studi Routes
+        Route::resource('program-studi', ProgramStudiController::class);
+
         // Artikel Routes
         Route::resource('artikel', ArtikelController::class);
 
@@ -254,6 +268,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('mitra-requests/{id}/reject', [\App\Http\Controllers\Admin\MitraRequestController::class, 'reject'])->name('mitra-requests.reject');
 
         // Reports Routes
-        Route::resource('reports', ReportController::class);
+        Route::get('/reports/download', [ReportController::class, 'download'])->name('reports.download');
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     });
 });

@@ -17,13 +17,7 @@
         <div class="container mx-auto px-6 pt-16 pb-24 relative z-10">
             <div class="flex flex-col lg:flex-row items-center gap-12">
                 <div class="lg:w-1/2 text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-8 animate-fade-in-down">
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                        </span>
-                        <span class="text-sm font-medium text-blue-100">Portal Karir Resmi Politeknik Indramayu</span>
-                    </div>
+
 
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fade-in-up">
                         Membangun Masa Depan <br>
@@ -48,16 +42,21 @@
                 <div class="lg:w-1/2 relative animate-fade-in-up delay-300">
                     <div class="relative z-10 bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl transform rotate-2 hover:rotate-0 transition-all duration-500">
                         <div class="flex items-center gap-4 mb-6 border-b border-white/10 pb-4">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold">P</div>
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold shadow-lg">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            </div>
                             <div>
                                 <h3 class="font-semibold text-lg">Lowongan Terbaru</h3>
-                                <p class="text-sm text-blue-200">Update Real-time</p>
+                                <p class="text-sm text-blue-200 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                                    Update Real-time
+                                </p>
                             </div>
                         </div>
                         <div class="space-y-4">
-                            @foreach($latest_jobs->take(3) as $job)
-                            <div class="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
-                                <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0">
+                            @forelse($latest_jobs->take(3) as $job)
+                            <a href="{{ route('lowongan.details', $job->id) }}" class="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group border border-white/5 hover:border-white/20">
+                                <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                                     @if($job->mitra && $job->mitra->logo)
                                         <img src="{{ asset('storage/' . $job->mitra->logo) }}" alt="{{ $job->mitra->nama_perusahaan }}" class="w-full h-full object-cover">
                                     @else
@@ -68,11 +67,21 @@
                                     <h4 class="font-medium truncate group-hover:text-blue-300 transition-colors">{{ $job->posisi }}</h4>
                                     <p class="text-xs text-blue-200 truncate">{{ $job->mitra->nama_perusahaan ?? 'Perusahaan' }} • {{ $job->lokasi }}</p>
                                 </div>
-                                <div class="text-xs px-2 py-1 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                <div class="hidden sm:block text-xs px-2 py-1 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30">
                                     {{ $job->jenis_pekerjaan }}
                                 </div>
+                            </a>
+                            @empty
+                            <div class="text-center py-8">
+                                <div class="mb-3 flex justify-center">
+                                    <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                        <svg class="w-8 h-8 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-blue-100 font-medium">Belum ada lowongan baru</p>
+                                <p class="text-xs text-blue-300">Cek kembali nanti ya!</p>
                             </div>
-                            @endforeach
+                            @endforelse
                         </div>
                     </div>
 
@@ -177,7 +186,7 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('alumni.cari_lowongan') }}" class="block w-full py-3 px-4 bg-gray-50 hover:bg-blue-600 text-gray-700 hover:text-white text-center rounded-xl font-medium transition-all duration-300">
+                    <a href="{{ route('lowongan.details', $job->id) }}" class="block w-full py-3 px-4 bg-gray-50 hover:bg-blue-600 text-gray-700 hover:text-white text-center rounded-xl font-medium transition-all duration-300">
                         Lihat Detail
                     </a>
                 </div>
@@ -249,7 +258,7 @@
                     </div>
                     @endforeach
                      @if($partners->count() == 0)
-                        @for($i=0; $i<5; $i++)
+                        @for($i=0; $i<10; $i++)
                         <div class="flex items-center justify-center w-40 h-24 opacity-40">
                             <span class="font-bold text-xl text-gray-400">MITRA {{ $i+1 }}</span>
                         </div>

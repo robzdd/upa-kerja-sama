@@ -17,7 +17,8 @@ class GuestController extends Controller
         // Fetch latest 4 active jobs
         $latest_jobs = LowonganPekerjaan::with('mitra')
             ->where('status_aktif', true)
-            ->where('tanggal_selesai', '>=', now())
+            ->where('status_aktif', true)
+            // ->where('tanggal_selesai', '>=', now())
             ->latest()
             ->take(4)
             ->get();

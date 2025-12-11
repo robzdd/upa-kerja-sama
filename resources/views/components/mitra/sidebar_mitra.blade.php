@@ -1,14 +1,23 @@
 <!-- Sidebar Component -->
-<aside class="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white shadow-xl z-50 flex flex-col transition-all duration-300">
+<aside class="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white shadow-xl z-50 flex flex-col transition-transform duration-300 lg:translate-x-0"
+       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
     <!-- Logo/Brand -->
-    <div class="p-6 border-b border-slate-800 flex items-center space-x-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-            <span class="text-white font-bold text-lg">MP</span>
+    <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <span class="text-white font-bold text-lg">M</span>
+            </div>
+            <div>
+                <h2 class="font-bold text-lg tracking-wide">Mitra Panel</h2>
+                <p class="text-xs text-slate-400">Partner Portal</p>
+            </div>
         </div>
-        <div>
-            <h2 class="font-bold text-lg tracking-wide">Mitra Pro</h2>
-            <p class="text-xs text-slate-400">Partner Portal</p>
-        </div>
+        <!-- Close Button (Mobile) -->
+        <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
     </div>
 
     <!-- Navigation Menu -->

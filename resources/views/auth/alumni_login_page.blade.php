@@ -110,7 +110,7 @@
 
                     <!-- Forgot Password Link -->
                     <div class="text-right mb-6">
-                        <a href="#" class="text-sm text-gray-600 hover:text-blue-900 transition">Lupa Password?</a>
+                        <a href="{{ route('alumni.password.request') }}" class="text-sm text-gray-600 hover:text-blue-900 transition">Lupa Password?</a>
                     </div>
 
                     <!-- Login Button -->

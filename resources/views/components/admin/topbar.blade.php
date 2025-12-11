@@ -1,5 +1,12 @@
 <header class="bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
     <div class="flex items-center justify-between px-6 py-4">
+        <!-- Mobile Sidebar Toggle -->
+        <button @click="sidebarOpen = true" class="lg:hidden mr-4 text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+
         <!-- Search Bar -->
         <div class="flex items-center flex-1 max-w-xl" x-data="{ 
             searchQuery: '', 
@@ -175,9 +182,118 @@
             </div>
 
             <!-- Help Button -->
-            <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
-                <i class="fas fa-question-circle text-xl"></i>
-            </button>
+            <div x-data="{ helpOpen: false }">
+                <button @click="helpOpen = true" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition relative group">
+                    <i class="fas fa-question-circle text-xl"></i>
+                    <span class="absolute top-full right-0 mt-2 w-max px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
+                        Bantuan
+                    </span>
+                </button>
+
+                <!-- Help Modal Backdrop -->
+                <div x-show="helpOpen" 
+                     @click="helpOpen = false"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="fixed inset-0 bg-gray-900/50 z-[60]"
+                     style="display: none;">
+                </div>
+
+                <!-- Help Modal Content -->
+                <div x-show="helpOpen" 
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
+                     
+                    <div @click.stop class="bg-white rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto flex flex-col max-h-[90vh]">
+                        <!-- Header -->
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-gray-900">Pusat Bantuan</h3>
+                            <button @click="helpOpen = false" class="text-gray-400 hover:text-gray-600 transition">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+
+                        <!-- Content - Scrollable -->
+                        <div class="p-6 overflow-y-auto">
+                            <div class="space-y-6">
+                                <!-- Quick Actions -->
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Aksi Cepat</h4>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <a href="{{ route('admin.users.create', ['type' => 'alumni']) }}" class="flex items-center p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition text-blue-700">
+                                            <div class="w-8 h-8 bg-blue-200 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-user-plus text-sm"></i>
+                                            </div>
+                                            <span class="text-sm font-medium">Tambah Alumni</span>
+                                        </a>
+                                        <a href="{{ route('admin.artikel.create') }}" class="flex items-center p-3 bg-purple-50 rounded-xl hover:bg-purple-100 transition text-purple-700">
+                                            <div class="w-8 h-8 bg-purple-200 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-newspaper text-sm"></i>
+                                            </div>
+                                            <span class="text-sm font-medium">Tulis Artikel</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Keyboard Shortcuts -->
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Panduan Singkat</h4>
+                                    <div class="bg-gray-50 rounded-xl p-4 space-y-3">
+                                        <div class="flex items-start">
+                                            <div class="text-blue-500 mt-1 mr-3">
+                                                <i class="fas fa-info-circle"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-600">
+                                                <span class="font-semibold text-gray-900">Manajemen User:</span> 
+                                                Kelola data Alumni dan Mitra. Anda bisa memverifikasi, mengedit, atau menghapus pengguna.
+                                            </p>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <div class="text-blue-500 mt-1 mr-3">
+                                                <i class="fas fa-chart-line"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-600">
+                                                <span class="font-semibold text-gray-900">Dashboard:</span> 
+                                                Pantau statistik pendaftaran dan aktivitas lowongan secara real-time.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Support Contacts -->
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Butuh Bantuan Teknis?</h4>
+                                    <a href="mailto:support@polindra.ac.id" class="flex items-center p-4 border border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-sm transition group">
+                                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 group-hover:bg-blue-50 group-hover:text-blue-600 transition mr-4">
+                                            <i class="fas fa-envelope"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 group-hover:text-blue-600">Hubungi Tim IT</p>
+                                            <p class="text-xs text-gray-500">support@polindra.ac.id</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100">
+                            <p class="text-xs text-center text-gray-500">
+                                Unit Penunjang Akademik - Politeknik Negeri Indramayu &copy; {{ date('Y') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <!-- Profile Dropdown -->
             <div class="relative" x-data="{ open: false }">
@@ -212,11 +328,6 @@
                         <a href="{{ route('admin.profile.edit') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
                             <i class="fas fa-user w-5 mr-3"></i>
                             Edit Profile
-                        </a>
-                        
-                        <a href="#" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
-                            <i class="fas fa-cog w-5 mr-3"></i>
-                            Pengaturan
                         </a>
                     </div>
 

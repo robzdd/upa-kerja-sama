@@ -24,7 +24,7 @@
         @endif
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
             <!-- Total Pelamar -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between">
@@ -128,16 +128,16 @@
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-3">
-                    <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors">
-                        <div class="flex items-center space-x-2">
+                <div class="flex flex-col md:flex-row items-center gap-3 mt-4 md:mt-0">
+                    <button type="submit" class="w-full md:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors">
+                        <div class="flex items-center justify-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                             </svg>
                             <span>Filter</span>
                         </div>
                     </button>
-                    <a href="{{ route('mitra.pelamar.index') }}" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors">
+                    <a href="{{ route('mitra.pelamar.index') }}" class="w-full md:w-auto px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors text-center">
                         Reset
                     </a>
                 </div>
@@ -168,19 +168,21 @@
                 <div id="bulkActions" class="hidden mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <form method="POST" action="{{ route('mitra.pelamar.bulk-update-status') }}" onsubmit="return confirm('Yakin ingin mengubah status pelamar yang dipilih?')">
                         @csrf
-                        <div class="flex items-center space-x-4">
-                            <p class="text-sm font-medium text-gray-700">
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+                            <p class="text-sm font-medium text-gray-700 whitespace-nowrap">
                                 <span id="selectedCount">0</span> pelamar dipilih
                             </p>
-                            <select name="status" required class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <option value="">Pilih Status</option>
-                                <option value="pending">Menunggu Review</option>
-                                <option value="diterima">Terima</option>
-                                <option value="ditolak">Tolak</option>
-                            </select>
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-                                Update Status
-                            </button>
+                            <div class="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+                                <select name="status" required class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Pilih Status</option>
+                                    <option value="pending">Menunggu Review</option>
+                                    <option value="diterima">Terima</option>
+                                    <option value="ditolak">Tolak</option>
+                                </select>
+                                <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                                    Update Status
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>

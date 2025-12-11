@@ -35,8 +35,19 @@
                     <!-- Profile Avatar -->
                     <!-- Profile Avatar -->
                     <div class="text-center mb-6">
+                        <!-- Edit Photo Label -->
+                        <div class="mb-3">
+                            <span class="inline-flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>KLIK UNTUK EDIT FOTO</span>
+                            </span>
+                        </div>
+
                         <div class="relative inline-block group">
-                            <label for="profile-photo-input-edit" class="cursor-pointer block relative">
+                            <label for="profile-photo-input-edit" class="cursor-pointer block relative" title="Klik untuk mengganti foto profil">
                                 @if($alumni->profile_photo)
                                     <img src="{{ asset('storage/' . $alumni->profile_photo) }}" alt="Profile Photo" class="w-24 h-24 mx-auto rounded-full object-cover ring-4 ring-blue-50 group-hover:opacity-75 transition duration-300">
                                 @else
@@ -49,9 +60,12 @@
                                 
                                 <!-- Hover Overlay with Pencil Icon -->
                                 <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-full opacity-0 group-hover:opacity-100 transition duration-300">
-                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                                    </svg>
+                                    <div class="text-center">
+                                        <svg class="w-8 h-8 text-white mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                        </svg>
+                                        <p class="text-white text-xs font-semibold mt-1">Edit Foto</p>
+                                    </div>
                                 </div>
                                 
                                 <!-- Online Status Dot (Optional, kept for consistency) -->
@@ -77,6 +91,15 @@
                                 <input type="file" id="profile-photo-input-edit" name="profile_photo" accept="image/*" class="hidden" onchange="document.getElementById('photo-upload-form-edit').submit()">
                             </form>
                         </div>
+                        
+                        <!-- Helper Text -->
+                        <p class="text-xs text-gray-500 mt-3">
+                            <svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Klik foto untuk mengganti
+                        </p>
+
                         <h3 class="text-xl font-bold text-gray-800">{{ auth()->user()->name }}</h3>
                         <p class="text-sm text-gray-500 mt-1">{{ auth()->user()->email }}</p>
                         @if($alumni->programStudi)
@@ -145,8 +168,8 @@
                 </div>
 
                 <!-- Tabs -->
-                <div class="bg-white rounded-t-xl shadow-sm border border-gray-100 border-b-0">
-                    <div class="flex space-x-1 p-2">
+                <div class="bg-white rounded-t-xl shadow-sm border border-gray-100 border-b-0 overflow-x-auto">
+                    <div class="flex space-x-1 p-2 min-w-max">
                         <button class="tab-button flex-1 py-3 px-6 text-sm font-semibold rounded-lg transition-all duration-200 bg-blue-600 text-white" data-tab="data-pribadi">
                             <div class="flex items-center justify-center space-x-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
