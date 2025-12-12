@@ -88,7 +88,19 @@ class JobSearchController extends Controller
     public function getJobDetails($id)
     {
         $job = LowonganPekerjaan::with('mitra')->findOrFail($id);
-        return response()->json($job);
+        
+        $hasApplied = false;
+        if (Auth::check()) {
+            $hasApplied = \App\Models\Pelamar::where('user_id', Auth::id())
+                ->where('lowongan_id', $id)
+                ->exists();
+        }
+
+        $response = $job->toArray();
+        $response['has_applied'] = $hasApplied;
+        $response['mitra'] = $job->mitra;
+
+        return response()->json($response);
     }
 
     public function getRecommendations(Request $request)

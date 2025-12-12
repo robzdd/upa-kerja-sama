@@ -73,16 +73,20 @@
                         <button @click="open = !open"
                                 class="flex items-center w-44 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2 focus:outline-none transition group">
                             <!-- Foto atau Inisial -->
+                            @php
+                                $foto = $user->foto ?? null;
+                                if($user->alumni && $user->alumni->profile_photo) {
+                                    $foto = $user->alumni->profile_photo;
+                                }
+                            @endphp
                             @if ($foto)
                                 <img src="{{ asset('storage/' . $foto) }}"
                                      alt="Profile Photo"
                                      class="w-9 h-9 rounded-lg object-cover border border-white/30">
                             @else
-                                <div class="w-9 h-9 bg-gray-300 rounded-lg flex items-center justify-center border border-white/30">
-                                    <span class="text-gray-700 font-semibold text-lg">
-                                        {{ Str::upper(substr($user->name ?? 'U', 0, 1)) }}
-                                    </span>
-                                </div>
+                                <img src="https://api.dicebear.com/9.x/adventurer/svg?seed={{ urlencode($user->name ?? 'User') }}"
+                                     alt="Profile Photo"
+                                     class="w-9 h-9 rounded-lg object-cover border border-white/30">
                             @endif
 
                             <!-- Nama -->
@@ -150,15 +154,16 @@
                             @php
                                 $user = Auth::user() ?? Auth::guard('mitra')->user();
                                 $foto = $user->foto ?? null;
+                                if($user->alumni && $user->alumni->profile_photo) {
+                                    $foto = $user->alumni->profile_photo;
+                                }
                             @endphp
                             @if ($foto)
                                 <img src="{{ asset('storage/' . $foto) }}" alt="Profile Photo" class="w-10 h-10 rounded-full object-cover border border-white/30">
                             @else
-                                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center border border-white/30">
-                                    <span class="text-gray-700 font-semibold text-lg">
-                                        {{ Str::upper(substr($user->name ?? 'U', 0, 1)) }}
-                                    </span>
-                                </div>
+                                <img src="https://api.dicebear.com/9.x/adventurer/svg?seed={{ urlencode($user->name ?? 'User') }}"
+                                     alt="Profile Photo"
+                                     class="w-10 h-10 rounded-full object-cover border border-white/30">
                             @endif
                             <div class="ml-3">
                                 <div class="text-base font-medium text-white">{{ $user->name ?? 'User' }}</div>

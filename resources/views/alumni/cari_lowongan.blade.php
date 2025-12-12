@@ -365,7 +365,7 @@
                 </div>
             `;
 
-            fetch(`/lowongan/${jobId}/details`)
+            fetch(`/lowongan/${jobId}/json`)
                 .then(response => {
                     console.log('Response status:', response.status);
                     if (!response.ok) {
@@ -448,9 +448,14 @@
 
                 <!-- Apply Button -->
                 ${isAuth ? 
-                    `<a href="/alumni/lowongan/${job.id}/apply" class="block w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6 text-center">
-                        Daftar Sekarang
-                    </a>` : 
+                    (job.has_applied ? 
+                        `<button onclick="showAlreadyAppliedAlert()" class="block w-full bg-gray-400 text-white py-3 rounded-lg cursor-not-allowed font-semibold mb-6 text-center">
+                            Sudah Dilamar
+                        </button>` :
+                        `<a href="/alumni/lowongan/${job.id}/apply" class="block w-full bg-gradient-to-r from-blue-900 to-purple-700 text-white py-3 rounded-lg hover:from-blue-800 hover:to-purple-600 transition font-semibold mb-6 text-center">
+                            Daftar Sekarang
+                        </a>`
+                    ) : 
                     `<button onclick="showLoginAlert()" class="block w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white py-3 rounded-lg hover:from-gray-600 hover:to-gray-700 transition font-semibold mb-6 text-center">
                         Daftar Sekarang
                     </button>`
@@ -801,6 +806,20 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = "{{ route('alumni.login') }}";
+                }
+            });
+        }
+
+        function showAlreadyAppliedAlert() {
+            Swal.fire({
+                title: 'Sudah Dilamar',
+                text: "Anda sudah mengirimkan lamaran untuk posisi ini. Silakan cek status lamaran Anda di menu Aplikasi Saya.",
+                icon: 'info',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Cek Aplikasi Saya'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    window.location.href = "{{ route('alumni.applications') }}";
                 }
             });
         }
