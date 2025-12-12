@@ -141,6 +141,34 @@
         </div>
     </div>
 
+    <!-- AI Analysis Overlay -->
+    <div id="ai-overlay" class="fixed inset-0 z-50 bg-gray-900/90 backdrop-blur-sm hidden flex-col items-center justify-center transition-opacity duration-300">
+        <!-- Scanning Animation Circle -->
+        <div class="relative w-32 h-32 mb-8">
+            <div class="absolute inset-0 border-4 border-blue-500/30 rounded-full animate-ping"></div>
+            <div class="absolute inset-0 border-4 border-purple-500/30 rounded-full animate-pulse decoration-clone"></div>
+            <div class="absolute inset-0 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+            
+            <!-- Center Icon -->
+            <div class="absolute inset-0 flex items-center justify-center">
+                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Text Animation -->
+        <h3 id="ai-loading-text" class="text-2xl font-bold text-white mb-2 text-center">Menganalisis Profil...</h3>
+        <p class="text-blue-200 text-sm animate-pulse">Mohon tunggu sebentar</p>
+
+        <!-- Progress Steps -->
+        <div class="mt-8 flex space-x-2">
+            <div class="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style="animation-delay: 0s"></div>
+            <div class="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style="animation-delay: 0.2s"></div>
+            <div class="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style="animation-delay: 0.4s"></div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <div class="container mx-auto px-6 pb-16">
         <!-- Stats -->
@@ -512,89 +540,93 @@
 
         // AI Recommendation Functions
         function getAIRecommendations() {
-            const btn = document.getElementById('ai-recommendation-btn');
-            const btnText = document.getElementById('ai-btn-text');
-            const btnIcon = document.getElementById('ai-btn-icon');
-            const btnLoading = document.getElementById('ai-btn-loading');
+            const overlay = document.getElementById('ai-overlay');
+            const loadingText = document.getElementById('ai-loading-text');
             const statsDiv = document.getElementById('recommendation-stats');
-            const jobListContainer = document.getElementById('job-list-container');
-
-            // Disable button and show loading
-            btn.disabled = true;
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
-            btnText.textContent = 'Sedang menganalisis profil Anda...';
-            btnIcon.classList.add('hidden');
-            btnLoading.classList.remove('hidden');
-
-            // Hide stats initially
+            
+            // Show overlay
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            // Reset state
             statsDiv.classList.add('hidden');
+            
+            // Animation sequence for text
+            const messages = [
+                "Menganalisis Profil Alumni...",
+                "Mencocokkan Skill & Pengalaman...",
+                "Menilai Kecocokan Program Studi...",
+                "Menyelaraskan Minat & Bakat...",
+                "Menyusun Rekomendasi Fit..."
+            ];
+            
+            let msgIndex = 0;
+            const msgInterval = setInterval(() => {
+                msgIndex = (msgIndex + 1) % messages.length;
+                loadingText.innerText = messages[msgIndex];
+            }, 800);
 
-            // Make AJAX call
-            fetch('{{ route("alumni.lowongan.recommendations") }}', {
+            // Minimum 3.5 seconds delay for effect
+            const minDelay = new Promise(resolve => setTimeout(resolve, 3500));
+            
+            const fetchPromise = fetch('{{ route("alumni.lowongan.recommendations") }}', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update statistics
-                    document.getElementById('stats-match-text').textContent = 
-                        `(${data.average_match}%) pekerjaan cocok dengan kamu`;
-                    document.getElementById('stats-jobs-text').textContent = 
-                        `Ditemukan ${data.total_jobs} pekerjaan yang cocok`;
+            }).then(response => response.json());
+
+            // Wait for BOTH (delay + data)
+            Promise.all([minDelay, fetchPromise])
+                .then(([_, data]) => {
+                    clearInterval(msgInterval);
                     
-                    // Show statistics
-                    statsDiv.classList.remove('hidden');
+                    if (data.success) {
+                        // Update UI
+                        document.getElementById('stats-match-text').textContent = 
+                            `(${data.average_match}%) pekerjaan cocok dengan kamu`;
+                        document.getElementById('stats-jobs-text').textContent = 
+                            `Ditemukan ${data.total_jobs} pekerjaan yang cocok`;
+                        
+                        statsDiv.classList.remove('hidden');
+                        updateJobListWithRecommendations(data.jobs);
+                    } else {
+                        Swal.fire({
+                            title: 'Oops!',
+                            text: data.message || 'Gagal mendapatkan rekomendasi',
+                            icon: 'warning',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'OK'
+                        });
+                    }
 
-                    // Update job list with recommendations
-                    updateJobListWithRecommendations(data.jobs);
-
-                    // Reset button
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
-                    btnText.textContent = 'Coba rekomendasi pekerjaan menggunakan AI';
-                    btnIcon.classList.remove('hidden');
-                    btnLoading.classList.add('hidden');
-                } else {
-                    // Show error message
+                    // Hide overlay
+                    overlay.classList.add('opacity-0');
+                    setTimeout(() => {
+                        overlay.classList.remove('flex');
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('opacity-0');
+                        loadingText.innerText = "Menganalisis Profil..."; // Reset text
+                    }, 300);
+                })
+                .catch(error => {
+                    clearInterval(msgInterval);
+                    console.error('Error fetching recommendations:', error);
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                    
                     Swal.fire({
-                        title: 'Oops!',
-                        text: data.message || 'Gagal mendapatkan rekomendasi',
-                        icon: 'warning',
+                        title: 'Error',
+                        text: 'Terjadi kesalahan saat mendapatkan rekomendasi. Silakan coba lagi.',
+                        icon: 'error',
                         confirmButtonColor: '#3085d6',
                         confirmButtonText: 'OK'
                     });
-
-                    // Reset button
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
-                    btnText.textContent = 'Coba rekomendasi pekerjaan menggunakan AI';
-                    btnIcon.classList.remove('hidden');
-                    btnLoading.classList.add('hidden');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching recommendations:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Terjadi kesalahan saat mendapatkan rekomendasi. Silakan coba lagi.',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'OK'
                 });
-
-                // Reset button
-                btn.disabled = false;
-                btn.classList.remove('opacity-75', 'cursor-not-allowed');
-                btnText.textContent = 'Coba rekomendasi pekerjaan menggunakan AI';
-                btnIcon.classList.remove('hidden');
-                btnLoading.classList.add('hidden');
-            });
         }
+
 
         function updateJobListWithRecommendations(jobs) {
             const jobListContainer = document.getElementById('job-list-container');

@@ -138,7 +138,22 @@ class CvController extends Controller
     {
         try {
             $user = Auth::user();
-            $alumni = Alumni::where('user_id', $user->id)->first();
+            $alumni = Alumni::where('user_id', $user->id)
+                ->with([
+                    'dataKeluarga',
+                    'dokumenPendukung',
+                    'programStudi',
+                    'riwayatPendidikan' => function($query) {
+                        $query->orderBy('tahun_masuk', 'desc');
+                    },
+                    'pengalamanKerja' => function($query) {
+                        $query->orderBy('mulai_kerja', 'desc');
+                    },
+                    'sertifikasi' => function($query) {
+                        $query->orderBy('mulai_berlaku', 'desc');
+                    }
+                ])
+                ->first();
 
             if (!$alumni) {
                 return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
@@ -158,6 +173,20 @@ class CvController extends Controller
 
             $alumni->cv_generated = true;
             $alumni->save();
+
+            // GENERATE PDF AND SAVE TO STORAGE
+            $pdf = Pdf::loadView('alumni.cv.pdf', compact('alumni'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'isHtml5ParserEnabled' => true,
+                    'isRemoteEnabled' => true, 
+                    'defaultFont' => 'sans-serif'
+                ]);
+
+            $filename = 'cv_' . $alumni->id . '.pdf';
+            $path = 'cv_generated/' . $filename;
+            
+            \Illuminate\Support\Facades\Storage::disk('public')->put($path, $pdf->output());
 
             return redirect()->back()->with('success', 'CV berhasil di-generate! Anda sekarang dapat melihat dan membagikan CV Anda.');
         } catch (\Exception $e) {
@@ -247,40 +276,50 @@ class CvController extends Controller
     {
         try {
             $user = Auth::user();
-            
-            $alumni = Alumni::where('user_id', $user->id)
-                ->with([
-                    'dataKeluarga',
-                    'dokumenPendukung',
-                    'programStudi',
-                    'riwayatPendidikan' => function($query) {
-                        $query->orderBy('tahun_masuk', 'desc');
-                    },
-                    'pengalamanKerja' => function($query) {
-                        $query->orderBy('mulai_kerja', 'desc');
-                    },
-                    'sertifikasi' => function($query) {
-                        $query->orderBy('mulai_berlaku', 'desc');
-                    }
-                ])
-                ->first();
+            $alumni = $user->alumni;
 
             if (!$alumni || !$alumni->cv_generated) {
                 return redirect()->back()->with('error', 'CV belum di-generate. Silakan generate CV terlebih dahulu.');
             }
 
-            // Generate PDF from preview view
-            $pdf = Pdf::loadView('alumni.cv.preview', compact('alumni'))
-                ->setPaper('a4', 'portrait')
-                ->setOptions([
-                    'isHtml5ParserEnabled' => true,
-                    'isRemoteEnabled' => true,
-                    'defaultFont' => 'sans-serif'
-                ]);
+            $filename = 'cv_' . $alumni->id . '.pdf';
+            $path = 'cv_generated/' . $filename;
+            $downloadName = 'CV_' . ($alumni->nama_lengkap ?? $user->name) . '.pdf';
 
-            $filename = 'CV_' . ($alumni->nama_lengkap ?? $user->name) . '_' . date('Y-m-d') . '.pdf';
+            // Check if file exists, if not generate it
+            if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+                // FALLBACK: Generate if missing
+                
+                // Re-load alumni with relations
+                $alumni = Alumni::where('user_id', $user->id)
+                    ->with([
+                        'dataKeluarga',
+                        'programStudi',
+                        'riwayatPendidikan' => function($query) {
+                            $query->orderBy('tahun_masuk', 'desc');
+                        },
+                        'pengalamanKerja' => function($query) {
+                            $query->orderBy('mulai_kerja', 'desc');
+                        },
+                        'sertifikasi' => function($query) {
+                            $query->orderBy('mulai_berlaku', 'desc');
+                        }
+                    ])
+                    ->first();
+
+                $pdf = Pdf::loadView('alumni.cv.pdf', compact('alumni'))
+                    ->setPaper('a4', 'portrait')
+                    ->setOptions([
+                        'isHtml5ParserEnabled' => true,
+                        'isRemoteEnabled' => true, 
+                        'defaultFont' => 'sans-serif'
+                    ]);
+                
+                \Illuminate\Support\Facades\Storage::disk('public')->put($path, $pdf->output());
+            }
             
-            return $pdf->download($filename);
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+            return response()->download($fullPath, $downloadName);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan saat download CV: ' . $e->getMessage());
         }

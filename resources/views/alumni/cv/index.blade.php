@@ -158,9 +158,15 @@
 
                     <!-- Public CV Buttons (only show if CV is generated) -->
                     @if($alumni && $alumni->cv_uri)
-                    <a href="{{ route('cv.public', $alumni->cv_uri) }}" target="_blank" class="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors text-sm">
-                        Lihat CV Publik
-                    </a>
+                    @if($alumni->cv_public)
+                        <a href="{{ route('cv.public', $alumni->cv_uri) }}" target="_blank" class="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                            Lihat CV Publik
+                        </a>
+                    @else
+                        <button type="button" class="px-4 py-2 bg-purple-300 text-white font-medium rounded-lg cursor-not-allowed text-sm" title="CV harus diset Publik terlebih dahulu">
+                            Lihat CV Publik
+                        </button>
+                    @endif
                     <form method="POST" action="{{ route('alumni.cv.toggle-public') }}" class="inline">
                         @csrf
                         <button type="submit" class="px-4 py-2 {{ $alumni->cv_public ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700' }} text-white font-medium rounded-lg transition-colors text-sm">

@@ -12,8 +12,12 @@ class JobSearchController extends Controller
 {
     public function index(Request $request)
     {
-        $query = LowonganPekerjaan::with(['mitra']) // Changed 'mitra' to ['mitra']
-            ->where('status_aktif', true);
+        $query = LowonganPekerjaan::with(['mitra'])
+            ->where('status_aktif', true)
+            ->where(function ($q) {
+                $q->whereDate('tanggal_penerimaan_lamaran', '>=', now())
+                  ->orWhereNull('tanggal_penerimaan_lamaran');
+            });
 
         // Search filters
         if ($request->filled('posisi')) {

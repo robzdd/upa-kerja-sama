@@ -96,7 +96,11 @@
                                     <div class="flex flex-wrap items-center gap-3 mb-2">
                                         <h3 class="text-lg font-bold text-gray-800">{{ $job->judul }}</h3>
                                         @if($job->status_aktif)
-                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Aktif</span>
+                                            @if($job->tanggal_penerimaan_lamaran && $job->tanggal_penerimaan_lamaran < now())
+                                                <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">Kadaluarsa</span>
+                                            @else
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Aktif</span>
+                                            @endif
                                         @else
                                             <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Ditutup</span>
                                         @endif

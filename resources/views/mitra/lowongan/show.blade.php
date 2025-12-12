@@ -92,7 +92,11 @@
                         <div>
                             <span class="text-xs text-gray-400 block mb-1">Status</span>
                             @if($lowongan->status_aktif)
-                                <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Aktif</span>
+                                @if($lowongan->tanggal_penerimaan_lamaran && $lowongan->tanggal_penerimaan_lamaran < now())
+                                    <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">Kadaluarsa</span>
+                                @else
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Aktif</span>
+                                @endif
                             @else
                                 <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">Tidak Aktif</span>
                             @endif
