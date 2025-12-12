@@ -22,7 +22,18 @@ class LamaranController extends Controller
     {
         $lowongan = LowonganPekerjaan::with('mitra')->findOrFail($id);
         
-        return response()->json($lowongan);
+        $hasApplied = false;
+        if (Auth::check()) {
+            $hasApplied = Pelamar::where('user_id', Auth::id())
+                ->where('lowongan_id', $id)
+                ->exists();
+        }
+        
+        $response = $lowongan->toArray();
+        $response['has_applied'] = $hasApplied;
+        $response['mitra'] = $lowongan->mitra; // Ensure relation is preserved
+        
+        return response()->json($response);
     }
     
     public function show($id)

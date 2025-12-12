@@ -44,6 +44,8 @@ Route::get('/dokumen/{id}/download', [DokumenPublikController::class, 'download'
 // Public Access for Job Search & Companies
 Route::get('/cari_lowongan', [JobSearchController::class, 'index'])->name('alumni.cari_lowongan');
 Route::get('/lowongan/{lowongan}/details', [JobSearchController::class, 'show'])->name('lowongan.details');
+// JSON Route for AJAX
+Route::get('/lowongan/{id}/json', [JobSearchController::class, 'getJobDetails'])->name('lowongan.json');
 Route::get('/list_perusahaan', [CompanyController::class, 'index'])->name('alumni.list_perusahaan');
 Route::get('/perusahaan/{id}', [CompanyController::class, 'show'])->name('alumni.detail_perusahaan');
 

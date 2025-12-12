@@ -12,8 +12,12 @@ class JobSearchController extends Controller
 {
     public function index(Request $request)
     {
-        $query = LowonganPekerjaan::with(['mitra']) // Changed 'mitra' to ['mitra']
-            ->where('status_aktif', true);
+        $query = LowonganPekerjaan::with(['mitra'])
+            ->where('status_aktif', true)
+            ->where(function ($q) {
+                $q->whereDate('tanggal_penerimaan_lamaran', '>=', now())
+                  ->orWhereNull('tanggal_penerimaan_lamaran');
+            });
 
         // Search filters
         if ($request->filled('posisi')) {
@@ -88,7 +92,19 @@ class JobSearchController extends Controller
     public function getJobDetails($id)
     {
         $job = LowonganPekerjaan::with('mitra')->findOrFail($id);
-        return response()->json($job);
+        
+        $hasApplied = false;
+        if (Auth::check()) {
+            $hasApplied = \App\Models\Pelamar::where('user_id', Auth::id())
+                ->where('lowongan_id', $id)
+                ->exists();
+        }
+
+        $response = $job->toArray();
+        $response['has_applied'] = $hasApplied;
+        $response['mitra'] = $job->mitra;
+
+        return response()->json($response);
     }
 
     public function getRecommendations(Request $request)
