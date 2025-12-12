@@ -38,7 +38,7 @@ class ReportController extends Controller
             $endDate = Carbon::now()->endOfMonth();
         }
 
-        // 2. Logic Mitigation: Ensure Start <= End
+        // 2. Logic Mitigation: Ensure Start <= EnD
         if ($startDate->gt($endDate)) {
             $temp = $startDate;
             $startDate = $endDate;
