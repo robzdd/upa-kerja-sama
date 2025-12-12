@@ -179,7 +179,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <!-- Left Side - Job Listings (40%) -->
             <div class="lg:col-span-2 space-y-2">
-                <div id="job-list-container">
+                <div id="job-list-container" class="space-y-4">
                     @include('alumni.partials.job_list')
                 </div>
             </div>
